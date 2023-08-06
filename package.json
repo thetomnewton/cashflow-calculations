@@ -1,0 +1,16 @@
+{
+  "name": "cashflow-calculations",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Tom Newton",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.6.2",
+    "prettier": "^3.0.1",
+    "typescript": "^5.1.6"
+  }
+}
