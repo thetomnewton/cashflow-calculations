@@ -1,9 +1,6 @@
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
+import { date } from '../lib/date'
 import { Cashflow, Person } from '../types'
 import { v4 as uuid } from 'uuid'
-
-dayjs.extend(utc)
 
 type FactoryPerson = Partial<Person> & Pick<Person, 'legal_sex'>
 type FactoryCashflow = Partial<Cashflow> & Pick<Cashflow, 'people'>
@@ -19,7 +16,7 @@ export function makePerson(params: FactoryPerson): Person {
   return {
     id: params.id ?? uuid(),
     date_of_birth:
-      params.date_of_birth ?? dayjs.utc('1970-01-01 00:00:00').toISOString(),
+      params.date_of_birth ?? date('1970-01-01 00:00:00').toISOString(),
     tax_residency: params.tax_residency ?? 'uk',
     legal_sex: params.legal_sex,
     mpaa_triggered: params.mpaa_triggered ?? false,
@@ -31,10 +28,9 @@ export function makePerson(params: FactoryPerson): Person {
 export function makeCashflow(params: FactoryCashflow): Cashflow {
   return {
     id: params.id ?? uuid(),
-    starts_at: params.starts_at ?? dayjs.utc().startOf('day').toISOString(),
+    starts_at: params.starts_at ?? date().startOf('day').toISOString(),
     ends_at:
-      params.starts_at ??
-      dayjs.utc().startOf('day').add(1, 'year').toISOString(),
+      params.starts_at ?? date().startOf('day').add(1, 'year').toISOString(),
     people: params.people,
     assumptions: params.assumptions
       ? { ...params.assumptions, ...defaultAssumptions }
