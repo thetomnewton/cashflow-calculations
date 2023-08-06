@@ -1,6 +1,7 @@
-import { Cashflow } from '../src/types'
-import { v4 as uuid } from 'uuid'
 import dayjs from 'dayjs'
+import { v4 as uuid } from 'uuid'
+import { Cashflow } from '../src/types'
+import { run } from '../src/calculations'
 
 describe('basic tests', () => {
   test('can create a cashflow', () => {
@@ -17,6 +18,8 @@ describe('basic tests', () => {
         average_earnings_increase: 0.025,
       },
     }
+
+    const out = run(cashflow)
 
     expect(2 + 2).toBe(4)
   })
