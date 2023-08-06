@@ -15,7 +15,8 @@ const defaultAssumptions: Cashflow['assumptions'] = {
 export function makePerson(params: FactoryPerson): Person {
   return {
     id: params.id ?? uuid(),
-    date_of_birth: params.date_of_birth ?? dayjs('1970-01-01').toISOString(),
+    date_of_birth:
+      params.date_of_birth ?? dayjs('1970-01-01').startOf('day').toISOString(),
     tax_residency: params.tax_residency ?? 'uk',
     legal_sex: params.legal_sex,
     mpaa_triggered: params.mpaa_triggered ?? false,
@@ -27,8 +28,9 @@ export function makePerson(params: FactoryPerson): Person {
 export function makeCashflow(params: FactoryCashflow): Cashflow {
   return {
     id: params.id ?? uuid(),
-    starts_at: params.starts_at ?? dayjs().toISOString(),
-    ends_at: params.starts_at ?? dayjs().add(1, 'year').toISOString(),
+    starts_at: params.starts_at ?? dayjs().startOf('day').toISOString(),
+    ends_at:
+      params.starts_at ?? dayjs().startOf('day').add(1, 'year').toISOString(),
     people: params.people,
     assumptions: params.assumptions
       ? { ...params.assumptions, ...defaultAssumptions }
