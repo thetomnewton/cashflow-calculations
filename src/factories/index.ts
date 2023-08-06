@@ -16,7 +16,7 @@ export function makePerson(params: FactoryPerson): Person {
   return {
     id: params.id ?? uuid(),
     date_of_birth:
-      params.date_of_birth ?? dayjs('1970-01-01').startOf('day').toISOString(),
+      params.date_of_birth ?? dayjs('1970-01-01 00:00:00').toISOString(),
     tax_residency: params.tax_residency ?? 'uk',
     legal_sex: params.legal_sex,
     mpaa_triggered: params.mpaa_triggered ?? false,

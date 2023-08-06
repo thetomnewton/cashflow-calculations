@@ -10,7 +10,9 @@ describe('basic tests', () => {
 
     const out = run(cashflow)
 
-    expect(out.starts_at).toBe(dayjs().toISOString())
-    expect(out.ends_at).toBe(dayjs().add(1, 'year').toISOString())
+    expect(out.starts_at).toBe(dayjs().startOf('day').toISOString())
+    expect(out.ends_at).toBe(
+      dayjs().startOf('day').add(1, 'year').toISOString()
+    )
   })
 })
