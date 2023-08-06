@@ -23,7 +23,7 @@ export interface Person {
   id: string
   date_of_birth: string
   tax_residency: string
-  legal_sex: 'male' | 'female'
+  sex: 'male' | 'female'
   mpaa_triggered: boolean
   registered_blind: boolean
   lta_used: number

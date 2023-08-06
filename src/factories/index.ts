@@ -2,7 +2,7 @@ import { date } from '../lib/date'
 import { Cashflow, Person } from '../types'
 import { v4 as uuid } from 'uuid'
 
-type FactoryPerson = Partial<Person> & Pick<Person, 'legal_sex'>
+type FactoryPerson = Partial<Person> & Pick<Person, 'sex'>
 type FactoryCashflow = Partial<Cashflow> & Pick<Cashflow, 'people'>
 
 const defaultAssumptions: Cashflow['assumptions'] = {
@@ -18,7 +18,7 @@ export function makePerson(params: FactoryPerson): Person {
     date_of_birth:
       params.date_of_birth ?? date('1970-01-01 00:00:00').toISOString(),
     tax_residency: params.tax_residency ?? 'uk',
-    legal_sex: params.legal_sex,
+    sex: params.sex,
     mpaa_triggered: params.mpaa_triggered ?? false,
     registered_blind: params.registered_blind ?? false,
     lta_used: params.lta_used ?? 0,

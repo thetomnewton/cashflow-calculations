@@ -5,7 +5,7 @@ import { makeCashflow, makePerson } from '../src/factories'
 describe('initialisation tests', () => {
   test('can create a cashflow', () => {
     const cashflow = makeCashflow({
-      people: [makePerson({ legal_sex: 'male' })],
+      people: [makePerson({ sex: 'male' })],
     })
 
     const out = run(cashflow)
@@ -17,7 +17,7 @@ describe('initialisation tests', () => {
   test('can set cashflow params', () => {
     const startDate = date('2023-04-06').toISOString()
     const cashflow = makeCashflow({
-      people: [makePerson({ legal_sex: 'male' })],
+      people: [makePerson({ sex: 'male' })],
       starts_at: startDate,
     })
 
