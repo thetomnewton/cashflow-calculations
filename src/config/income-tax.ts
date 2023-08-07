@@ -24,10 +24,18 @@ const bands: Band[] = [
   },
 ]
 
-const knownRates = {
+type KnownRatesType = {
+  [key: PlanningYear['tax_year']]: {
+    key: Band['key']
+    bound_lower: number
+    bound_upper: number
+  }[]
+}
+
+const knownRates: KnownRatesType = {
   2324: [
     {
-      key: 'personal_alloawnce',
+      key: 'personal_allowance',
       bound_lower: 0,
       bound_upper: 12570,
     },
@@ -60,20 +68,28 @@ function bandIsRelevantTo(person: Person, band: Band) {
   )
 }
 
+function getRatesForBandInYear(
+  key: Band['key'],
+  year: PlanningYear['tax_year']
+) {
+  if (knownRates[year]) {
+    const knownRate = knownRates[year].find(rate => rate.key === key)
+    if (knownRate) return knownRate
+    throw new Error(`Missing band rate (${key}) in year ${year}`)
+  }
+
+  return {
+    key,
+    bound_lower: 123,
+    bound_upper: 456,
+  }
+}
+
 export function generateBandsFor(
   person: Person,
   year: PlanningYear['tax_year']
 ) {
-  return Object.fromEntries(
-    bands
-      .filter(band => bandIsRelevantTo(person, band))
-      .map(band => {
-        return [
-          band.key,
-          {
-            //
-          },
-        ]
-      })
-  )
+  return bands
+    .filter(band => bandIsRelevantTo(person, band))
+    .map(band => getRatesForBandInYear(band.key, year))
 }

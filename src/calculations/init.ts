@@ -25,14 +25,13 @@ function makeInitOutput(cashflow: Cashflow): Output {
 }
 
 function initYears(cashflow: Cashflow, output: Output) {
+  const startDate = date(cashflow.starts_at)
   output.years = [...Array(cashflow.years)].map((_, idx) => {
-    const startDate = date(cashflow.starts_at)
+    const yearStartDate = clone(startDate).add(idx, 'year')
     return {
-      tax_year: getTaxYearFromDate(startDate),
-      starts_at: clone(startDate).add(idx, 'year').toISOString(),
-      ends_at: clone(startDate)
-        .add(idx + 1, 'year')
-        .toISOString(),
+      tax_year: getTaxYearFromDate(yearStartDate),
+      starts_at: yearStartDate.toISOString(),
+      ends_at: yearStartDate.add(1, 'year').toISOString(),
     }
   })
 }

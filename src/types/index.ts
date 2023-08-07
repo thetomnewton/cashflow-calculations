@@ -55,8 +55,10 @@ export interface Output {
     bands: {
       [taxYear: string]: {
         [personId: Person['id']]: {
-          [bandKey: Band['key']]: {}
-        }
+          key: Band['key']
+          bound_lower: number
+          bound_upper: number
+        }[]
       }
     }
   }
