@@ -23,7 +23,7 @@ export interface PlanningYear {
 export interface Person {
   id: string
   date_of_birth: string
-  tax_residency: string
+  tax_residency: 'eng' | 'sco' | 'ni' | 'wal'
   sex: 'male' | 'female'
   mpaa_triggered: boolean
   registered_blind: boolean
@@ -34,12 +34,18 @@ export interface EmploymentIncome {
   id: string
 }
 
+export interface Band {
+  id: string
+}
+
 export interface Output {
   starts_at: string
   years: PlanningYear[]
   tax: {
     bands: {
-      [id: string]: {}
+      [id: Person['id']]: {
+        [id: Band['id']]: {}
+      }
     }
   }
   incomes: {
@@ -51,7 +57,7 @@ export interface Output {
           tax_paid: number
           ni_paid: number
           bands: {
-            [id: string]: number
+            [id: Band['id']]: {}
           }
         }
       }[]

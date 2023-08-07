@@ -4,8 +4,7 @@ import { run } from '../src/calculations'
 import { makeCashflow, makeIncome, makePerson } from '../src/factories'
 
 describe('income tax', () => {
-  const person = makePerson({ sex: 'male' })
-
+  const person = makePerson({ sex: 'male', tax_residency: 'eng' })
   const salaryId = v4()
 
   const basicRateCashflow = makeCashflow({
@@ -33,23 +32,23 @@ describe('income tax', () => {
     expect(out.incomes[salaryId].year[0].tax.tax_paid).toBe(5486)
   })
 
-  test('salary within PA does not get taxed', () => {
-    //
-  })
+  // test('salary within PA does not get taxed', () => {
+  //   //
+  // })
 
-  test('higher rate salary gets taxed correctly', () => {
-    //
-  })
+  // test('higher rate salary gets taxed correctly', () => {
+  //   //
+  // })
 
-  test('pa tapering works correctly', () => {
-    //
-  })
+  // test('pa tapering works correctly', () => {
+  //   //
+  // })
 
-  test('additional rate salary gets taxed correctly', () => {
-    //
-  })
+  // test('additional rate salary gets taxed correctly', () => {
+  //   //
+  // })
 
-  test('', () => {
-    //
-  })
+  // test('', () => {
+  //   //
+  // })
 })
