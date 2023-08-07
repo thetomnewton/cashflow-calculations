@@ -59,6 +59,28 @@ type KnownRatesType = {
 }
 
 const knownRates: KnownRatesType = {
+  2223: [
+    {
+      key: 'personal_allowance',
+      bound_lower: 0,
+      bound_upper: 12570,
+    },
+    {
+      key: 'basic_rate_eng',
+      bound_lower: 0,
+      bound_upper: 37700,
+    },
+    {
+      key: 'higher_rate_eng',
+      bound_lower: 37700,
+      bound_upper: 150000,
+    },
+    {
+      key: 'additional_rate_eng',
+      bound_lower: 150000,
+      bound_upper: Infinity,
+    },
+  ],
   2324: [
     {
       key: 'personal_allowance',
@@ -128,6 +150,7 @@ function getRatesForBandInYear(
     throw new Error(`Missing band rate (${key}) in year ${year}`)
 
   const yearsAhead = +year.substring(0, 2) - +latestKnownYear.substring(0, 2)
+
   if (yearsAhead < 0) throw new Error('Can only project forwards')
 
   const [lower, upper] = (['bound_lower', 'bound_upper'] as const).map(bound =>
