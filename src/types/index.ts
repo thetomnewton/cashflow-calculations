@@ -13,7 +13,7 @@ export interface CashflowAssumptions {
   average_earnings_increase: number
 }
 
-export interface Period {
+export interface PlanningYear {
   id: string
   starts_at: string
   ends_at: string
@@ -36,5 +36,5 @@ export interface EmploymentIncome {
 export interface CashflowOutput {
   starts_at: string
   ends_at: string
-  periods: Period[]
+  years: PlanningYear[]
 }
