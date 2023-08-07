@@ -119,11 +119,28 @@ function getRatesForBandInYear(
     throw new Error(`Missing band rate (${key}) in year ${year}`)
   }
 
+  const latestKnownYear = Object.keys(knownRates).at(-1) as string
+  const latestKnownRates = knownRates[latestKnownYear].find(
+    rate => rate.key === key
+  )
+
+  if (!latestKnownRates)
+    throw new Error(`Missing band rate (${key}) in year ${year}`)
+
+  const yearsAhead = +year.substring(0, 2) - +latestKnownYear.substring(0, 2)
+  if (yearsAhead < 0) throw new Error('Can only project forwards')
+
+  const [lower, upper] = (['bound_lower', 'bound_upper'] as const).map(bound =>
+    assumptions.terms === 'real'
+      ? latestKnownRates[bound]
+      : latestKnownRates[bound] * assumptions.cpi ** yearsAhead
+  )
+
   return {
     key,
-    bound_lower: 123,
-    bound_upper: 456,
-    remaining: 456 - 123,
+    bound_lower: lower,
+    bound_upper: upper,
+    remaining: upper - lower,
   }
 }
 
