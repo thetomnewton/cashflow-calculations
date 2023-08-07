@@ -18,6 +18,7 @@ export interface PlanningYear {
   id: string
   starts_at: string
   ends_at: string
+  tax_year: string
 }
 
 export interface Person {
@@ -52,7 +53,8 @@ export interface Output {
     [id: Income['id']]: {
       ad_hoc?: boolean
       year: {
-        value: number
+        gross_value: number
+        net_value: number
         tax: {
           tax_paid: number
           ni_paid: number
