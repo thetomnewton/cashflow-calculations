@@ -42,7 +42,8 @@ function initBands(cashflow: Cashflow, output: Output) {
     cashflow.people.forEach(person => {
       output.tax.bands[year.tax_year][person.id] = generateBandsFor(
         person,
-        year.tax_year
+        year.tax_year,
+        cashflow.assumptions
       )
     })
   })

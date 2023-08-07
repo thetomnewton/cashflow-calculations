@@ -29,6 +29,8 @@ describe('income tax', () => {
   test('basic rate salary is taxed correctly', () => {
     const out = run(basicRateCashflow)
 
+    console.log(out.tax.bands[2324][person.id], out.tax.bands[2425][person.id])
+
     expect(out.incomes[salaryId].year[0].tax.tax_paid).toBe(5486)
   })
 

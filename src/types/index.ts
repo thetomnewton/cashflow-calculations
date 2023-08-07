@@ -41,11 +41,19 @@ export interface Band {
   type: 'band' | 'allowance'
   taper_rate?: number
   adjusted_net_income_limit?: number
+  extends_for_ras_contributions?: boolean
   regions: {
     earned: PossibleCountries[]
     savings: PossibleCountries[]
     dividend: PossibleCountries[]
   }
+}
+
+export interface OutputTaxBand {
+  key: Band['key']
+  bound_lower: number
+  bound_upper: number
+  remaining: number
 }
 
 export interface Output {
@@ -54,11 +62,7 @@ export interface Output {
   tax: {
     bands: {
       [taxYear: string]: {
-        [personId: Person['id']]: {
-          key: Band['key']
-          bound_lower: number
-          bound_upper: number
-        }[]
+        [personId: Person['id']]: OutputTaxBand[]
       }
     }
   }

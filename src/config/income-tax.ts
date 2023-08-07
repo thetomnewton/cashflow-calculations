@@ -1,5 +1,12 @@
 import { Dayjs } from 'dayjs'
-import { Band, Person, PlanningYear } from '../types'
+import {
+  Band,
+  CashflowAssumptions,
+  Output,
+  OutputTaxBand,
+  Person,
+  PlanningYear,
+} from '../types'
 
 const bands: Band[] = [
   {
@@ -15,6 +22,25 @@ const bands: Band[] = [
   },
   {
     key: 'basic_rate_eng',
+    type: 'band',
+    extends_for_ras_contributions: true,
+    regions: {
+      earned: ['wal', 'eng', 'ni'],
+      savings: ['wal', 'eng', 'sco', 'ni'],
+      dividend: ['wal', 'eng', 'sco', 'ni'],
+    },
+  },
+  {
+    key: 'higher_rate_eng',
+    type: 'band',
+    regions: {
+      earned: ['wal', 'eng', 'ni'],
+      savings: ['wal', 'eng', 'sco', 'ni'],
+      dividend: ['wal', 'eng', 'sco', 'ni'],
+    },
+  },
+  {
+    key: 'additional_rate_eng',
     type: 'band',
     regions: {
       earned: ['wal', 'eng', 'ni'],
@@ -44,6 +70,16 @@ const knownRates: KnownRatesType = {
       bound_lower: 0,
       bound_upper: 37700,
     },
+    {
+      key: 'higher_rate_eng',
+      bound_lower: 37700,
+      bound_upper: 150000,
+    },
+    {
+      key: 'additional_rate_eng',
+      bound_lower: 150000,
+      bound_upper: Infinity,
+    },
   ],
 }
 
@@ -70,11 +106,16 @@ function bandIsRelevantTo(person: Person, band: Band) {
 
 function getRatesForBandInYear(
   key: Band['key'],
-  year: PlanningYear['tax_year']
+  year: PlanningYear['tax_year'],
+  assumptions: CashflowAssumptions
 ) {
   if (knownRates[year]) {
     const knownRate = knownRates[year].find(rate => rate.key === key)
-    if (knownRate) return knownRate
+    if (knownRate)
+      return {
+        ...knownRate,
+        ...{ remaining: knownRate.bound_upper - knownRate.bound_lower },
+      }
     throw new Error(`Missing band rate (${key}) in year ${year}`)
   }
 
@@ -82,14 +123,16 @@ function getRatesForBandInYear(
     key,
     bound_lower: 123,
     bound_upper: 456,
+    remaining: 456 - 123,
   }
 }
 
 export function generateBandsFor(
   person: Person,
-  year: PlanningYear['tax_year']
-) {
+  year: PlanningYear['tax_year'],
+  assumptions: CashflowAssumptions
+): OutputTaxBand[] {
   return bands
     .filter(band => bandIsRelevantTo(person, band))
-    .map(band => getRatesForBandInYear(band.key, year))
+    .map(band => getRatesForBandInYear(band.key, year, assumptions))
 }
