@@ -11,9 +11,17 @@ export function getValueInYear(entity: Entity, year: PlanningYear) {
 
     if (
       date(entityValue.starts_at).isSameOrBefore(yearStart) &&
-      date(entityValue.ends_at).isSameOrAfter(year.ends_at)
+      date(entityValue.ends_at).isSameOrAfter(yearEnd)
     )
       return true
+
+    if (
+      date(entityValue.starts_at).isSameOrBefore(yearStart) &&
+      date(entityValue.ends_at).isAfter(yearStart)
+    )
+      return true
+
+    return false
   })
 
   if (!valueObj) return 0
