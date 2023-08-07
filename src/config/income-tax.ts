@@ -126,15 +126,11 @@ const knownRates: KnownRatesType = {
 
 export function getTaxYearFromDate(date: Dayjs) {
   const year = date.year()
-  if (date.month() > 3 || (date.month() === 3 && date.date() >= 6)) {
-    return `${year.toString().substring(2)}${(year + 1)
-      .toString()
-      .substring(2)}`
-  } else {
-    return `${(year - 1).toString().substring(2)}${year
-      .toString()
-      .substring(2)}`
-  }
+  const yearString = year.toString().substring(2)
+
+  if (date.month() > 3 || (date.month() === 3 && date.date() >= 6))
+    return `${yearString}${(year + 1).toString().substring(2)}`
+  else return `${(year - 1).toString().substring(2)}${yearString}`
 }
 
 function bandIsRelevantTo(person: Person, band: Band) {
