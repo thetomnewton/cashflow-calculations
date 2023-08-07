@@ -50,10 +50,14 @@ function initBands(cashflow: Cashflow, output: Output) {
   })
 }
 
-function makeOutputIncomeObj(income: Income, output: Output) {
+function makeOutputIncomeObj(
+  income: Income,
+  cashflow: Cashflow,
+  output: Output
+) {
   return {
     year: output.years.map(year => ({
-      gross_value: getValueInYear(income, year),
+      gross_value: getValueInYear(income, year, cashflow, output),
       net_value: 0,
       tax: {
         tax_paid: 0,
@@ -66,6 +70,6 @@ function makeOutputIncomeObj(income: Income, output: Output) {
 
 function initIncomes(cashflow: Cashflow, output: Output) {
   cashflow.incomes.forEach(income => {
-    output.incomes[income.id] = makeOutputIncomeObj(income, output)
+    output.incomes[income.id] = makeOutputIncomeObj(income, cashflow, output)
   })
 }
