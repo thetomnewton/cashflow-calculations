@@ -55,6 +55,7 @@ export interface Band {
 }
 
 export interface OutputTaxBand {
+  id: string
   key: Band['key']
   bound_lower: number
   bound_upper: number
@@ -89,14 +90,18 @@ export interface Output {
   }
 }
 
-interface IncomeValue {
+export interface EntityValue {
   value: number
   starts_at: string
   ends_at: string
 }
 
-export interface Income {
+export interface Entity {
   id: string
   people: Person[]
-  values: IncomeValue[]
+  values: EntityValue[]
+}
+
+export interface Income extends Entity {
+  //
 }

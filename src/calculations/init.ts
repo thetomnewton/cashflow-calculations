@@ -2,6 +2,7 @@ import { clone } from 'lodash'
 import { date } from '../lib/date'
 import { Cashflow, Income, Output } from '../types'
 import { generateBandsFor, getTaxYearFromDate } from './income-tax'
+import { getValueInYear } from './entity'
 
 export function initialise(cashflow: Cashflow) {
   const output = makeInitOutput(cashflow)
@@ -52,7 +53,7 @@ function initBands(cashflow: Cashflow, output: Output) {
 function makeOutputIncomeObj(income: Income, output: Output) {
   return {
     year: output.years.map(year => ({
-      gross_value: 0,
+      gross_value: getValueInYear(income, year),
       net_value: 0,
       tax: {
         tax_paid: 0,

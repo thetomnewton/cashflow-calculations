@@ -1,4 +1,5 @@
 import { Dayjs } from 'dayjs'
+import { round } from 'lodash'
 import {
   Band,
   CashflowAssumptions,
@@ -6,7 +7,7 @@ import {
   Person,
   PlanningYear,
 } from '../types'
-import { round } from 'lodash'
+import { v4 } from 'uuid'
 
 const bands: Band[] = [
   {
@@ -152,7 +153,10 @@ function getRatesForBandInYear(
     if (knownRate)
       return {
         ...knownRate,
-        ...{ remaining: knownRate.bound_upper - knownRate.bound_lower },
+        ...{
+          id: v4(),
+          remaining: knownRate.bound_upper - knownRate.bound_lower,
+        },
       }
     throw new Error(`Missing band rate (${key}) in year ${year}`)
   }
@@ -176,6 +180,7 @@ function getRatesForBandInYear(
   )
 
   return {
+    id: v4(),
     key,
     bound_lower: round(lower),
     bound_upper: round(upper),
