@@ -37,6 +37,26 @@ export interface EmploymentIncome {
 export interface Output {
   starts_at: string
   years: PlanningYear[]
+  tax: {
+    bands: {
+      [id: string]: {}
+    }
+  }
+  incomes: {
+    [id: Income['id']]: {
+      ad_hoc?: boolean
+      year: {
+        value: number
+        tax: {
+          tax_paid: number
+          ni_paid: number
+          bands: {
+            [id: string]: number
+          }
+        }
+      }[]
+    }
+  }
 }
 
 interface IncomeValue {

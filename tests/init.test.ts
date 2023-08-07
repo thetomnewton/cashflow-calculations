@@ -1,10 +1,10 @@
-import { date } from '../src/lib/date'
+import { date, iso } from '../src/lib/date'
 import { run } from '../src/calculations'
 import { makeCashflow, makePerson } from '../src/factories'
 
 describe('initialisation tests', () => {
   test('can set cashflow params', () => {
-    const startDate = date('2023-04-06').toISOString()
+    const startDate = iso('2023-04-06')
     const cashflow = makeCashflow({
       people: [makePerson({ sex: 'male' })],
       starts_at: startDate,
