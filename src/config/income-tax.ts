@@ -2,7 +2,6 @@ import { Dayjs } from 'dayjs'
 import {
   Band,
   CashflowAssumptions,
-  Output,
   OutputTaxBand,
   Person,
   PlanningYear,
@@ -19,6 +18,11 @@ const bands: Band[] = [
       savings: ['wal', 'eng', 'sco', 'ni'],
       dividend: ['wal', 'eng', 'sco', 'ni'],
     },
+    rates: {
+      earned: 0,
+      savings: 0,
+      dividend: 0,
+    },
   },
   {
     key: 'basic_rate_eng',
@@ -29,6 +33,11 @@ const bands: Band[] = [
       savings: ['wal', 'eng', 'sco', 'ni'],
       dividend: ['wal', 'eng', 'sco', 'ni'],
     },
+    rates: {
+      earned: 0.2,
+      savings: 0.2,
+      dividend: 0.2,
+    },
   },
   {
     key: 'higher_rate_eng',
@@ -38,6 +47,11 @@ const bands: Band[] = [
       savings: ['wal', 'eng', 'sco', 'ni'],
       dividend: ['wal', 'eng', 'sco', 'ni'],
     },
+    rates: {
+      earned: 0.4,
+      savings: 0.4,
+      dividend: 0.4,
+    },
   },
   {
     key: 'additional_rate_eng',
@@ -46,6 +60,11 @@ const bands: Band[] = [
       earned: ['wal', 'eng', 'ni'],
       savings: ['wal', 'eng', 'sco', 'ni'],
       dividend: ['wal', 'eng', 'sco', 'ni'],
+    },
+    rates: {
+      earned: 0.45,
+      savings: 0.45,
+      dividend: 0.45,
     },
   },
 ]

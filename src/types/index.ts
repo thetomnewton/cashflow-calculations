@@ -47,6 +47,11 @@ export interface Band {
     savings: PossibleCountries[]
     dividend: PossibleCountries[]
   }
+  rates: {
+    earned: number
+    savings: number
+    dividend: number
+  }
 }
 
 export interface OutputTaxBand {
