@@ -13,14 +13,17 @@ describe('initialisation tests', () => {
     expect(cashflow.starts_at).toBe(startDate)
   })
 
-  test('can create a cashflow', () => {
+  test('can run a cashflow', () => {
+    const today = date().startOf('day').toISOString()
     const cashflow = makeCashflow({
       people: [makePerson({ sex: 'male' })],
+      starts_at: today,
+      years: 5,
     })
 
     const out = run(cashflow)
 
-    expect(out.starts_at).toBe(date().startOf('day').toISOString())
-    expect(out.ends_at).toBe(date().startOf('day').add(1, 'year').toISOString())
+    expect(out.starts_at).toBe(today)
+    expect(out.years.length).toBe(5)
   })
 })

@@ -29,8 +29,7 @@ export function makeCashflow(params: FactoryCashflow): Cashflow {
   return {
     id: params.id ?? uuid(),
     starts_at: params.starts_at ?? date().startOf('day').toISOString(),
-    ends_at:
-      params.starts_at ?? date().startOf('day').add(1, 'year').toISOString(),
+    years: params.years ?? 1,
     people: params.people,
     assumptions: params.assumptions
       ? { ...params.assumptions, ...defaultAssumptions }
