@@ -1,9 +1,10 @@
 import { date } from '../lib/date'
-import { Cashflow, Person } from '../types'
-import { v4 as uuid } from 'uuid'
+import { Cashflow, Income, Person } from '../types'
+import { v4 } from 'uuid'
 
 type FactoryPerson = Partial<Person> & Pick<Person, 'sex'>
 type FactoryCashflow = Partial<Cashflow> & Pick<Cashflow, 'people'>
+type FactoryIncome = Partial<Income> & Pick<Income, 'people'>
 
 const defaultAssumptions: Cashflow['assumptions'] = {
   terms: 'nominal',
@@ -14,7 +15,7 @@ const defaultAssumptions: Cashflow['assumptions'] = {
 
 export function makePerson(params: FactoryPerson): Person {
   return {
-    id: params.id ?? uuid(),
+    id: params.id ?? v4(),
     date_of_birth:
       params.date_of_birth ?? date('1970-01-01 00:00:00').toISOString(),
     tax_residency: params.tax_residency ?? 'uk',
@@ -27,12 +28,21 @@ export function makePerson(params: FactoryPerson): Person {
 
 export function makeCashflow(params: FactoryCashflow): Cashflow {
   return {
-    id: params.id ?? uuid(),
+    id: params.id ?? v4(),
     starts_at: params.starts_at ?? date().startOf('day').toISOString(),
     years: params.years ?? 1,
     people: params.people,
+    incomes: params.incomes ?? [],
     assumptions: params.assumptions
       ? { ...params.assumptions, ...defaultAssumptions }
       : defaultAssumptions,
+  }
+}
+
+export function makeIncome(params: FactoryIncome): Income {
+  return {
+    id: params.id ?? v4(),
+    people: params.people,
+    values: params.values ?? [],
   }
 }

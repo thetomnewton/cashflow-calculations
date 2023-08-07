@@ -1,7 +1,7 @@
 import { clone } from 'lodash'
 import { date } from '../lib/date'
 import { Cashflow, Output } from '../types'
-import { v4 as uuid } from 'uuid'
+import { v4 } from 'uuid'
 
 export function run(cashflow: Cashflow): Output {
   let output: Output = {
@@ -13,7 +13,7 @@ export function run(cashflow: Cashflow): Output {
     output.years = [...Array(cashflow.years)].map((_, idx) => {
       const startDate = date(cashflow.starts_at)
       return {
-        id: uuid(),
+        id: v4(),
         starts_at: clone(startDate).add(idx, 'year').toISOString(),
         ends_at: clone(startDate)
           .add(idx + 1, 'year')

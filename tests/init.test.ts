@@ -16,7 +16,7 @@ describe('initialisation tests', () => {
   test('can run a cashflow', () => {
     const today = date().startOf('day').toISOString()
     const cashflow = makeCashflow({
-      people: [makePerson({ sex: 'male' })],
+      people: [makePerson({ sex: 'female' })],
       starts_at: today,
       years: 5,
     })

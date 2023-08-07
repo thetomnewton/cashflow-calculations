@@ -6,3 +6,7 @@ dayjs.extend(utc)
 export function date(params?: string | number | Date | dayjs.Dayjs) {
   return dayjs.utc(params)
 }
+
+export function iso(params?: string | number | Date | dayjs.Dayjs) {
+  return date(params).toISOString()
+}

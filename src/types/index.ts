@@ -4,6 +4,7 @@ export interface Cashflow {
   years: number
   people: Person[]
   assumptions: CashflowAssumptions
+  incomes: Income[]
 }
 
 export interface CashflowAssumptions {
@@ -36,4 +37,16 @@ export interface EmploymentIncome {
 export interface Output {
   starts_at: string
   years: PlanningYear[]
+}
+
+interface IncomeValue {
+  value: number
+  starts_at: string
+  ends_at: string
+}
+
+export interface Income {
+  id: string
+  people: Person[]
+  values: IncomeValue[]
 }
