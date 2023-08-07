@@ -1,5 +1,5 @@
-import { date, iso } from '../src/lib/date'
 import { run } from '../src/calculations'
+import { date, iso } from '../src/lib/date'
 import { makeCashflow, makePerson } from '../src/factories'
 
 describe('initialisation tests', () => {

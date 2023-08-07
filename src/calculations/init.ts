@@ -1,7 +1,7 @@
 import { clone } from 'lodash'
 import { date } from '../lib/date'
 import { Cashflow, Income, Output } from '../types'
-import { generateBandsFor, getTaxYearFromDate } from '../config/income-tax'
+import { generateBandsFor, getTaxYearFromDate } from './income-tax'
 
 export function initialise(cashflow: Cashflow) {
   const output = makeInitOutput(cashflow)
