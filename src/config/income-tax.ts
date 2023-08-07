@@ -6,6 +6,7 @@ import {
   Person,
   PlanningYear,
 } from '../types'
+import { round } from 'lodash'
 
 const bands: Band[] = [
   {
@@ -171,14 +172,14 @@ function getRatesForBandInYear(
   const [lower, upper] = (['bound_lower', 'bound_upper'] as const).map(bound =>
     assumptions.terms === 'real'
       ? latestKnownRates[bound]
-      : latestKnownRates[bound] * assumptions.cpi ** yearsAhead
+      : latestKnownRates[bound] * (1 + assumptions.cpi ** yearsAhead)
   )
 
   return {
     key,
-    bound_lower: lower,
-    bound_upper: upper,
-    remaining: upper - lower,
+    bound_lower: round(lower),
+    bound_upper: round(upper),
+    remaining: round(upper - lower),
   }
 }
 
