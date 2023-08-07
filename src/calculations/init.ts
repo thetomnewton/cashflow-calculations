@@ -1,10 +1,19 @@
-import { v4 } from 'uuid'
 import { clone } from 'lodash'
 import { date } from '../lib/date'
 import { Cashflow, Income, Output } from '../types'
 import { getTaxYearFromDate } from '../config/income-tax'
 
-export function makeInitOutput(cashflow: Cashflow): Output {
+export function initialise(cashflow: Cashflow) {
+  const output = makeInitOutput(cashflow)
+
+  initYears(cashflow, output)
+  initBands(cashflow, output)
+  initIncomes(cashflow, output)
+
+  return output
+}
+
+function makeInitOutput(cashflow: Cashflow): Output {
   return {
     starts_at: cashflow.starts_at,
     years: [],
@@ -15,11 +24,10 @@ export function makeInitOutput(cashflow: Cashflow): Output {
   }
 }
 
-export function initYears(cashflow: Cashflow, output: Output) {
+function initYears(cashflow: Cashflow, output: Output) {
   output.years = [...Array(cashflow.years)].map((_, idx) => {
     const startDate = date(cashflow.starts_at)
     return {
-      id: v4(),
       tax_year: getTaxYearFromDate(startDate),
       starts_at: clone(startDate).add(idx, 'year').toISOString(),
       ends_at: clone(startDate)
@@ -29,9 +37,17 @@ export function initYears(cashflow: Cashflow, output: Output) {
   })
 }
 
-export function initBands(cashflow: Cashflow, output: Output) {
+function initBands(cashflow: Cashflow, output: Output) {
   // initialise the tax bands on the output object
   // if the rates are not yet known, project them forwards
+  output.years.forEach(year => {
+    output.tax.bands[year.tax_year] = {}
+    cashflow.people.forEach(person => {
+      output.tax.bands[year.tax_year][person.id] = {}
+      // todo:
+      // get relevant tax bands for this person
+    })
+  })
 }
 
 function makeOutputIncomeObj(income: Income, output: Output) {
@@ -48,7 +64,7 @@ function makeOutputIncomeObj(income: Income, output: Output) {
   }
 }
 
-export function initIncomes(cashflow: Cashflow, output: Output) {
+function initIncomes(cashflow: Cashflow, output: Output) {
   cashflow.incomes.forEach(income => {
     output.incomes[income.id] = makeOutputIncomeObj(income, output)
   })

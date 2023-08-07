@@ -15,7 +15,6 @@ export interface CashflowAssumptions {
 }
 
 export interface PlanningYear {
-  id: string
   starts_at: string
   ends_at: string
   tax_year: string
@@ -44,8 +43,10 @@ export interface Output {
   years: PlanningYear[]
   tax: {
     bands: {
-      [id: Person['id']]: {
-        [id: Band['id']]: {}
+      [taxYear: string]: {
+        [personId: Person['id']]: {
+          [bandId: Band['id']]: {}
+        }
       }
     }
   }
