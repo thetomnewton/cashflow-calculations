@@ -6,19 +6,18 @@ export function getValueInYear(entity: Entity, year: PlanningYear) {
   const yearEnd = date(year.ends_at)
 
   const valueObj = entity.values.find(entityValue => {
-    if (date(entityValue.starts_at).isBetween(yearStart, yearEnd, null, '[)'))
-      return true
+    const entityStart = date(entityValue.starts_at)
+    const entityEnd = date(entityValue.ends_at)
+
+    if (entityStart.isBetween(yearStart, yearEnd, null, '[)')) return true
 
     if (
-      date(entityValue.starts_at).isSameOrBefore(yearStart) &&
-      date(entityValue.ends_at).isSameOrAfter(yearEnd)
+      entityStart.isSameOrBefore(yearStart) &&
+      entityEnd.isSameOrAfter(yearEnd)
     )
       return true
 
-    if (
-      date(entityValue.starts_at).isSameOrBefore(yearStart) &&
-      date(entityValue.ends_at).isAfter(yearStart)
-    )
+    if (entityStart.isSameOrBefore(yearStart) && entityEnd.isAfter(yearStart))
       return true
 
     return false
