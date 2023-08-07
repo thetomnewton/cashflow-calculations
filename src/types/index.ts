@@ -94,6 +94,8 @@ export interface EntityValue {
   value: number
   starts_at: string
   ends_at: string
+  escalation: number | 'cpi' | 'rpi'
+  adjusted?: boolean
 }
 
 export interface Entity {
