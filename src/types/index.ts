@@ -20,10 +20,12 @@ export interface PlanningYear {
   tax_year: string
 }
 
+type PossibleCountries = 'eng' | 'sco' | 'ni' | 'wal'
+
 export interface Person {
   id: string
   date_of_birth: string
-  tax_residency: 'eng' | 'sco' | 'ni' | 'wal'
+  tax_residency: PossibleCountries
   sex: 'male' | 'female'
   mpaa_triggered: boolean
   registered_blind: boolean
@@ -35,7 +37,15 @@ export interface EmploymentIncome {
 }
 
 export interface Band {
-  id: string
+  key: string
+  type: 'band' | 'allowance'
+  taper_rate?: number
+  adjusted_net_income_limit?: number
+  regions: {
+    earned: PossibleCountries[]
+    savings: PossibleCountries[]
+    dividend: PossibleCountries[]
+  }
 }
 
 export interface Output {
@@ -45,7 +55,7 @@ export interface Output {
     bands: {
       [taxYear: string]: {
         [personId: Person['id']]: {
-          [bandId: Band['id']]: {}
+          [bandKey: Band['key']]: {}
         }
       }
     }
@@ -60,7 +70,7 @@ export interface Output {
           tax_paid: number
           ni_paid: number
           bands: {
-            [id: Band['id']]: {}
+            [bandKey: Band['key']]: {}
           }
         }
       }[]

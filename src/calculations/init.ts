@@ -1,7 +1,7 @@
 import { clone } from 'lodash'
 import { date } from '../lib/date'
 import { Cashflow, Income, Output } from '../types'
-import { getTaxYearFromDate } from '../config/income-tax'
+import { generateBandsFor, getTaxYearFromDate } from '../config/income-tax'
 
 export function initialise(cashflow: Cashflow) {
   const output = makeInitOutput(cashflow)
@@ -38,14 +38,13 @@ function initYears(cashflow: Cashflow, output: Output) {
 }
 
 function initBands(cashflow: Cashflow, output: Output) {
-  // initialise the tax bands on the output object
-  // if the rates are not yet known, project them forwards
   output.years.forEach(year => {
     output.tax.bands[year.tax_year] = {}
     cashflow.people.forEach(person => {
-      output.tax.bands[year.tax_year][person.id] = {}
-      // todo:
-      // get relevant tax bands for this person
+      output.tax.bands[year.tax_year][person.id] = generateBandsFor(
+        person,
+        year.tax_year
+      )
     })
   })
 }
