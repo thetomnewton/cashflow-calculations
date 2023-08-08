@@ -99,11 +99,18 @@ export interface EntityValue {
 }
 
 export interface Entity {
+  type: string
   id: string
   people: Person[]
   values: EntityValue[]
 }
 
 export interface Income extends Entity {
-  //
+  type:
+    | 'employment_income'
+    | 'self_employment_income'
+    | 'dividend_income'
+    | 'other_income'
+    | 'pension_income'
+    | 'savings_income'
 }
