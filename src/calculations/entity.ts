@@ -50,8 +50,7 @@ export function getValueInYear(
         entityValue.adjusted ? cashflow.assumptions.cpi : 0,
         cashflow.assumptions.terms === 'real' ? cashflow.assumptions.cpi : 0
       ) **
-        yearsSinceCashflowStart -
-      yearsSinceEntityStart,
+        (yearsSinceCashflowStart - yearsSinceEntityStart),
     2
   )
 
@@ -60,7 +59,7 @@ export function getValueInYear(
       ? cashflow.assumptions[entityValue.escalation]
       : entityValue.escalation
 
-  return round(
+  const out = round(
     startingValue *
       applyGrowth(
         escalationRate,
@@ -69,4 +68,6 @@ export function getValueInYear(
         yearsSinceEntityStart,
     2
   )
+
+  return out
 }
