@@ -56,7 +56,7 @@ function makeOutputIncomeObj(
   output: Output
 ) {
   return {
-    year: output.years.map(year => {
+    years: output.years.map(year => {
       const grossValue = getValueInYear(income, year, cashflow, output)
       return {
         gross_value: grossValue,

@@ -32,10 +32,6 @@ export interface Person {
   lta_used: number
 }
 
-export interface EmploymentIncome {
-  id: string
-}
-
 export interface Band {
   key: string
   type: 'band' | 'allowance'
@@ -75,7 +71,7 @@ export interface Output {
   incomes: {
     [id: Income['id']]: {
       ad_hoc?: boolean
-      year: {
+      years: {
         gross_value: number
         net_value: number
         tax: {
@@ -106,4 +102,9 @@ export interface Entity {
 
 export interface Income extends Entity {
   //
+}
+
+export interface EmploymentIncome extends Income {
+  bonus: number
+  benefits: number
 }

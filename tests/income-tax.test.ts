@@ -30,7 +30,7 @@ describe('income tax', () => {
   test('basic rate salary is taxed correctly', () => {
     const out = run(basicRateCashflow)
 
-    expect(out.incomes[salaryId].year[0].tax.tax_paid).toBe(5486)
+    expect(out.incomes[salaryId].years[0].tax.tax_paid).toBe(5486)
   })
 
   // test('salary within PA does not get taxed', () => {

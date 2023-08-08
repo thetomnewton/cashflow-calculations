@@ -1,9 +1,12 @@
 import { date } from '../lib/date'
-import { Cashflow, Income, Person } from '../types'
+import { Cashflow, CashflowAssumptions, Income, Person } from '../types'
 import { v4 } from 'uuid'
 
 type FactoryPerson = Partial<Person> & Pick<Person, 'sex'>
-type FactoryCashflow = Partial<Cashflow> & Pick<Cashflow, 'people'>
+type FactoryCashflow = Partial<Omit<Cashflow, 'assumptions'>> &
+  Pick<Cashflow, 'people'> & {
+    assumptions?: Partial<CashflowAssumptions> | undefined
+  }
 type FactoryIncome = Partial<Income> & Pick<Income, 'people'>
 
 const defaultAssumptions: Cashflow['assumptions'] = {
@@ -34,7 +37,7 @@ export function makeCashflow(params: FactoryCashflow): Cashflow {
     people: params.people,
     incomes: params.incomes ?? [],
     assumptions: params.assumptions
-      ? { ...params.assumptions, ...defaultAssumptions }
+      ? { ...defaultAssumptions, ...params.assumptions }
       : defaultAssumptions,
   }
 }
