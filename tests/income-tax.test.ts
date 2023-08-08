@@ -10,7 +10,7 @@ describe('income tax', () => {
   const basicRateCashflow = makeCashflow({
     people: [person],
     starts_at: iso('2023-04-06'),
-    years: 3,
+    years: 5,
     incomes: [
       makeIncome({
         id: salaryId,
@@ -19,8 +19,8 @@ describe('income tax', () => {
           {
             value: 40000,
             starts_at: iso('2023-04-06'),
-            ends_at: iso('2026-04-06'),
-            escalation: 'cpi',
+            ends_at: iso('2028-04-06'),
+            escalation: 0,
           },
         ],
       }),

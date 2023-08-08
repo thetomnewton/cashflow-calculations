@@ -1,6 +1,8 @@
 import { round } from 'lodash'
 import { date } from '../lib/date'
 import { Cashflow, Entity, EntityValue, Output, PlanningYear } from '../types'
+import { getTaxYearFromDate } from './income-tax'
+import { applyGrowth } from './growth'
 
 function entityValueActive(year: PlanningYear, ev: EntityValue) {
   const yearStart = date(year.starts_at)
@@ -29,25 +31,42 @@ export function getValueInYear(
 
   if (!entityValue) return 0
 
-  const yearsSinceStart = Math.max(
+  const yearsSinceCashflowStart = Math.max(
     0,
     output.years.findIndex(py => py.tax_year === year.tax_year)
   )
 
+  const startDateTaxYear = +getTaxYearFromDate(
+    date(entityValue.starts_at)
+  ).substring(0, 2)
+
+  const thisTaxYear = +year.tax_year.substring(0, 2)
+
+  const yearsSinceEntityStart = thisTaxYear - startDateTaxYear
+
   const startingValue = round(
     entityValue.value *
-      (1 +
-        (entityValue.adjusted ? cashflow.assumptions.cpi : 0) -
-        (cashflow.assumptions.terms === 'nominal'
-          ? cashflow.assumptions.cpi
-          : 0)) **
-        yearsSinceStart,
+      applyGrowth(
+        entityValue.adjusted ? cashflow.assumptions.cpi : 0,
+        cashflow.assumptions.terms === 'real' ? cashflow.assumptions.cpi : 0
+      ) **
+        yearsSinceCashflowStart -
+      yearsSinceEntityStart,
     2
   )
 
-  // todo:
-  // get years since entity started
-  // get escalated value based on years since it started, and whether real terms or not
+  const escalationRate =
+    typeof entityValue.escalation === 'string'
+      ? cashflow.assumptions[entityValue.escalation]
+      : entityValue.escalation
 
-  return entityValue.value
+  return round(
+    startingValue *
+      applyGrowth(
+        escalationRate,
+        cashflow.assumptions.terms === 'real' ? cashflow.assumptions.cpi : 0
+      ) **
+        yearsSinceEntityStart,
+    2
+  )
 }
