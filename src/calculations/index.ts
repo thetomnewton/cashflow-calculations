@@ -1,6 +1,6 @@
 import { Cashflow, Output } from '../types'
 import { initialise } from './init'
-import { calculateIncomeTaxLiability } from './income-tax'
+import { calcIncomeTaxLiability } from './income-tax'
 
 export function run(cashflow: Cashflow): Output {
   const output = initialise(cashflow)
@@ -8,8 +8,7 @@ export function run(cashflow: Cashflow): Output {
   output.years.forEach(year => {
     // apply contributions
     // apply planned withdrawals
-    // calculate income tax
-    calculateIncomeTaxLiability(year, cashflow, output)
+    calcIncomeTaxLiability(year, cashflow, output)
     // calculate NICs
     // apply incomes
     // apply expenses

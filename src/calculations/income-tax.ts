@@ -4,6 +4,7 @@ import {
   Band,
   Cashflow,
   CashflowAssumptions,
+  Income,
   Output,
   OutputTaxBand,
   Person,
@@ -84,10 +85,55 @@ export function generateBandsFor(
     .map(band => getRatesForBandInYear(band.key, year, assumptions))
 }
 
-export function calculateIncomeTaxLiability(
+export function calcIncomeTaxLiability(
   year: PlanningYear,
   cashflow: Cashflow,
   output: Output
 ) {
-  console.log(`calculating income tax liability in year ${year.tax_year}`)
+  cashflow.people.forEach(person => {
+    const incomes = cashflow.incomes.filter(({ people }) =>
+      people.some(({ id }) => id === person.id)
+    )
+
+    const totalIncome = getTotalIncome(incomes, year, output)
+    const totalNetIncome = getTotalNetIncome()
+    // determine adjusted net income
+    // taper allowances
+    // deduct allowances
+    // apply band extensions
+    // apply taxation
+    // the above gives the provisional income tax liability
+    // deduct tax reducers e.g. marriage allowance, EIS tax relief, top-slicing relief
+    // add extra tax charges e.g. high income child benefit charge, annual allowance charge
+  })
+}
+
+/**
+ * Get the person's total income which comprises the following 8 categories:
+ * employment, pension, social security, trading, property, savings,
+ * dividend and miscellaneous.
+ */
+function getTotalIncome(
+  baseIncomes: Income[],
+  year: PlanningYear,
+  output: Output
+) {
+  return baseIncomes.reduce(
+    (acc, { id }) =>
+      acc + output.incomes[id].years[getYearIndex(year, output)].gross_value,
+    0
+  )
+}
+
+/**
+ * Get the person's net income for the year, which is their total income less
+ * specified deductions (such as trading losses and payments made to gross
+ * pension schemes (relief under net pay arrangements)).
+ */
+function getTotalNetIncome() {
+  //
+}
+
+function getYearIndex(year: PlanningYear, output: Output) {
+  return output.years.findIndex(({ tax_year }) => tax_year === year.tax_year)
 }
