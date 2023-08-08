@@ -6,6 +6,7 @@ import {
   CashflowAssumptions,
   Income,
   Output,
+  OutputIncomeYear,
   OutputTaxBand,
   Person,
   PlanningYear,
@@ -118,11 +119,15 @@ function getTotalIncome(
   year: PlanningYear,
   output: Output
 ) {
-  return baseIncomes.reduce(
-    (acc, { id }) =>
-      acc + output.incomes[id].years[getYearIndex(year, output)].gross_value,
-    0
-  )
+  return baseIncomes.reduce((acc, { id }) => {
+    let value = output.incomes[id].years[getYearIndex(year, output)]
+    return acc + getTaxableValue(id, value)
+  }, 0)
+}
+
+function getTaxableValue(id: Income['id'], value: OutputIncomeYear) {
+  // todo: get the taxable value of the income based on its type
+  return value.gross_value
 }
 
 /**
