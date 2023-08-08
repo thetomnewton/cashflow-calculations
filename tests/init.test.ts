@@ -49,7 +49,7 @@ describe('initialisation tests', () => {
       starts_at: startsAt.toISOString(),
       years: 5,
       assumptions: {
-        cpi: 0.03,
+        cpi: 0.025,
         terms: 'nominal',
       },
       incomes: [
