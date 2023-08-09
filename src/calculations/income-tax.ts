@@ -242,7 +242,7 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
   // todo: Sort allowances in the most tax-efficient way
 
   incomes.forEach(income => {
-    const unusedTotal = getTaxableUnusedTotal(income, output)
+    let unusedTotal = getTaxableUnusedTotal(income, output)
     if (unusedTotal <= 0) return
 
     const outputYear =
@@ -259,6 +259,7 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
       }
 
       allowance.remaining -= used
+      unusedTotal -= used
     })
   })
 }
@@ -269,9 +270,10 @@ function getTaxableUnusedTotal(income: Income, output: Output) {
 
   // Get the total of the taxable value which has not
   // yet been accounted for by any other bands.
-  return (
+  return round(
     taxableValuePerPersonThisYear(income, output) -
-    sumBy(Object.values(outputYear.tax.bands), 'used')
+      sumBy(Object.values(outputYear.tax.bands), 'used'),
+    2
   )
 }
 
@@ -293,10 +295,39 @@ function useTaxBands(person: Person, output: Output, incomes: Income[]) {
     dividend: incomes.filter(isDividendIncome),
   }
 
+  // Get all output bands
+  const bandKeys = bands
+    .filter(({ type }) => type === 'band')
+    .map(({ key }) => key)
+
+  const bandsToUse = output.tax.bands[taxYear][person.id].filter(
+    ({ key, remaining }) => bandKeys.includes(key) && remaining > 0
+  )
+
   Object.entries(categorised).forEach(([, values]) => {
     values.forEach(income => {
-      const out = output.incomes[income.id].years[getYearIndex(taxYear, output)]
-      console.log(out)
+      let unusedTotal = getTaxableUnusedTotal(income, output)
+      if (unusedTotal <= 0) return
+
+      const outputYear =
+        output.incomes[income.id].years[getYearIndex(taxYear, output)]
+
+      // Go through each allowance and deduct it from the taxable income value
+      bandsToUse.forEach(band => {
+        const used = Math.min(band.remaining, unusedTotal)
+        if (used <= 0) return
+
+        const bandDefinition = bands.find(({ key }) => key === band.key)
+        if (!bandDefinition) throw new Error('Missing tax band definition')
+
+        outputYear.tax.bands[band.key] = {
+          used,
+          tax_paid: used * bandDefinition.rates[getIncomeTaxCategory(income)],
+        }
+
+        band.remaining -= used
+        unusedTotal -= used
+      })
     })
   })
 }
@@ -331,4 +362,11 @@ function isDividendIncome(income: Income) {
     income.type === 'dividend' ||
     (income.type === 'other' && income.tax_category === 'dividend')
   )
+}
+
+function getIncomeTaxCategory(income: Income) {
+  if (isEarnedIncome(income)) return 'earned'
+  if (isSavingsIncome(income)) return 'savings'
+  if (isDividendIncome(income)) return 'dividend'
+  throw new Error('Unknown income tax category')
 }
