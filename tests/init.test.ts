@@ -55,7 +55,7 @@ describe('initialisation tests', () => {
       incomes: [
         {
           id: incomeId,
-          type: 'employment_income',
+          type: 'employment',
           people: [person],
           values: [
             {
@@ -95,7 +95,7 @@ describe('initialisation tests', () => {
       incomes: [
         {
           id: incomeId,
-          type: 'employment_income',
+          type: 'employment',
           people: [person],
           values: [
             {

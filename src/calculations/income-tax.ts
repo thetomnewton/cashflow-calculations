@@ -119,15 +119,24 @@ function getTotalIncome(
   year: PlanningYear,
   output: Output
 ) {
-  return baseIncomes.reduce((acc, { id }) => {
-    let value = output.incomes[id].years[getYearIndex(year, output)]
-    return acc + getTaxableValue(id, value)
+  return baseIncomes.reduce((acc, income) => {
+    let value = output.incomes[income.id].years[getYearIndex(year, output)]
+    return acc + getTaxableValue(income, value)
   }, 0)
 }
 
-function getTaxableValue(id: Income['id'], value: OutputIncomeYear) {
-  // todo: get the taxable value of the income based on its type
-  return value.gross_value
+function getTaxableValue(income: Income, value: OutputIncomeYear) {
+  const baseFn = (value: OutputIncomeYear) => value.gross_value
+
+  return {
+    employment: (value: OutputIncomeYear) =>
+      value.gross_value + (value.bonus ?? 0) + (value.benefits ?? 0),
+    self_employment: baseFn,
+    dividend: baseFn,
+    pension: baseFn,
+    savings: baseFn,
+    other: baseFn,
+  }[income.type](value)
 }
 
 /**

@@ -107,10 +107,10 @@ export interface Entity {
 
 export interface Income extends Entity {
   type:
-    | 'employment_income'
-    | 'self_employment_income'
-    | 'dividend_income'
-    | 'other_income'
-    | 'pension_income'
-    | 'savings_income'
+    | 'employment'
+    | 'self_employment'
+    | 'dividend'
+    | 'other'
+    | 'pension'
+    | 'savings'
 }
