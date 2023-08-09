@@ -2,6 +2,7 @@ import { v4 } from 'uuid'
 import { iso } from '../src/lib/date'
 import { run } from '../src/calculations'
 import { makeCashflow, makeIncome, makePerson } from '../src/factories'
+import { sumBy } from 'lodash'
 
 describe('income tax', () => {
   const person = makePerson({ sex: 'male', tax_residency: 'eng' })
@@ -30,7 +31,9 @@ describe('income tax', () => {
   test('basic rate salary is taxed correctly', () => {
     const out = run(basicRateCashflow)
 
-    expect(out.incomes[salaryId].years[0].tax.tax_paid).toBe(5486)
+    expect(
+      sumBy(Object.values(out.incomes[salaryId].years[0].tax.bands), 'tax_paid')
+    ).toBe(5486)
   })
 
   test('personal allowance tapers correctly', () => {

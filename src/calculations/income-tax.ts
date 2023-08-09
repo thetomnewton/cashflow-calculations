@@ -106,7 +106,7 @@ export function calcIncomeTaxLiability(
     const adjustedNetIncome = getAdjustedNetIncome(totalNetIncome)
 
     taperAllowances(person, output, adjustedNetIncome)
-    deductAllowances(person, output)
+    deductAllowances(person, output, incomes)
 
     // apply band extensions
     // apply taxation
@@ -127,7 +127,8 @@ function getTotalIncome(
   output: Output
 ) {
   return baseIncomes.reduce((acc, income) => {
-    let value = output.incomes[income.id].years[getYearIndex(year, output)]
+    let value =
+      output.incomes[income.id].years[getYearIndex(year.tax_year, output)]
     return acc + getTaxableValue(income, value) / income.people.length
   }, 0)
 }
@@ -225,10 +226,30 @@ function isPersonalAllowance(
  * order, to reveal the amount of each income on which any tax is due.
  * Allowances are deducted in the most tax-efficient way.
  */
-function deductAllowances(person: Person, output: Output) {
-  //
+function deductAllowances(person: Person, output: Output, incomes: Income[]) {
+  // Get all output allowances
+  const allowanceKeys = bands
+    .filter(({ type }) => type === 'allowance')
+    .map(({ key }) => key)
+
+  const allowances = output.tax.bands[taxYear][person.id].filter(
+    ({ key, remaining }) => allowanceKeys.includes(key) && remaining > 0
+  )
+
+  // todo:
+  // Sort allowances in the most tax-efficient way
+
+  incomes.forEach(income => {
+    const outputYear =
+      output.incomes[income.id].years[getYearIndex(taxYear, output)]
+
+    // Go through each allowance and deduct it from the taxable income value
+    allowances.forEach(allowance => {
+      //
+    })
+  })
 }
 
-function getYearIndex(year: PlanningYear, output: Output) {
-  return output.years.findIndex(({ tax_year }) => tax_year === year.tax_year)
+function getYearIndex(year: PlanningYear['tax_year'], output: Output) {
+  return output.years.findIndex(({ tax_year }) => tax_year === year)
 }

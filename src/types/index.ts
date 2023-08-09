@@ -74,7 +74,6 @@ export interface Output {
   }
   incomes: {
     [id: Income['id']]: {
-      ad_hoc?: boolean
       years: OutputIncomeYear[]
     }
   }
@@ -84,9 +83,9 @@ export type OutputIncomeYear = {
   gross_value: number
   bonus?: number
   benefits?: number
+  taxable_value: number
   net_value: number
   tax: {
-    tax_paid: number
     ni_paid: number
     bands: {
       [bandKey: Band['key']]: {
