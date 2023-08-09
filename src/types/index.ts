@@ -35,8 +35,6 @@ export interface Person {
 export interface Band {
   key: string
   type: 'band' | 'allowance'
-  taper_rate?: number
-  adjusted_net_income_limit?: number
   extends_for_ras_contributions?: boolean
   regions: {
     earned: PossibleCountries[]
@@ -48,6 +46,12 @@ export interface Band {
     savings: number
     dividend: number
   }
+}
+
+export interface PersonalAllowance extends Band {
+  key: 'personal_allowance'
+  taper_rate: number
+  adjusted_net_income_limit: number
 }
 
 export interface OutputTaxBand {

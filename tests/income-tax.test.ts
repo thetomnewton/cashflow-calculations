@@ -33,6 +33,36 @@ describe('income tax', () => {
     expect(out.incomes[salaryId].years[0].tax.tax_paid).toBe(5486)
   })
 
+  test('personal allowance tapers correctly', () => {
+    const salaryId = v4()
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 3,
+      incomes: [
+        makeIncome({
+          id: salaryId,
+          people: [person],
+          values: [
+            {
+              value: 110000,
+              starts_at: iso('2023-04-06'),
+              ends_at: iso('2028-04-06'),
+              escalation: 'cpi',
+            },
+          ],
+        }),
+      ],
+    })
+
+    const out = run(cashflow)
+
+    expect(
+      out.tax.bands[2324][person.id].find(b => b.key === 'personal_allowance')
+        .bound_upper
+    ).toBe(7570)
+  })
+
   // test('salary within PA does not get taxed', () => {
   //   //
   // })

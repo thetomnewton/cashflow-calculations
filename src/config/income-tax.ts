@@ -1,6 +1,6 @@
-import { Band, PlanningYear } from '../types'
+import { Band, PersonalAllowance, PlanningYear } from '../types'
 
-export const bands: Band[] = [
+export const bands: (Band | PersonalAllowance)[] = [
   {
     key: 'personal_allowance',
     type: 'allowance',

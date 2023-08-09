@@ -1,5 +1,5 @@
-import { Cashflow, Output } from '../types'
 import { initialise } from './init'
+import { Cashflow, Output } from '../types'
 import { calcIncomeTaxLiability } from './income-tax'
 
 export function run(cashflow: Cashflow): Output {

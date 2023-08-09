@@ -9,10 +9,13 @@ import {
   OutputIncomeYear,
   OutputTaxBand,
   Person,
+  PersonalAllowance,
   PlanningYear,
 } from '../types'
 import { bands, knownRates } from '../config/income-tax'
 import { v4 } from 'uuid'
+
+let taxYear: string
 
 export function getTaxYearFromDate(date: Dayjs) {
   const year = date.year()
@@ -91,15 +94,19 @@ export function calcIncomeTaxLiability(
   cashflow: Cashflow,
   output: Output
 ) {
+  taxYear = year.tax_year
+
   cashflow.people.forEach(person => {
     const incomes = cashflow.incomes.filter(({ people }) =>
       people.some(({ id }) => id === person.id)
     )
 
     const totalIncome = getTotalIncome(incomes, year, output)
-    const totalNetIncome = getTotalNetIncome()
-    // determine adjusted net income
-    // taper allowances
+    const totalNetIncome = getTotalNetIncome(totalIncome)
+    const adjustedNetIncome = getAdjustedNetIncome(totalNetIncome)
+
+    taperAllowances(person, output, adjustedNetIncome)
+
     // deduct allowances
     // apply band extensions
     // apply taxation
@@ -144,8 +151,65 @@ function getTaxableValue(income: Income, value: OutputIncomeYear) {
  * specified deductions (such as trading losses and payments made to gross
  * pension schemes (relief under net pay arrangements)).
  */
-function getTotalNetIncome() {
-  //
+function getTotalNetIncome(totalIncome: number) {
+  return totalIncome
+}
+
+function getAdjustedNetIncome(netIncome: number) {
+  // todo: deduct gift aid donations
+
+  // Provisionally set the net income
+  let adjustedNetIncome = netIncome
+
+  // todo: deduct any RAS pension contributions that were paid net
+  // todo: re-add tax reliefs deducted from net pay
+
+  return adjustedNetIncome
+}
+
+function taperAllowances(
+  person: Person,
+  output: Output,
+  adjustedNetIncome: number
+) {
+  taperPersonalAllowance(person, output, adjustedNetIncome)
+  // todo: taper starting rate for savings
+  // todo: taper personal savings allowance
+}
+
+/**
+ * Taper the person's Personal Allowance. Requires the
+ * taxYear to have already been set elsewhere.
+ */
+function taperPersonalAllowance(
+  person: Person,
+  output: Output,
+  adjustedNetIncome: number
+) {
+  const pa = output.tax.bands[taxYear][person.id].find(
+    band => band.key === 'personal_allowance'
+  )
+  if (!pa) throw new Error(`No Personal Allowance in ${taxYear}`)
+
+  const bandConfig = bands.find(isPersonalAllowance)
+  if (!bandConfig) throw new Error(`No Personal Allowance config in ${taxYear}`)
+
+  const surplus = adjustedNetIncome - bandConfig.adjusted_net_income_limit
+  if (surplus <= 0) return
+
+  const newUpperBound = Math.max(
+    0,
+    pa.bound_upper - surplus * bandConfig.taper_rate
+  )
+
+  pa.bound_upper = newUpperBound
+  pa.remaining = newUpperBound
+}
+
+function isPersonalAllowance(
+  band: Band | PersonalAllowance
+): band is PersonalAllowance {
+  return band.key === 'personal_allowance'
 }
 
 function getYearIndex(year: PlanningYear, output: Output) {
