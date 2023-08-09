@@ -29,7 +29,6 @@ export interface Person {
   sex: 'male' | 'female'
   mpaa_triggered: boolean
   registered_blind: boolean
-  lta_used: number
 }
 
 export interface Band {
@@ -119,4 +118,5 @@ export interface Income extends Entity {
     | 'other'
     | 'pension'
     | 'savings'
+  tax_category?: 'earned' | 'savings' | 'dividend'
 }

@@ -107,9 +107,8 @@ export function calcIncomeTaxLiability(
 
     taperAllowances(person, output, adjustedNetIncome)
     deductAllowances(person, output, incomes)
-
-    // apply band extensions
-    // apply taxation
+    extendTaxBands(person, output)
+    useTaxBands(person, output, incomes)
     // the above gives the provisional income tax liability
     // deduct tax reducers e.g. marriage allowance, EIS tax relief, top-slicing relief
     // add extra tax charges e.g. high income child benefit charge, annual allowance charge
@@ -240,19 +239,14 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
     ({ key, remaining }) => allowanceKeys.includes(key) && remaining > 0
   )
 
-  // todo:
-  // Sort allowances in the most tax-efficient way
+  // todo: Sort allowances in the most tax-efficient way
 
   incomes.forEach(income => {
+    const unusedTotal = getTaxableUnusedTotal(income, output)
+    if (unusedTotal <= 0) return
+
     const outputYear =
       output.incomes[income.id].years[getYearIndex(taxYear, output)]
-
-    // Get the total of the taxable value which has not
-    // yet been accounted for by any other bands.
-    let unusedTotal =
-      taxableValuePerPersonThisYear(income, output) -
-      sumBy(Object.values(outputYear.tax.bands), 'used')
-    if (unusedTotal <= 0) return
 
     // Go through each allowance and deduct it from the taxable income value
     allowances.forEach(allowance => {
@@ -261,10 +255,48 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
 
       outputYear.tax.bands[allowance.key] = {
         used,
-        tax_paid: 0,
+        tax_paid: 0, // todo: use actual rate from configs?
       }
 
       allowance.remaining -= used
+    })
+  })
+}
+
+function getTaxableUnusedTotal(income: Income, output: Output) {
+  const outputYear =
+    output.incomes[income.id].years[getYearIndex(taxYear, output)]
+
+  // Get the total of the taxable value which has not
+  // yet been accounted for by any other bands.
+  return (
+    taxableValuePerPersonThisYear(income, output) -
+    sumBy(Object.values(outputYear.tax.bands), 'used')
+  )
+}
+
+/**
+ * Where appropriate, extend the basic band and higher rate limit for
+ * gross gift aid payments and gross RAS pension contributions
+ */
+function extendTaxBands(person: Person, output: Output) {
+  // todo: extend bands where needed
+}
+
+/**
+ * Use the tax bands to apply taxation to each income for a person.
+ */
+function useTaxBands(person: Person, output: Output, incomes: Income[]) {
+  const categorised = {
+    earned: incomes.filter(isEarnedIncome),
+    savings: incomes.filter(isSavingsIncome),
+    dividend: incomes.filter(isDividendIncome),
+  }
+
+  Object.entries(categorised).forEach(([, values]) => {
+    values.forEach(income => {
+      const out = output.incomes[income.id].years[getYearIndex(taxYear, output)]
+      console.log(out)
     })
   })
 }
@@ -278,4 +310,25 @@ function taxableValuePerPersonThisYear(income: Income, output: Output) {
     output.incomes[income.id].years[getYearIndex(taxYear, output)]
 
   return outputYear.taxable_value / income.people.length
+}
+
+function isEarnedIncome(income: Income) {
+  return (
+    ['employment', 'self_employment', 'pension'].includes(income.type) ||
+    (income.type === 'other' && income.tax_category === 'earned')
+  )
+}
+
+function isSavingsIncome(income: Income) {
+  return (
+    income.type === 'savings' ||
+    (income.type === 'other' && income.tax_category === 'savings')
+  )
+}
+
+function isDividendIncome(income: Income) {
+  return (
+    income.type === 'dividend' ||
+    (income.type === 'other' && income.tax_category === 'dividend')
+  )
 }
