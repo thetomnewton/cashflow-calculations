@@ -256,14 +256,15 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
 
     // Go through each allowance and deduct it from the taxable income value
     allowances.forEach(allowance => {
-      const amountToUse = Math.min(allowance.remaining, unusedTotal)
+      const used = Math.min(allowance.remaining, unusedTotal)
+      if (used <= 0) return
 
       outputYear.tax.bands[allowance.key] = {
-        used: amountToUse,
+        used,
         tax_paid: 0,
       }
 
-      allowance.remaining -= amountToUse
+      allowance.remaining -= used
     })
   })
 }
