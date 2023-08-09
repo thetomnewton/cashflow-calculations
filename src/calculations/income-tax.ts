@@ -106,8 +106,8 @@ export function calcIncomeTaxLiability(
     const adjustedNetIncome = getAdjustedNetIncome(totalNetIncome)
 
     taperAllowances(person, output, adjustedNetIncome)
+    deductAllowances(person, output)
 
-    // deduct allowances
     // apply band extensions
     // apply taxation
     // the above gives the provisional income tax liability
@@ -128,11 +128,13 @@ function getTotalIncome(
 ) {
   return baseIncomes.reduce((acc, income) => {
     let value = output.incomes[income.id].years[getYearIndex(year, output)]
-    return acc + getTaxableValue(income, value)
+    return acc + getTaxableValue(income, value) / income.people.length
   }, 0)
 }
 
 function getTaxableValue(income: Income, value: OutputIncomeYear) {
+  if (!incomeIsTaxable(income)) return 0
+
   const baseFn = (value: OutputIncomeYear) => value.gross_value
 
   return {
@@ -144,6 +146,12 @@ function getTaxableValue(income: Income, value: OutputIncomeYear) {
     savings: baseFn,
     other: baseFn,
   }[income.type](value)
+}
+
+function incomeIsTaxable(income: Income) {
+  // todo: "other" income can specify whether it is taxable or not
+  // todo: "pension" income may be taxable depending on the withdrawal type
+  return true
 }
 
 /**
@@ -210,6 +218,15 @@ function isPersonalAllowance(
   band: Band | PersonalAllowance
 ): band is PersonalAllowance {
   return band.key === 'personal_allowance'
+}
+
+/**
+ * Deduct any allowances from the taxable portion of each income in the correct
+ * order, to reveal the amount of each income on which any tax is due.
+ * Allowances are deducted in the most tax-efficient way.
+ */
+function deductAllowances(person: Person, output: Output) {
+  //
 }
 
 function getYearIndex(year: PlanningYear, output: Output) {

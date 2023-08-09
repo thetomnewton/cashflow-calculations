@@ -89,7 +89,10 @@ export type OutputIncomeYear = {
     tax_paid: number
     ni_paid: number
     bands: {
-      [bandKey: Band['key']]: {}
+      [bandKey: Band['key']]: {
+        used: number
+        tax_paid: number
+      }
     }
   }
 }
