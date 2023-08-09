@@ -1,5 +1,5 @@
 import { Dayjs } from 'dayjs'
-import { round } from 'lodash'
+import { round, sumBy } from 'lodash'
 import {
   Band,
   Cashflow,
@@ -127,9 +127,13 @@ function getTotalIncome(
   output: Output
 ) {
   return baseIncomes.reduce((acc, income) => {
-    let value =
+    const outputYearValue =
       output.incomes[income.id].years[getYearIndex(year.tax_year, output)]
-    return acc + getTaxableValue(income, value) / income.people.length
+
+    const taxableValue = getTaxableValue(income, outputYearValue)
+    outputYearValue.taxable_value = taxableValue
+
+    return acc + taxableValue / income.people.length
   }, 0)
 }
 
@@ -243,13 +247,34 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
     const outputYear =
       output.incomes[income.id].years[getYearIndex(taxYear, output)]
 
+    // Get the total of the taxable value which has not
+    // yet been accounted for by any other bands.
+    let unusedTotal =
+      taxableValuePerPersonThisYear(income, output) -
+      sumBy(Object.values(outputYear.tax.bands), 'used')
+    if (unusedTotal <= 0) return
+
     // Go through each allowance and deduct it from the taxable income value
     allowances.forEach(allowance => {
-      //
+      const amountToUse = Math.min(allowance.remaining, unusedTotal)
+
+      outputYear.tax.bands[allowance.key] = {
+        used: amountToUse,
+        tax_paid: 0,
+      }
+
+      allowance.remaining -= amountToUse
     })
   })
 }
 
 function getYearIndex(year: PlanningYear['tax_year'], output: Output) {
   return output.years.findIndex(({ tax_year }) => tax_year === year)
+}
+
+function taxableValuePerPersonThisYear(income: Income, output: Output) {
+  const outputYear =
+    output.incomes[income.id].years[getYearIndex(taxYear, output)]
+
+  return outputYear.taxable_value / income.people.length
 }
