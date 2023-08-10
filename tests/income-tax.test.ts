@@ -141,15 +141,43 @@ describe('income tax', () => {
     expect(outputIncomeYear.tax.bands.higher_rate_eng.tax_paid).toEqual(7892)
   })
 
-  // test('pa tapering works correctly', () => {
-  //   //
-  // })
-
   // test('additional rate salary gets taxed correctly', () => {
   //   //
   // })
 
-  // test('', () => {
+  // test('self employment income taxed correctly', () => {
+  //   //
+  // })
+
+  // test('dividend income taxed correctly', () => {
+  //   //
+  // })
+
+  // test('earned income uses scottish rates correctly', () => {
+  //   //
+  // })
+
+  // test('self employed income uses scottish rates correctly', () => {
+  //   //
+  // })
+
+  // test('dividend income uses scottish rates correctly', () => {
+  //   //
+  // })
+
+  // test('taxable "other" income taxed correctly', () => {
+  //   //
+  // })
+
+  // test('non-taxable "other" income is not taxed', () => {
+  //   //
+  // })
+
+  // test('pension income taxed correctly', () => {
+  //   //
+  // })
+
+  // test('savings income taxed correctly', () => {
   //   //
   // })
 })
