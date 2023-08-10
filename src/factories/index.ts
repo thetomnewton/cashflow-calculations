@@ -25,7 +25,6 @@ export function makePerson(params: FactoryPerson): Person {
     sex: params.sex,
     mpaa_triggered: params.mpaa_triggered ?? false,
     registered_blind: params.registered_blind ?? false,
-    lta_used: params.lta_used ?? 0,
   }
 }
 
@@ -47,6 +46,6 @@ export function makeIncome(params: FactoryIncome): Income {
     id: params.id ?? v4(),
     people: params.people,
     values: params.values ?? [],
-    type: 'employment',
+    type: params.type || 'employment',
   }
 }

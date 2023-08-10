@@ -16,6 +16,7 @@ describe('income tax', () => {
       makeIncome({
         id: salaryId,
         people: [person],
+        type: 'employment',
         values: [
           {
             value: 40000,
@@ -30,10 +31,13 @@ describe('income tax', () => {
 
   test('basic rate salary is taxed correctly', () => {
     const out = run(basicRateCashflow)
+    const outputIncomeYear = out.incomes[salaryId].years[0]
 
     expect(
-      sumBy(Object.values(out.incomes[salaryId].years[0].tax.bands), 'tax_paid')
-    ).toBe(5486)
+      sumBy(Object.values(outputIncomeYear.tax.bands), 'tax_paid')
+    ).toEqual(5486)
+
+    expect(outputIncomeYear.net_value).toEqual(30000)
   })
 
   test('personal allowance tapers correctly', () => {
@@ -46,6 +50,7 @@ describe('income tax', () => {
         makeIncome({
           id: salaryId,
           people: [person],
+          type: 'employment',
           values: [
             {
               value: 110000,
@@ -66,9 +71,38 @@ describe('income tax', () => {
     ).toBe(7570)
   })
 
-  // test('salary within PA does not get taxed', () => {
-  //   //
-  // })
+  test('salary within PA does not get taxed', () => {
+    const incomeId = v4()
+    const person = makePerson({ sex: 'female', tax_residency: 'wal' })
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-08-10'),
+      years: 2,
+      incomes: [
+        makeIncome({
+          id: incomeId,
+          type: 'employment',
+          people: [person],
+          values: [
+            {
+              value: 10000,
+              starts_at: iso('2023-08-10'),
+              ends_at: iso('2025-08-10'),
+              escalation: 0,
+            },
+          ],
+        }),
+      ],
+    })
+
+    const out = run(cashflow)
+    const outputIncomeYear = out.incomes[incomeId].years[0]
+
+    expect(
+      sumBy(Object.values(outputIncomeYear.tax.bands), 'tax_paid')
+    ).toEqual(0)
+    expect(outputIncomeYear.net_value).toEqual(10000)
+  })
 
   // test('higher rate salary gets taxed correctly', () => {
   //   //
