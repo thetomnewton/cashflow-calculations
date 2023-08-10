@@ -133,11 +133,12 @@ describe('income tax', () => {
     const out = run(cashflow)
     const outputIncomeYear = out.incomes[salaryId].years[0]
 
-    expect(
-      sumBy(Object.values(outputIncomeYear.tax.bands), 'tax_paid')
-    ).toEqual(5486)
-
-    expect(outputIncomeYear.net_value).toEqual(30000)
+    expect(outputIncomeYear.tax.bands.personal_allowance.used).toEqual(12570)
+    expect(outputIncomeYear.tax.bands.personal_allowance.tax_paid).toEqual(0)
+    expect(outputIncomeYear.tax.bands.basic_rate_eng.used).toEqual(37700)
+    expect(outputIncomeYear.tax.bands.basic_rate_eng.tax_paid).toEqual(7540)
+    expect(outputIncomeYear.tax.bands.higher_rate_eng.used).toEqual(19730)
+    expect(outputIncomeYear.tax.bands.higher_rate_eng.tax_paid).toEqual(7892)
   })
 
   // test('pa tapering works correctly', () => {
