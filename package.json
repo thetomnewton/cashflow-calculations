@@ -1,11 +1,22 @@
 {
   "name": "cashflow-calculations",
   "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
+  "description": "Cashflow calculations",
+  "main": "calculations/index.ts",
   "scripts": {
     "test": "jest"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com:advicehome/cashflow-calculations.git",
+    "directory": "@oxfordrisk/cashflow-calculations"
+  },
+  "files": [
+    "src"
+  ],
   "author": "Tom Newton",
   "license": "ISC",
   "devDependencies": {
