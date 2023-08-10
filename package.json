@@ -1,5 +1,5 @@
 {
-  "name": "cashflow-calculations",
+  "name": "@advicehome/cashflow-calculations",
   "version": "0.0.1",
   "description": "Cashflow calculations",
   "main": "calculations/index.ts",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@github.com:advicehome/cashflow-calculations.git",
+    "url": "git+ssh://git@github.com/advicehome/cashflow-calculations.git",
     "directory": "@oxfordrisk/cashflow-calculations"
   },
   "files": [
@@ -37,5 +37,12 @@
     "dayjs": "^1.11.9",
     "lodash": "^4.17.21",
     "uuid": "^9.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/advicehome/cashflow-calculations/issues"
+  },
+  "homepage": "https://github.com/advicehome/cashflow-calculations#readme",
+  "directories": {
+    "test": "tests"
   }
 }
