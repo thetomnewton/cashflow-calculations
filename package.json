@@ -2,7 +2,7 @@
   "name": "@advicehome/cashflow-calculations",
   "version": "0.0.1",
   "description": "Cashflow calculations",
-  "main": "calculations/index.ts",
+  "main": "src/calculations/index.ts",
   "scripts": {
     "test": "jest"
   },
