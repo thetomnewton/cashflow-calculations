@@ -1,6 +1,6 @@
 import { run } from '../src/calculations'
 import { date, iso } from '../src/lib/date'
-import { makeCashflow, makeIncome, makePerson } from '../src/factories'
+import { makeCashflow, makePerson } from '../src/factories'
 import { v4 } from 'uuid'
 
 describe('initialisation tests', () => {
