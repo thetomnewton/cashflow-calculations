@@ -1,22 +1,30 @@
-const eligibleIncomeTypes = ['employment', 'self_employment'] as const
+export const incomeClasses = {
+  employment: ['class1'],
+  self_employment: ['class2', 'class4'],
+}
+
+export const taxableIncomeLimits = {
+  lower_profits_limit: 12570,
+  upper_profits_limit: 50270,
+}
+
+export const class1Rates = {
+  below_lpl: 0,
+  below_upl: 0.12,
+  above_upl: 0.02,
+}
 
 /**
- * LEL: 123/week or 533/month
- * PT: 242/week or 1048/month
- * UEL: 967/week or 4189/month
- * lower profits limit: 12570/year
- *
- * class 1:
- * 12% between PT and UEL
- * 2% above UEL
- *
- * class 2:
- * self employed people making profits of 12570/year or more (lower profits limit)
- * 3.15/week for every relevant week (163.80/year)
- *
- * class 4:
- * taxable profits:
- * first 12570: 0%
- * from 12570-50270:9%
- * over 50270: 2%
+ * The amount of tax paid per year, based on the total
+ * self-employed profits of the person in that year.
  */
+export const class2Tax = {
+  below_lpl: 0,
+  above_lpl: 163.8,
+}
+
+export const class4Tax = {
+  below_lpl: 0,
+  below_upl: 0.9,
+  above_upl: 0.02,
+}
