@@ -68,7 +68,7 @@ describe('income tax', () => {
 
     expect(
       out.tax.bands[2324][person.id].find(b => b.key === 'personal_allowance')
-        .bound_upper
+        ?.bound_upper
     ).toBe(7570)
   })
 
