@@ -6,9 +6,9 @@ import {
   class2Tax,
   minAge,
 } from '../config/national-insurance'
-import dayjs from 'dayjs'
 import { getYearIndex } from './income-tax'
 import { inRange } from 'lodash'
+import { ageAtDate, statePensionAge } from './person'
 
 let taxYear: string
 let cashflow: Cashflow
@@ -33,21 +33,10 @@ export function calcNICs(
 }
 
 function shouldPayNICsThisYear(person: Person) {
-  const age = personAgeAtDate(
+  const age = ageAtDate(
     person,
     output.years[getYearIndex(taxYear, output)].starts_at
   )
 
-  // todo: Eligible to pay NICs if between 16 and state pension age
-
-  return inRange(age, minAge, personStatePensionAge(person))
-}
-
-function personAgeAtDate(person: Person, date: string) {
-  return dayjs.utc(person.date_of_birth).diff(date, 'year')
-}
-
-function personStatePensionAge(person: Person) {
-  // todo: Replace with real state pension calculation
-  return 67
+  return inRange(age, minAge, statePensionAge(person))
 }
