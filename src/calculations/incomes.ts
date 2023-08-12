@@ -18,11 +18,12 @@ export function setNetValues(
 
     out.net_value = out.gross_value
 
-    if (income.type === 'employment') {
+    if (income.type === 'employment')
       out.net_value += (out.bonus ?? 0) + (out.benefits ?? 0)
-    }
 
     out.net_value -= sum(Object.values(out.tax.ni_paid))
     out.net_value -= sumBy(Object.values(out.tax.bands), 'tax_paid')
+
+    out.net_value -= sum(Object.values(out.tax.ni_paid))
   })
 }
