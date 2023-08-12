@@ -79,6 +79,7 @@ function payNationalInsuranceOn(
   const projectedLimits = Object.fromEntries(
     Object.entries(taxableIncomeLimits).map(([key, value]) => {
       if (cashflow.assumptions.terms === 'real') return [key, value]
+
       return [
         key,
         round(
