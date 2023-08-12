@@ -14,6 +14,8 @@ export const class1Rates = {
   above_upl: 0.02,
 }
 
+export const minAge = 16
+
 /**
  * The amount of tax paid per year, based on the total
  * self-employed profits of the person in that year.
