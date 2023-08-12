@@ -1,7 +1,7 @@
 import { initialise } from './init'
 import { Cashflow, Output } from '../types'
-import { calcIncomeTaxLiability } from './income-tax'
 import { calcNICs } from './national-insurance'
+import { calcIncomeTaxLiability } from './income-tax'
 
 export function run(cashflow: Cashflow): Output {
   const output = initialise(cashflow)

@@ -112,6 +112,7 @@ export function calcIncomeTaxLiability(
     // the above gives the provisional income tax liability
     // deduct tax reducers e.g. marriage allowance, EIS tax relief, top-slicing relief
     // add extra tax charges e.g. high income child benefit charge, annual allowance charge
+    setNetValues(person, output, incomes)
   })
 }
 
@@ -369,4 +370,20 @@ function getIncomeTaxCategory(income: Income) {
   if (isSavingsIncome(income)) return 'savings'
   if (isDividendIncome(income)) return 'dividend'
   throw new Error('Unknown income tax category')
+}
+
+function setNetValues(person: Person, output: Output, incomes: Income[]) {
+  incomes.forEach(income => {
+    const outputIncomeYear =
+      output.incomes[income.id].years[getYearIndex(taxYear, output)]
+
+    if (!incomeIsTaxable(income)) {
+      outputIncomeYear.net_value = outputIncomeYear.gross_value
+      return
+    }
+
+    outputIncomeYear.net_value =
+      outputIncomeYear.taxable_value -
+      round(sumBy(Object.values(outputIncomeYear.tax.bands), 'tax_paid'), 2)
+  })
 }
