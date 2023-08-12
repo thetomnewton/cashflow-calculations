@@ -23,6 +23,8 @@ let taxYear: string
 let cashflow: Cashflow
 let output: Output
 
+type LimitsType = typeof taxableIncomeLimits
+
 export function calcNICs(
   year: PlanningYear,
   baseCashflow: Cashflow,
@@ -40,8 +42,6 @@ export function calcNICs(
         output.incomes[income.id].years[getYearIndex(year.tax_year, output)]
 
       const total = totalIncomeSubjectToNICs(income, outputYear)
-
-      // todo: real/nominal terms handling. either normalise the total or project the thresholds
 
       payNationalInsuranceOn(total / income.people.length, income, outputYear)
     })
@@ -76,31 +76,40 @@ function payNationalInsuranceOn(
   const NIClasses =
     incomeClasses[income.type as 'employment' | 'self_employment']
 
+  const projectedLimits = Object.fromEntries(
+    Object.entries(taxableIncomeLimits).map(([key, value]) => {
+      if (cashflow.assumptions.terms === 'real') return [key, value]
+      return [
+        key,
+        round(
+          value *
+            (1 + cashflow.assumptions.cpi) ** getYearIndex(taxYear, output),
+          2
+        ),
+      ]
+    })
+  ) as LimitsType
+
   NIClasses.forEach(className => {
     outputYear.tax.ni_paid[className] = {
-      class1: () => runClass1Calculation(total),
+      class1: () => runClass1Calculation(total, projectedLimits),
       class2: () => runClass2Calculation(total),
-      class4: () => runClass4Calculation(total),
+      class4: () => runClass4Calculation(total, projectedLimits),
     }[className as PossibleNICs]()
   })
 }
 
-function runClass1Calculation(total: number) {
+function runClass1Calculation(total: number, limits: LimitsType) {
   let out = 0
-  out +=
-    Math.min(total, taxableIncomeLimits.lower_profits_limit) *
-    class1Rates.below_lpl
+  out += Math.min(total, limits.lower_profits_limit) * class1Rates.below_lpl
 
   out +=
     Math.max(
       0,
-      Math.min(total, taxableIncomeLimits.upper_profits_limit) -
-        taxableIncomeLimits.lower_profits_limit
+      Math.min(total, limits.upper_profits_limit) - limits.lower_profits_limit
     ) * class1Rates.below_upl
 
-  out +=
-    Math.max(0, total - taxableIncomeLimits.upper_profits_limit) *
-    class1Rates.above_upl
+  out += Math.max(0, total - limits.upper_profits_limit) * class1Rates.above_upl
 
   return round(out, 2)
 }
@@ -109,22 +118,17 @@ function runClass2Calculation(total: number) {
   return total >= class2Tax.above_lpl ? round(class2Tax.above_lpl, 2) : 0
 }
 
-function runClass4Calculation(total: number) {
+function runClass4Calculation(total: number, limits: LimitsType) {
   let out = 0
-  out +=
-    Math.min(total, taxableIncomeLimits.lower_profits_limit) *
-    class4Rates.below_lpl
+  out += Math.min(total, limits.lower_profits_limit) * class4Rates.below_lpl
 
   out +=
     Math.max(
       0,
-      Math.min(total, taxableIncomeLimits.upper_profits_limit) -
-        taxableIncomeLimits.lower_profits_limit
+      Math.min(total, limits.upper_profits_limit) - limits.lower_profits_limit
     ) * class4Rates.below_upl
 
-  out +=
-    Math.max(0, total - taxableIncomeLimits.upper_profits_limit) *
-    class4Rates.above_upl
+  out += Math.max(0, total - limits.upper_profits_limit) * class4Rates.above_upl
 
   return round(out, 2)
 }
