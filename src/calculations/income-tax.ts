@@ -112,7 +112,6 @@ export function calcIncomeTaxLiability(
     // the above gives the provisional income tax liability
     // deduct tax reducers e.g. marriage allowance, EIS tax relief, top-slicing relief
     // add extra tax charges e.g. high income child benefit charge, annual allowance charge
-    setNetValues(person, output, incomes)
   })
 }
 
@@ -153,7 +152,7 @@ function getTaxableValue(income: Income, value: OutputIncomeYear) {
   }[income.type](value)
 }
 
-function incomeIsTaxable(income: Income) {
+export function incomeIsTaxable(income: Income) {
   // todo: "other" income can specify whether it is taxable or not
   // todo: "pension" income may be taxable depending on the withdrawal type
   return true
@@ -333,7 +332,7 @@ function useTaxBands(person: Person, output: Output, incomes: Income[]) {
   })
 }
 
-function getYearIndex(year: PlanningYear['tax_year'], output: Output) {
+export function getYearIndex(year: PlanningYear['tax_year'], output: Output) {
   return output.years.findIndex(({ tax_year }) => tax_year === year)
 }
 
@@ -370,20 +369,4 @@ function getIncomeTaxCategory(income: Income) {
   if (isSavingsIncome(income)) return 'savings'
   if (isDividendIncome(income)) return 'dividend'
   throw new Error('Unknown income tax category')
-}
-
-function setNetValues(person: Person, output: Output, incomes: Income[]) {
-  incomes.forEach(income => {
-    const outputIncomeYear =
-      output.incomes[income.id].years[getYearIndex(taxYear, output)]
-
-    if (!incomeIsTaxable(income)) {
-      outputIncomeYear.net_value = outputIncomeYear.gross_value
-      return
-    }
-
-    outputIncomeYear.net_value =
-      outputIncomeYear.taxable_value -
-      round(sumBy(Object.values(outputIncomeYear.tax.bands), 'tax_paid'), 2)
-  })
 }

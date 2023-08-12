@@ -16,4 +16,5 @@ export function calcNICs(
   taxYear = year.tax_year
 
   // eligible to pay NICs if between 16 and state pension age
+  // include bonuses if employment income
 }
