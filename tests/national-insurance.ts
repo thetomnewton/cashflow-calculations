@@ -26,4 +26,12 @@ describe('national insurance', () => {
   test('self-employed pays both class2 and class4', () => {
     //
   })
+
+  test('NIC thresholds project forward (nominal terms)', () => {
+    //
+  })
+
+  test('NIC thresholds project forward (real terms)', () => {
+    //
+  })
 })
