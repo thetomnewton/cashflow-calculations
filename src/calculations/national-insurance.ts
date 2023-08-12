@@ -16,7 +16,7 @@ import {
   minAge,
 } from '../config/national-insurance'
 import { getYearIndex } from './income-tax'
-import { inRange } from 'lodash'
+import { inRange, round } from 'lodash'
 import { ageAtDate, statePensionAge } from './person'
 
 let taxYear: string
@@ -40,6 +40,8 @@ export function calcNICs(
         output.incomes[income.id].years[getYearIndex(year.tax_year, output)]
 
       const total = totalIncomeSubjectToNICs(income, outputYear)
+
+      // todo: real/nominal terms handling. either normalise the total or project the thresholds
 
       payNationalInsuranceOn(total / income.people.length, income, outputYear)
     })
@@ -71,7 +73,6 @@ function payNationalInsuranceOn(
   income: Income,
   outputYear: OutputIncomeYear
 ) {
-  // todo: apply all relevant NICs on the total
   const NIClasses =
     incomeClasses[income.type as 'employment' | 'self_employment']
 
@@ -100,11 +101,12 @@ function runClass1Calculation(total: number) {
   out +=
     Math.max(0, total - taxableIncomeLimits.upper_profits_limit) *
     class1Rates.above_upl
-  return out
+
+  return round(out, 2)
 }
 
 function runClass2Calculation(total: number) {
-  return total >= class2Tax.above_lpl ? class2Tax.above_lpl : 0
+  return total >= class2Tax.above_lpl ? round(class2Tax.above_lpl, 2) : 0
 }
 
 function runClass4Calculation(total: number) {
@@ -123,5 +125,6 @@ function runClass4Calculation(total: number) {
   out +=
     Math.max(0, total - taxableIncomeLimits.upper_profits_limit) *
     class4Rates.above_upl
-  return out
+
+  return round(out, 2)
 }

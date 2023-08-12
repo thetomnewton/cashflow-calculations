@@ -37,7 +37,9 @@ describe('income tax', () => {
     expect(outputIncomeYear.tax.bands.basic_rate_eng.used).toEqual(27430)
     expect(outputIncomeYear.tax.bands.basic_rate_eng.tax_paid).toEqual(5486)
 
-    expect(outputIncomeYear.net_value).toEqual(34514) // todo: update for NICs
+    expect(outputIncomeYear.tax.ni_paid.class1).toEqual(3291.6)
+
+    expect(outputIncomeYear.net_value).toEqual(27930.8)
   })
 
   test('personal allowance tapers correctly', () => {

@@ -1,4 +1,4 @@
-import { sum, sumBy } from 'lodash'
+import { round, sum, sumBy } from 'lodash'
 import { Cashflow, Output, PlanningYear } from '../types'
 import { getYearIndex, incomeIsTaxable } from './income-tax'
 
@@ -25,5 +25,7 @@ export function setNetValues(
     out.net_value -= sumBy(Object.values(out.tax.bands), 'tax_paid')
 
     out.net_value -= sum(Object.values(out.tax.ni_paid))
+
+    out.net_value = round(out.net_value, 2)
   })
 }

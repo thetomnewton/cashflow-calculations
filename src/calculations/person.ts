@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import { Person } from '../types'
 
 export function ageAtDate({ date_of_birth }: Person, date: string) {
-  return dayjs.utc(date_of_birth).diff(date, 'year')
+  return Math.abs(dayjs.utc(date).diff(date_of_birth, 'year'))
 }
 
 export function statePensionAge({ date_of_birth }: Person) {
