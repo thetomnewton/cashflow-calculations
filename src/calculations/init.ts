@@ -60,10 +60,10 @@ function makeOutputIncomeObj(
       const grossValue = getValueInYear(income, year, cashflow, output)
       return {
         gross_value: grossValue,
+        taxable_value: 0,
         net_value: 0,
         tax: {
-          tax_paid: 0,
-          ni_paid: 0,
+          ni_paid: {},
           bands: {},
         },
       }
