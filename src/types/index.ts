@@ -78,6 +78,8 @@ export interface Output {
   }
 }
 
+export type PossibleNICs = 'class1' | 'class2' | 'class4'
+
 export type OutputIncomeYear = {
   gross_value: number
   bonus?: number
