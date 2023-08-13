@@ -1,6 +1,6 @@
 import { v4 } from 'uuid'
-import { makeCashflow, makeIncome, makePerson } from '../src/factories'
 import { run } from '../src/calculations'
+import { makeCashflow, makeIncome, makePerson } from '../src/factories'
 
 describe('national insurance', () => {
   test('salary below threshold has no NI to pay', () => {
@@ -30,14 +30,44 @@ describe('national insurance', () => {
 
     const out = run(cashflow)
 
-    expect(out.incomes[salaryId].years[0].tax.ni_paid.class1).toBe(0)
+    expect(out.incomes[salaryId].years[0].tax.ni_paid.class1).toEqual(0)
+    expect(out.incomes[salaryId].years[1].tax.ni_paid.class1).toEqual(0)
+    expect(out.incomes[salaryId].years[2].tax.ni_paid.class1).toEqual(0)
   })
 
   test('under 16 no NICs', () => {
-    //
+    const person = makePerson({ date_of_birth: '2013-01-01', sex: 'male' })
+    const salaryId = v4()
+    const cashflow = makeCashflow({
+      starts_at: '2023-08-13',
+      years: 3,
+      people: [person],
+      incomes: [
+        makeIncome({
+          id: salaryId,
+          type: 'employment',
+          people: [person],
+          values: [
+            {
+              value: 20000,
+              starts_at: '2023-08-13',
+              ends_at: '2026-08-13',
+              adjusted: true,
+              escalation: 'cpi',
+            },
+          ],
+        }),
+      ],
+    })
+
+    const out = run(cashflow)
+
+    expect(out.incomes[salaryId].years[0].tax.ni_paid).toStrictEqual({})
+    expect(out.incomes[salaryId].years[1].tax.ni_paid).toStrictEqual({})
+    expect(out.incomes[salaryId].years[2].tax.ni_paid).toStrictEqual({})
   })
 
-  test('over state pension no NICs', () => {
+  test('over state pension age no NICs', () => {
     //
   })
 
