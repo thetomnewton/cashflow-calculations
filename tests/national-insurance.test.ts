@@ -100,7 +100,7 @@ describe('national insurance', () => {
   })
 
   test('salary above LPL taxed via class1', () => {
-    const person = makePerson({ date_of_birth: '1980-01-01', sex: 'male' })
+    const person = makePerson({ date_of_birth: '1980-07-30', sex: 'female' })
     const salaryId = v4()
     const cashflow = makeCashflow({
       starts_at: '2023-08-13',
@@ -132,7 +132,35 @@ describe('national insurance', () => {
   })
 
   test('salary above UPL taxed appropriately with class1', () => {
-    //
+    const person = makePerson({ date_of_birth: '1977-12-16', sex: 'female' })
+    const salaryId = v4()
+    const cashflow = makeCashflow({
+      starts_at: '2023-08-13',
+      years: 3,
+      people: [person],
+      incomes: [
+        makeIncome({
+          id: salaryId,
+          type: 'employment',
+          people: [person],
+          values: [
+            {
+              value: 60000,
+              starts_at: '2023-08-13',
+              ends_at: '2026-08-13',
+              adjusted: true,
+              escalation: 'cpi',
+            },
+          ],
+        }),
+      ],
+    })
+
+    const out = run(cashflow)
+
+    expect(out.incomes[salaryId].years[0].tax.ni_paid.class1).toEqual(4718.6)
+    expect(out.incomes[salaryId].years[1].tax.ni_paid.class1).toEqual(4836.57)
+    expect(out.incomes[salaryId].years[2].tax.ni_paid.class1).toEqual(4957.48)
   })
 
   test('self employed below LPL no NICs', () => {
