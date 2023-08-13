@@ -189,9 +189,12 @@ describe('national insurance', () => {
 
     const out = run(cashflow)
 
-    expect(out.incomes[salaryId].years[0].tax.ni_paid.class2).toStrictEqual(0)
-    expect(out.incomes[salaryId].years[1].tax.ni_paid.class2).toStrictEqual(0)
-    expect(out.incomes[salaryId].years[2].tax.ni_paid.class2).toStrictEqual(0)
+    expect(out.incomes[salaryId].years[0].tax.ni_paid.class2).toEqual(0)
+    expect(out.incomes[salaryId].years[0].tax.ni_paid.class4).toEqual(0)
+    expect(out.incomes[salaryId].years[1].tax.ni_paid.class2).toEqual(0)
+    expect(out.incomes[salaryId].years[1].tax.ni_paid.class4).toEqual(0)
+    expect(out.incomes[salaryId].years[2].tax.ni_paid.class2).toEqual(0)
+    expect(out.incomes[salaryId].years[2].tax.ni_paid.class4).toEqual(0)
   })
 
   test('self-employed pays both class2 and class4', () => {
