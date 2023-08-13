@@ -164,7 +164,34 @@ describe('national insurance', () => {
   })
 
   test('self employed below LPL no NICs', () => {
-    //
+    const person = makePerson({ date_of_birth: '1977-12-16', sex: 'female' })
+    const salaryId = v4()
+    const cashflow = makeCashflow({
+      starts_at: '2023-08-13',
+      years: 3,
+      people: [person],
+      incomes: [
+        makeIncome({
+          id: salaryId,
+          type: 'self_employment',
+          people: [person],
+          values: [
+            {
+              value: 8000,
+              starts_at: '2023-08-13',
+              ends_at: '2026-08-13',
+              escalation: 0,
+            },
+          ],
+        }),
+      ],
+    })
+
+    const out = run(cashflow)
+
+    expect(out.incomes[salaryId].years[0].tax.ni_paid.class2).toStrictEqual(0)
+    expect(out.incomes[salaryId].years[1].tax.ni_paid.class2).toStrictEqual(0)
+    expect(out.incomes[salaryId].years[2].tax.ni_paid.class2).toStrictEqual(0)
   })
 
   test('self-employed pays both class2 and class4', () => {

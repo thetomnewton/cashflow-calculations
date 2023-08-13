@@ -80,14 +80,9 @@ function payNationalInsuranceOn(
     Object.entries(taxableIncomeLimits).map(([key, value]) => {
       if (cashflow.assumptions.terms === 'real') return [key, value]
 
-      return [
-        key,
-        round(
-          value *
-            (1 + cashflow.assumptions.cpi) ** getYearIndex(taxYear, output),
-          2
-        ),
-      ]
+      const inflatedValue =
+        value * (1 + cashflow.assumptions.cpi) ** getYearIndex(taxYear, output)
+      return [key, round(inflatedValue, 2)]
     })
   ) as LimitsType
 
@@ -116,7 +111,9 @@ function runClass1Calculation(total: number, limits: LimitsType) {
 }
 
 function runClass2Calculation(total: number) {
-  return total >= class2Tax.above_lpl ? round(class2Tax.above_lpl, 2) : 0
+  return total >= taxableIncomeLimits.lower_profits_limit
+    ? round(class2Tax.above_lpl, 2)
+    : 0
 }
 
 function runClass4Calculation(total: number, limits: LimitsType) {
