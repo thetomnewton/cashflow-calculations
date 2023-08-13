@@ -68,11 +68,67 @@ describe('national insurance', () => {
   })
 
   test('over state pension age no NICs', () => {
-    //
+    const person = makePerson({ date_of_birth: '1933-01-01', sex: 'male' })
+    const salaryId = v4()
+    const cashflow = makeCashflow({
+      starts_at: '2023-08-13',
+      years: 3,
+      people: [person],
+      incomes: [
+        makeIncome({
+          id: salaryId,
+          type: 'employment',
+          people: [person],
+          values: [
+            {
+              value: 50000,
+              starts_at: '2023-08-13',
+              ends_at: '2026-08-13',
+              adjusted: true,
+              escalation: 'cpi',
+            },
+          ],
+        }),
+      ],
+    })
+
+    const out = run(cashflow)
+
+    expect(out.incomes[salaryId].years[0].tax.ni_paid).toStrictEqual({})
+    expect(out.incomes[salaryId].years[1].tax.ni_paid).toStrictEqual({})
+    expect(out.incomes[salaryId].years[2].tax.ni_paid).toStrictEqual({})
   })
 
   test('salary above LPL taxed via class1', () => {
-    //
+    const person = makePerson({ date_of_birth: '1980-01-01', sex: 'male' })
+    const salaryId = v4()
+    const cashflow = makeCashflow({
+      starts_at: '2023-08-13',
+      years: 3,
+      people: [person],
+      incomes: [
+        makeIncome({
+          id: salaryId,
+          type: 'employment',
+          people: [person],
+          values: [
+            {
+              value: 40000,
+              starts_at: '2023-08-13',
+              ends_at: '2026-08-13',
+              adjusted: true,
+              escalation: 'cpi',
+            },
+          ],
+        }),
+      ],
+    })
+
+    const out = run(cashflow)
+
+    expect(out.incomes[salaryId].years[0].tax.ni_paid.class1).toEqual(3291.6)
+    expect(out.incomes[salaryId].years[1].tax.ni_paid.class1).toEqual(3373.89)
+    expect(out.incomes[salaryId].years[2].tax.ni_paid.class1).toEqual(3458.24)
   })
 
   test('salary above UPL taxed appropriately with class1', () => {
