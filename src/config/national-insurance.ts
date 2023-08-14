@@ -27,6 +27,6 @@ export const class2Tax = {
 
 export const class4Rates = {
   below_lpl: 0,
-  below_upl: 0.9,
+  below_upl: 0.09,
   above_upl: 0.02,
 }

@@ -132,7 +132,7 @@ describe('national insurance', () => {
   })
 
   test('salary above UPL taxed appropriately with class1', () => {
-    const person = makePerson({ date_of_birth: '1977-12-16', sex: 'female' })
+    const person = makePerson({ date_of_birth: '1965-10-10', sex: 'male' })
     const salaryId = v4()
     const cashflow = makeCashflow({
       starts_at: '2023-08-13',
@@ -164,7 +164,7 @@ describe('national insurance', () => {
   })
 
   test('self employed below LPL no NICs', () => {
-    const person = makePerson({ date_of_birth: '1977-12-16', sex: 'female' })
+    const person = makePerson({ date_of_birth: '1991-09-01', sex: 'female' })
     const salaryId = v4()
     const cashflow = makeCashflow({
       starts_at: '2023-08-13',
@@ -177,7 +177,7 @@ describe('national insurance', () => {
           people: [person],
           values: [
             {
-              value: 8000,
+              value: 75000,
               starts_at: '2023-08-13',
               ends_at: '2026-08-13',
               escalation: 0,
@@ -189,12 +189,18 @@ describe('national insurance', () => {
 
     const out = run(cashflow)
 
-    expect(out.incomes[salaryId].years[0].tax.ni_paid.class2).toEqual(0)
-    expect(out.incomes[salaryId].years[0].tax.ni_paid.class4).toEqual(0)
-    expect(out.incomes[salaryId].years[1].tax.ni_paid.class2).toEqual(0)
-    expect(out.incomes[salaryId].years[1].tax.ni_paid.class4).toEqual(0)
-    expect(out.incomes[salaryId].years[2].tax.ni_paid.class2).toEqual(0)
-    expect(out.incomes[salaryId].years[2].tax.ni_paid.class4).toEqual(0)
+    expect(out.incomes[salaryId].years[0].tax.ni_paid).toStrictEqual({
+      class2: 163.8,
+      class4: 3887.6, // 37700 * 0.09 + 24730 * 0.02
+    })
+    expect(out.incomes[salaryId].years[1].tax.ni_paid).toStrictEqual({
+      class2: 167.9,
+      class4: 0,
+    })
+    expect(out.incomes[salaryId].years[2].tax.ni_paid).toStrictEqual({
+      class2: 0,
+      class4: 0,
+    })
   })
 
   test('self-employed pays both class2 and class4', () => {
