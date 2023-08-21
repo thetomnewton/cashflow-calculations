@@ -180,7 +180,7 @@ describe('national insurance', () => {
               value: 75000,
               starts_at: '2023-08-13',
               ends_at: '2026-08-13',
-              escalation: 'cpi',
+              escalation: 0,
             },
           ],
         }),
@@ -195,11 +195,11 @@ describe('national insurance', () => {
     })
     expect(out.incomes[salaryId].years[1].tax.ni_paid).toStrictEqual({
       class2: 167.9,
-      class4: 0,
+      class4: 3947.29,
     })
     expect(out.incomes[salaryId].years[2].tax.ni_paid).toStrictEqual({
-      class2: 0,
-      class4: 0,
+      class2: 172.09,
+      class4: 4008.47, // 39,608.56 * .09 + 22,185.08 * .02
     })
   })
 

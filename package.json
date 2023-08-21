@@ -34,6 +34,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "@radix-ui/react-select": "^1.2.2",
     "dayjs": "^1.11.9",
     "lodash": "^4.17.21",
     "uuid": "^9.0.0"

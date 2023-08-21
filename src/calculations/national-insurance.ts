@@ -24,6 +24,7 @@ let cashflow: Cashflow
 let output: Output
 
 type LimitsType = typeof taxableIncomeLimits
+type Class2TaxType = typeof class2Tax
 
 export function calcNICs(
   year: PlanningYear,
@@ -69,17 +70,18 @@ function totalIncomeSubjectToNICs(
 }
 
 function getProjectedLimits(
+  limits: { [key: string]: number },
   terms: Cashflow['assumptions']['terms'],
   cpi: Cashflow['assumptions']['cpi']
 ) {
   return Object.fromEntries(
-    Object.entries(taxableIncomeLimits).map(([key, value]) => {
+    Object.entries(limits).map(([key, value]) => {
       if (terms === 'real') return [key, value]
 
       const inflatedValue = value * (1 + cpi) ** getYearIndex(taxYear, output)
       return [key, round(inflatedValue, 2)]
     })
-  ) as LimitsType
+  )
 }
 
 function payNationalInsuranceOn(
@@ -91,14 +93,22 @@ function payNationalInsuranceOn(
     incomeClasses[income.type as 'employment' | 'self_employment']
 
   const projectedLimits = getProjectedLimits(
+    taxableIncomeLimits,
     cashflow.assumptions.terms,
     cashflow.assumptions.cpi
-  )
+  ) as LimitsType
+
+  const projectedClass2Tax = getProjectedLimits(
+    class2Tax,
+    cashflow.assumptions.terms,
+    cashflow.assumptions.cpi
+  ) as Class2TaxType
 
   NIClasses.forEach(className => {
     outputYear.tax.ni_paid[className] = {
       class1: () => runClass1Calculation(total, projectedLimits),
-      class2: () => runClass2Calculation(total),
+      class2: () =>
+        runClass2Calculation(total, projectedLimits, projectedClass2Tax),
       class4: () => runClass4Calculation(total, projectedLimits),
     }[className as PossibleNICs]()
   })
@@ -119,9 +129,13 @@ function runClass1Calculation(total: number, limits: LimitsType) {
   return round(out, 2)
 }
 
-function runClass2Calculation(total: number) {
-  return total >= taxableIncomeLimits.lower_profits_limit
-    ? round(class2Tax.above_lpl, 2)
+function runClass2Calculation(
+  total: number,
+  incomeLimits: LimitsType,
+  class2Limits: Class2TaxType
+) {
+  return total >= incomeLimits.lower_profits_limit
+    ? round(class2Limits.above_lpl, 2)
     : 0
 }
 
