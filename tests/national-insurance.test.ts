@@ -204,6 +204,43 @@ describe('national insurance', () => {
   })
 
   test('NIC thresholds project forward (real terms)', () => {
-    //
+    const person = makePerson({ date_of_birth: '1991-09-01', sex: 'female' })
+    const income = makeIncome({
+      id: v4(),
+      type: 'self_employment',
+      people: [person],
+      values: [
+        {
+          value: 75000,
+          starts_at: '2023-08-13',
+          ends_at: '2026-08-13',
+          escalation: 0,
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      starts_at: '2023-08-13',
+      years: 3,
+      people: [person],
+      incomes: [income],
+      assumptions: { terms: 'real' },
+    })
+
+    const out = run(cashflow)
+    const incomeResult = out.incomes[income.id]
+
+    expect(incomeResult.years[0].tax.ni_paid).toStrictEqual({
+      class2: 163.8,
+      class4: 3887.6, // 37700 * .09 + 24730 * .02
+    })
+    expect(incomeResult.years[1].tax.ni_paid).toStrictEqual({
+      class2: 163.8,
+      class4: 3851.01,
+    })
+    expect(incomeResult.years[2].tax.ni_paid).toStrictEqual({
+      class2: 163.8,
+      class4: 3815.32,
+    })
   })
 })
