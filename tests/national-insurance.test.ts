@@ -163,52 +163,44 @@ describe('national insurance', () => {
     expect(out.incomes[salaryId].years[2].tax.ni_paid.class1).toEqual(4957.48)
   })
 
-  test('self employed below LPL no NICs', () => {
+  test('self-employed pays correct class2 and class4 NICs', () => {
     const person = makePerson({ date_of_birth: '1991-09-01', sex: 'female' })
-    const salaryId = v4()
+    const income = makeIncome({
+      id: v4(),
+      type: 'self_employment',
+      people: [person],
+      values: [
+        {
+          value: 75000,
+          starts_at: '2023-08-13',
+          ends_at: '2026-08-13',
+          escalation: 0,
+        },
+      ],
+    })
+
     const cashflow = makeCashflow({
       starts_at: '2023-08-13',
       years: 3,
       people: [person],
-      incomes: [
-        makeIncome({
-          id: salaryId,
-          type: 'self_employment',
-          people: [person],
-          values: [
-            {
-              value: 75000,
-              starts_at: '2023-08-13',
-              ends_at: '2026-08-13',
-              escalation: 0,
-            },
-          ],
-        }),
-      ],
+      incomes: [income],
     })
 
     const out = run(cashflow)
+    const incomeResult = out.incomes[income.id]
 
-    expect(out.incomes[salaryId].years[0].tax.ni_paid).toStrictEqual({
+    expect(incomeResult.years[0].tax.ni_paid).toStrictEqual({
       class2: 163.8,
-      class4: 3887.6, // 37700 * 0.09 + 24730 * 0.02
+      class4: 3887.6, // 37700 * .09 + 24730 * .02
     })
-    expect(out.incomes[salaryId].years[1].tax.ni_paid).toStrictEqual({
+    expect(incomeResult.years[1].tax.ni_paid).toStrictEqual({
       class2: 167.9,
       class4: 3947.29,
     })
-    expect(out.incomes[salaryId].years[2].tax.ni_paid).toStrictEqual({
+    expect(incomeResult.years[2].tax.ni_paid).toStrictEqual({
       class2: 172.09,
-      class4: 4008.47, // 39,608.56 * .09 + 22,185.08 * .02
+      class4: 4008.47, // 39608.56 * .09 + 22185.08 * .02
     })
-  })
-
-  test('self-employed pays both class2 and class4', () => {
-    //
-  })
-
-  test('NIC thresholds project forward (nominal terms)', () => {
-    //
   })
 
   test('NIC thresholds project forward (real terms)', () => {
