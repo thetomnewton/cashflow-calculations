@@ -68,6 +68,20 @@ function totalIncomeSubjectToNICs(
   return outputYear.gross_value
 }
 
+function getProjectedLimits(
+  terms: Cashflow['assumptions']['terms'],
+  cpi: Cashflow['assumptions']['cpi']
+) {
+  return Object.fromEntries(
+    Object.entries(taxableIncomeLimits).map(([key, value]) => {
+      if (terms === 'real') return [key, value]
+
+      const inflatedValue = value * (1 + cpi) ** getYearIndex(taxYear, output)
+      return [key, round(inflatedValue, 2)]
+    })
+  ) as LimitsType
+}
+
 function payNationalInsuranceOn(
   total: number,
   income: Income,
@@ -76,15 +90,10 @@ function payNationalInsuranceOn(
   const NIClasses =
     incomeClasses[income.type as 'employment' | 'self_employment']
 
-  const projectedLimits = Object.fromEntries(
-    Object.entries(taxableIncomeLimits).map(([key, value]) => {
-      if (cashflow.assumptions.terms === 'real') return [key, value]
-
-      const inflatedValue =
-        value * (1 + cashflow.assumptions.cpi) ** getYearIndex(taxYear, output)
-      return [key, round(inflatedValue, 2)]
-    })
-  ) as LimitsType
+  const projectedLimits = getProjectedLimits(
+    cashflow.assumptions.terms,
+    cashflow.assumptions.cpi
+  )
 
   NIClasses.forEach(className => {
     outputYear.tax.ni_paid[className] = {

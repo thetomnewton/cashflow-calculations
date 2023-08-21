@@ -180,7 +180,7 @@ describe('national insurance', () => {
               value: 75000,
               starts_at: '2023-08-13',
               ends_at: '2026-08-13',
-              escalation: 0,
+              escalation: 'cpi',
             },
           ],
         }),
