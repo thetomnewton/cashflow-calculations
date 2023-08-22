@@ -288,19 +288,36 @@ describe('national insurance', () => {
 
   test('2 incomes, NICs calculate correctly', () => {
     const person = makePerson({ date_of_birth: '1985-03-01', sex: 'male' })
+
+    const salary = makeIncome({
+      id: v4(),
+      type: 'employment',
+      people: [person],
+      values: [
+        {
+          value: 30000,
+          starts_at: '2023-08-13',
+          ends_at: '2026-08-13',
+          adjusted: true,
+          escalation: 'cpi',
+        },
+      ],
+    })
+
     const income2 = makeIncome({
       id: v4(),
       type: 'self_employment',
       people: [person],
       values: [
         {
-          value: 75000,
+          value: 40000,
           starts_at: '2023-08-13',
           ends_at: '2026-08-13',
           escalation: 0,
         },
       ],
     })
+
     // salary: 30k
     // self employed: 40k
     // what should happen?
