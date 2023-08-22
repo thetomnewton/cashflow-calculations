@@ -38,14 +38,17 @@ export function calcNICs(
   cashflow.incomes
     .filter(incomeRelevantToNICs)
     .filter(({ people }) => people.every(shouldPayNICsThisYear))
-    .forEach(income => {
+    .reduce((acc, income) => {
       const outputYear =
         output.incomes[income.id].years[getYearIndex(year.tax_year, output)]
 
-      const total = totalIncomeSubjectToNICs(income, outputYear)
+      const overallTotal = totalIncomeSubjectToNICs(income, outputYear)
+      const totalForPerson = overallTotal / income.people.length
 
-      payNationalInsuranceOn(total / income.people.length, income, outputYear)
-    })
+      payNationalInsuranceOn(totalForPerson, income, outputYear, acc)
+
+      return acc + totalForPerson
+    }, 0)
 }
 
 const incomeRelevantToNICs = ({ type }: Income) =>
@@ -87,7 +90,8 @@ function getProjectedLimits(
 function payNationalInsuranceOn(
   total: number,
   income: Income,
-  outputYear: OutputIncomeYear
+  outputYear: OutputIncomeYear,
+  alreadyPaid: number
 ) {
   const NIClasses =
     incomeClasses[income.type as 'employment' | 'self_employment']

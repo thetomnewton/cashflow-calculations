@@ -239,4 +239,70 @@ describe('national insurance', () => {
       class4: 3815.32,
     })
   })
+
+  test('2 salaries, NICs calculate correctly', () => {
+    const person = makePerson({ date_of_birth: '1991-09-01', sex: 'female' })
+    const salary = makeIncome({
+      id: v4(),
+      type: 'employment',
+      people: [person],
+      values: [
+        {
+          value: 30000,
+          starts_at: '2023-08-13',
+          ends_at: '2026-08-13',
+          adjusted: true,
+          escalation: 'cpi',
+        },
+      ],
+    })
+
+    const salary2 = makeIncome({
+      id: v4(),
+      type: 'employment',
+      people: [person],
+      values: [
+        {
+          value: 35000,
+          starts_at: '2023-08-13',
+          ends_at: '2026-08-13',
+          adjusted: true,
+          escalation: 'cpi',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      starts_at: '2023-08-13',
+      years: 3,
+      people: [person],
+      incomes: [salary, salary2],
+      assumptions: { terms: 'real' },
+    })
+
+    const out = run(cashflow)
+
+    // salary 1 should use up much of the thresholds, salary 2 uses the remainder
+    expect(out.incomes[salary.id].years[0].tax.ni_paid.class1).toEqual(4818.6)
+  })
+
+  test('2 incomes, NICs calculate correctly', () => {
+    const person = makePerson({ date_of_birth: '1985-03-01', sex: 'male' })
+    const income2 = makeIncome({
+      id: v4(),
+      type: 'self_employment',
+      people: [person],
+      values: [
+        {
+          value: 75000,
+          starts_at: '2023-08-13',
+          ends_at: '2026-08-13',
+          escalation: 0,
+        },
+      ],
+    })
+    // salary: 30k
+    // self employed: 40k
+    // what should happen?
+  })
 })
