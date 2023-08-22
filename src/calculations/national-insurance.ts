@@ -102,6 +102,11 @@ function payNationalInsuranceOn(
     cashflow.assumptions.cpi
   ) as LimitsType
 
+  const adjustedLimits = adjustLimitsForAlreadyPaid(
+    projectedLimits,
+    alreadyPaid
+  ) as LimitsType
+
   const projectedClass2Tax = getProjectedLimits(
     class2Tax,
     cashflow.assumptions.terms,
@@ -110,10 +115,10 @@ function payNationalInsuranceOn(
 
   NIClasses.forEach(className => {
     outputYear.tax.ni_paid[className] = {
-      class1: () => runClass1Calculation(total, projectedLimits),
+      class1: () => runClass1Calculation(total, adjustedLimits),
       class2: () =>
-        runClass2Calculation(total, projectedLimits, projectedClass2Tax),
-      class4: () => runClass4Calculation(total, projectedLimits),
+        runClass2Calculation(total, adjustedLimits, projectedClass2Tax),
+      class4: () => runClass4Calculation(total, adjustedLimits),
     }[className as PossibleNICs]()
   })
 }
@@ -156,4 +161,13 @@ function runClass4Calculation(total: number, limits: LimitsType) {
   out += Math.max(0, total - limits.upper_profits_limit) * class4Rates.above_upl
 
   return round(out, 2)
+}
+
+function adjustLimitsForAlreadyPaid(limits: LimitsType, alreadyPaid: number) {
+  return Object.fromEntries(
+    Object.entries(limits).map(([key, value]) => [
+      key,
+      Math.max(value - alreadyPaid, 0),
+    ])
+  )
 }

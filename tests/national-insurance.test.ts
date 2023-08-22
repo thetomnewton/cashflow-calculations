@@ -283,7 +283,9 @@ describe('national insurance', () => {
     const out = run(cashflow)
 
     // salary 1 should use up much of the thresholds, salary 2 uses the remainder
-    expect(out.incomes[salary.id].years[0].tax.ni_paid.class1).toEqual(4818.6)
+    // salary 2: 4818.6 - 2091.6 = 2727 NICs
+    expect(out.incomes[salary.id].years[0].tax.ni_paid.class1).toEqual(2091.6)
+    expect(out.incomes[salary2.id].years[1].tax.ni_paid.class1).toEqual(2727)
   })
 
   test('2 incomes, NICs calculate correctly', () => {
@@ -318,8 +320,20 @@ describe('national insurance', () => {
       ],
     })
 
-    // salary: 30k
-    // self employed: 40k
-    // what should happen?
+    const cashflow = makeCashflow({
+      starts_at: '2023-08-13',
+      years: 3,
+      people: [person],
+      incomes: [salary, income2],
+      assumptions: { terms: 'real' },
+    })
+
+    const out = run(cashflow)
+
+    expect(out.incomes[salary.id].years[0].tax.ni_paid.class1).toEqual(2091.6)
+    expect(out.incomes[income2.id].years[0].tax.ni_paid.class2).toEqual(163.8)
+    // (50270 - 30000 =) 20270 * .09 = 1824.3
+    // (40000 - 20270 =) 19730 * .02 = 394.6
+    expect(out.incomes[income2.id].years[0].tax.ni_paid.class4).toEqual(2218.9)
   })
 })
