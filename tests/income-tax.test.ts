@@ -75,31 +75,29 @@ describe('income tax', () => {
   })
 
   test('salary within PA does not get taxed', () => {
-    const incomeId = v4()
     const person = makePerson({ sex: 'female', tax_residency: 'wal' })
+    const salary = makeIncome({
+      id: v4(),
+      type: 'employment',
+      people: [person],
+      values: [
+        {
+          value: 10000,
+          starts_at: iso('2023-08-10'),
+          ends_at: iso('2025-08-10'),
+          escalation: 0,
+        },
+      ],
+    })
     const cashflow = makeCashflow({
       people: [person],
       starts_at: iso('2023-08-10'),
       years: 2,
-      incomes: [
-        makeIncome({
-          id: incomeId,
-          type: 'employment',
-          people: [person],
-          values: [
-            {
-              value: 10000,
-              starts_at: iso('2023-08-10'),
-              ends_at: iso('2025-08-10'),
-              escalation: 0,
-            },
-          ],
-        }),
-      ],
+      incomes: [salary],
     })
 
     const out = run(cashflow)
-    const outputIncomeYear = out.incomes[incomeId].years[0]
+    const outputIncomeYear = out.incomes[salary.id].years[0]
 
     expect(
       sumBy(Object.values(outputIncomeYear.tax.bands), 'tax_paid')
@@ -110,30 +108,28 @@ describe('income tax', () => {
 
   test('higher rate salary gets taxed correctly', () => {
     const person = makePerson({ sex: 'male', tax_residency: 'eng' })
-    const salaryId = v4()
+    const salary = makeIncome({
+      id: v4(),
+      people: [person],
+      type: 'employment',
+      values: [
+        {
+          value: 70000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2028-04-06'),
+          escalation: 'rpi',
+        },
+      ],
+    })
 
     const cashflow = makeCashflow({
       people: [person],
       starts_at: iso('2023-04-06'),
       years: 2,
-      incomes: [
-        makeIncome({
-          id: salaryId,
-          people: [person],
-          type: 'employment',
-          values: [
-            {
-              value: 70000,
-              starts_at: iso('2023-04-06'),
-              ends_at: iso('2028-04-06'),
-              escalation: 'rpi',
-            },
-          ],
-        }),
-      ],
+      incomes: [salary],
     })
     const out = run(cashflow)
-    const outputIncomeYear = out.incomes[salaryId].years[0]
+    const outputIncomeYear = out.incomes[salary.id].years[0]
 
     expect(outputIncomeYear.tax.bands.personal_allowance.used).toEqual(12570)
     expect(outputIncomeYear.tax.bands.personal_allowance.tax_paid).toEqual(0)
