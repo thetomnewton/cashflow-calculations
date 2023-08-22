@@ -7,30 +7,28 @@ import { sumBy } from 'lodash'
 describe('income tax', () => {
   test('basic rate salary is taxed correctly', () => {
     const person = makePerson({ sex: 'male', tax_residency: 'eng' })
-    const salaryId = v4()
+    const salary = makeIncome({
+      id: v4(),
+      people: [person],
+      type: 'employment',
+      values: [
+        {
+          value: 40000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2028-04-06'),
+          escalation: 0,
+        },
+      ],
+    })
 
     const cashflow = makeCashflow({
       people: [person],
       starts_at: iso('2023-04-06'),
       years: 5,
-      incomes: [
-        makeIncome({
-          id: salaryId,
-          people: [person],
-          type: 'employment',
-          values: [
-            {
-              value: 40000,
-              starts_at: iso('2023-04-06'),
-              ends_at: iso('2028-04-06'),
-              escalation: 0,
-            },
-          ],
-        }),
-      ],
+      incomes: [salary],
     })
     const out = run(cashflow)
-    const outputIncomeYear = out.incomes[salaryId].years[0]
+    const outputIncomeYear = out.incomes[salary.id].years[0]
 
     expect(outputIncomeYear.tax.bands.personal_allowance.used).toEqual(12570)
     expect(outputIncomeYear.tax.bands.personal_allowance.tax_paid).toEqual(0)
