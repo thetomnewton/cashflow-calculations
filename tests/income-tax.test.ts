@@ -114,7 +114,7 @@ describe('income tax', () => {
         {
           value: 70000,
           starts_at: iso('2023-04-06'),
-          ends_at: iso('2028-04-06'),
+          ends_at: iso('2025-04-06'),
           escalation: 'rpi',
         },
       ],
@@ -147,7 +147,7 @@ describe('income tax', () => {
         {
           value: 170000,
           starts_at: iso('2023-04-06'),
-          ends_at: iso('2028-04-06'),
+          ends_at: iso('2025-04-06'),
           escalation: 'cpi',
         },
       ],
@@ -163,16 +163,52 @@ describe('income tax', () => {
     const outputIncomeYear = out.incomes[salary.id].years[0]
     const bands = outputIncomeYear.tax.bands
 
-    expect(bands.basic_rate_eng.used).toEqual(37700)
-    expect(bands.basic_rate_eng.tax_paid).toEqual(7540)
-    expect(bands.higher_rate_eng.used).toEqual(112300)
-    expect(bands.higher_rate_eng.tax_paid).toEqual(44920)
-    expect(bands.additional_rate_eng.used).toEqual(20000)
-    expect(bands.additional_rate_eng.tax_paid).toEqual(9000)
+    expect(bands).toEqual({
+      basic_rate_eng: { used: 37700, tax_paid: 7540 },
+      higher_rate_eng: { used: 112300, tax_paid: 44920 },
+      additional_rate_eng: { used: 20000, tax_paid: 9000 },
+    })
+
+    // Ensure PA tapered down to 0
+    const pa = out.tax.bands[2324][person.id].find(
+      ({ key }) => key === 'personal_allowance'
+    )
+    expect(pa?.remaining).toEqual(0)
+    expect(pa?.bound_upper).toEqual(0)
   })
 
   test('self employment income taxed correctly', () => {
-    //
+    const person = makePerson({ sex: 'female', tax_residency: 'ni' })
+    const salary = makeIncome({
+      id: v4(),
+      people: [person],
+      type: 'self_employment',
+      values: [
+        {
+          value: 65000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2027-04-06'),
+          escalation: 0.02,
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      incomes: [salary],
+    })
+
+    const out = run(cashflow)
+    const outputIncomeYear = out.incomes[salary.id].years[0]
+    const bands = outputIncomeYear.tax.bands
+
+    expect(bands).toEqual({
+      personal_allowance: { used: 12570, tax_paid: 0 },
+      basic_rate_eng: { used: 37700, tax_paid: 7540 },
+      higher_rate_eng: { used: 14730, tax_paid: 5892 },
+    })
   })
 
   test('dividend income taxed correctly', () => {
