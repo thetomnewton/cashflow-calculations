@@ -128,13 +128,13 @@ describe('income tax', () => {
     })
     const out = run(cashflow)
     const outputIncomeYear = out.incomes[salary.id].years[0]
+    const bands = outputIncomeYear.tax.bands
 
-    expect(outputIncomeYear.tax.bands.personal_allowance.used).toEqual(12570)
-    expect(outputIncomeYear.tax.bands.personal_allowance.tax_paid).toEqual(0)
-    expect(outputIncomeYear.tax.bands.basic_rate_eng.used).toEqual(37700)
-    expect(outputIncomeYear.tax.bands.basic_rate_eng.tax_paid).toEqual(7540)
-    expect(outputIncomeYear.tax.bands.higher_rate_eng.used).toEqual(19730)
-    expect(outputIncomeYear.tax.bands.higher_rate_eng.tax_paid).toEqual(7892)
+    expect(bands).toEqual({
+      personal_allowance: { used: 12570, tax_paid: 0 },
+      basic_rate_eng: { used: 37700, tax_paid: 7540 },
+      higher_rate_eng: { used: 19730, tax_paid: 7892 },
+    })
   })
 
   test('additional rate salary gets taxed correctly', () => {
@@ -212,7 +212,41 @@ describe('income tax', () => {
   })
 
   test('dividend income taxed correctly', () => {
-    //
+    const person = makePerson({ sex: 'male', tax_residency: 'wal' })
+
+    const salary = makeIncome({
+      id: v4(),
+      people: [person],
+      type: 'dividend',
+      values: [
+        {
+          value: 65000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2027-04-06'),
+          escalation: 0.02,
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      incomes: [salary],
+    })
+
+    const out = run(cashflow)
+
+    const outputIncomeYear = out.incomes[salary.id].years[0]
+    const bands = outputIncomeYear.tax.bands
+
+    // todo: update for dividend allowance
+
+    expect(bands).toEqual({
+      personal_allowance: { used: 12570, tax_paid: 0 },
+      basic_rate_eng: { used: 37700, tax_paid: 3298.75 },
+      higher_rate_eng: { used: 14730, tax_paid: 4971.375 },
+    })
   })
 
   test('earned income uses scottish rates correctly', () => {

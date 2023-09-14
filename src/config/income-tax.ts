@@ -29,7 +29,7 @@ export const bands: (Band | PersonalAllowance)[] = [
     rates: {
       earned: 0.2,
       savings: 0.2,
-      dividend: 0.2,
+      dividend: 0.0875,
     },
   },
   {
@@ -43,7 +43,7 @@ export const bands: (Band | PersonalAllowance)[] = [
     rates: {
       earned: 0.4,
       savings: 0.4,
-      dividend: 0.4,
+      dividend: 0.3375,
     },
   },
   {
@@ -57,7 +57,7 @@ export const bands: (Band | PersonalAllowance)[] = [
     rates: {
       earned: 0.45,
       savings: 0.45,
-      dividend: 0.45,
+      dividend: 0.3935,
     },
   },
 ]
