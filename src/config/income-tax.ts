@@ -18,6 +18,20 @@ export const bands: (Band | PersonalAllowance)[] = [
     },
   },
   {
+    key: 'dividend_allowance',
+    type: 'allowance',
+    regions: {
+      earned: [],
+      savings: [],
+      dividend: ['wal', 'eng', 'sco', 'ni'],
+    },
+    rates: {
+      earned: 0,
+      savings: 0,
+      dividend: 0,
+    },
+  },
+  {
     key: 'basic_rate_eng',
     type: 'band',
     extends_for_ras_contributions: true,
@@ -78,6 +92,11 @@ export const knownRates: KnownRatesType = {
       bound_upper: 12570,
     },
     {
+      key: 'dividend_allowance',
+      bound_lower: 0,
+      bound_upper: 2000,
+    },
+    {
       key: 'basic_rate_eng',
       bound_lower: 0,
       bound_upper: 37700,
@@ -98,6 +117,11 @@ export const knownRates: KnownRatesType = {
       key: 'personal_allowance',
       bound_lower: 0,
       bound_upper: 12570,
+    },
+    {
+      key: 'dividend_allowance',
+      bound_lower: 0,
+      bound_upper: 1000,
     },
     {
       key: 'basic_rate_eng',

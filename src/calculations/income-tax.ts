@@ -5,6 +5,7 @@ import {
   Cashflow,
   CashflowAssumptions,
   Income,
+  IncomeTaxTypes,
   Output,
   OutputIncomeYear,
   OutputTaxBand,
@@ -249,18 +250,27 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
       output.incomes[income.id].years[getYearIndex(taxYear, output)]
 
     // Go through each allowance and deduct it from the taxable income value
-    allowances.forEach(allowance => {
-      const used = Math.min(allowance.remaining, unusedTotal)
-      if (used <= 0) return
+    allowances
+      .filter(allowance => {
+        const bandDefinition = bands.find(({ key }) => key === allowance.key)
+        if (!bandDefinition) throw new Error('Missing tax band definition')
 
-      outputYear.tax.bands[allowance.key] = {
-        used,
-        tax_paid: 0, // todo: use actual rate from configs?
-      }
+        return bandDefinition.regions[getIncomeTaxCategory(income)].includes(
+          person.tax_residency
+        )
+      })
+      .forEach(allowance => {
+        const used = Math.min(allowance.remaining, unusedTotal)
+        if (used <= 0) return
 
-      allowance.remaining -= used
-      unusedTotal -= used
-    })
+        outputYear.tax.bands[allowance.key] = {
+          used,
+          tax_paid: 0, // todo: use actual rate from configs?
+        }
+
+        allowance.remaining -= used
+        unusedTotal -= used
+      })
   })
 }
 
@@ -289,12 +299,6 @@ function extendTaxBands(person: Person, output: Output) {
  * Use the tax bands to apply taxation to each income for a person.
  */
 function useTaxBands(person: Person, output: Output, incomes: Income[]) {
-  const categorised = {
-    earned: incomes.filter(isEarnedIncome),
-    savings: incomes.filter(isSavingsIncome),
-    dividend: incomes.filter(isDividendIncome),
-  }
-
   // Get all output bands
   const bandKeys = bands
     .filter(({ type }) => type === 'band')
@@ -304,7 +308,13 @@ function useTaxBands(person: Person, output: Output, incomes: Income[]) {
     ({ key, remaining }) => bandKeys.includes(key) && remaining > 0
   )
 
-  Object.entries(categorised).forEach(([, values]) => {
+  const categorised = {
+    earned: incomes.filter(isEarnedIncome),
+    savings: incomes.filter(isSavingsIncome),
+    dividend: incomes.filter(isDividendIncome),
+  }
+
+  Object.entries(categorised).forEach(([category, values]) => {
     values.forEach(income => {
       let unusedTotal = getTaxableUnusedTotal(income, output)
       if (unusedTotal <= 0) return
@@ -313,21 +323,30 @@ function useTaxBands(person: Person, output: Output, incomes: Income[]) {
         output.incomes[income.id].years[getYearIndex(taxYear, output)]
 
       // Go through each allowance and deduct it from the taxable income value
-      bandsToUse.forEach(band => {
-        const used = Math.min(band.remaining, unusedTotal)
-        if (used <= 0) return
+      bandsToUse
+        .filter(band => {
+          const bandDefinition = bands.find(({ key }) => key === band.key)
+          if (!bandDefinition) throw new Error('Missing tax band definition')
 
-        const bandDefinition = bands.find(({ key }) => key === band.key)
-        if (!bandDefinition) throw new Error('Missing tax band definition')
+          return bandDefinition.regions[category as IncomeTaxTypes].includes(
+            person.tax_residency
+          )
+        })
+        .forEach(band => {
+          const used = Math.min(band.remaining, unusedTotal)
+          if (used <= 0) return
 
-        outputYear.tax.bands[band.key] = {
-          used,
-          tax_paid: used * bandDefinition.rates[getIncomeTaxCategory(income)],
-        }
+          const bandDefinition = bands.find(({ key }) => key === band.key)
+          if (!bandDefinition) throw new Error('Missing tax band definition')
 
-        band.remaining -= used
-        unusedTotal -= used
-      })
+          outputYear.tax.bands[band.key] = {
+            used,
+            tax_paid: used * bandDefinition.rates[getIncomeTaxCategory(income)],
+          }
+
+          band.remaining -= used
+          unusedTotal -= used
+        })
     })
   })
 }
