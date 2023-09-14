@@ -240,7 +240,7 @@ describe('income tax', () => {
     const outputIncomeYear = out.incomes[salary.id].years[0]
     const bands = outputIncomeYear.tax.bands
 
-    // todo: update for dividend allowance
+    // todo: update for dividend allowance, and check additional rates
 
     expect(bands).toEqual({
       personal_allowance: { used: 12570, tax_paid: 0 },
