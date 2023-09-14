@@ -138,7 +138,37 @@ describe('income tax', () => {
   })
 
   test('additional rate salary gets taxed correctly', () => {
-    //
+    const person = makePerson({ sex: 'female', tax_residency: 'ni' })
+    const salary = makeIncome({
+      id: v4(),
+      people: [person],
+      type: 'employment',
+      values: [
+        {
+          value: 170000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2028-04-06'),
+          escalation: 'cpi',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      incomes: [salary],
+    })
+    const out = run(cashflow)
+    const outputIncomeYear = out.incomes[salary.id].years[0]
+    const bands = outputIncomeYear.tax.bands
+
+    expect(bands.basic_rate_eng.used).toEqual(37700)
+    expect(bands.basic_rate_eng.tax_paid).toEqual(7540)
+    expect(bands.higher_rate_eng.used).toEqual(112300)
+    expect(bands.higher_rate_eng.tax_paid).toEqual(44920)
+    expect(bands.additional_rate_eng.used).toEqual(20000)
+    expect(bands.additional_rate_eng.tax_paid).toEqual(9000)
   })
 
   test('self employment income taxed correctly', () => {
