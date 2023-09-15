@@ -91,6 +91,7 @@ export const bands: (Band | PersonalAllowance)[] = [
   {
     key: 'basic_rate_sco',
     type: 'band',
+    extends_for_ras_contributions: true,
     regions: {
       earned: ['sco'],
       savings: [],

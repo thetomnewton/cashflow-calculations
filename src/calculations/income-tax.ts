@@ -241,8 +241,6 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
     ({ key, remaining }) => allowanceKeys.includes(key) && remaining > 0
   )
 
-  // todo: Sort allowances in the most tax-efficient way
-
   incomes.forEach(income => {
     let unusedTotal = getTaxableUnusedTotal(income, output)
     if (unusedTotal <= 0) return
@@ -262,6 +260,17 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
         return bandDefinition.regions[taxCategory].includes(
           person.tax_residency
         )
+      })
+      // Sort allowances in the most tax-efficient way
+      .sort((a, b) => {
+        const category = getIncomeTaxCategory(income) as IncomeTaxTypes
+        const rateA = bands.find(({ key }) => key === a.key)?.rates[category]
+        const rateB = bands.find(({ key }) => key === b.key)?.rates[category]
+
+        if (typeof rateA === 'undefined' || typeof rateB === 'undefined')
+          return 0
+
+        return rateA - rateB
       })
       .forEach(allowance => {
         const used = Math.min(allowance.remaining, unusedTotal)
