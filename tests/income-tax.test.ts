@@ -15,7 +15,7 @@ describe('income tax', () => {
         {
           value: 40000,
           starts_at: iso('2023-04-06'),
-          ends_at: iso('2028-04-06'),
+          ends_at: iso('2028-01-01'), // Should still apply for the whole year
           escalation: 0,
         },
       ],
