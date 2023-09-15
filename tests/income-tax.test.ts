@@ -287,15 +287,112 @@ describe('income tax', () => {
   })
 
   test('scottish self employed income uses correct bands', () => {
-    //
+    const person = makePerson({ sex: 'female', tax_residency: 'sco' })
+
+    const salary = makeIncome({
+      id: v4(),
+      people: [person],
+      type: 'self_employment',
+      values: [
+        {
+          value: 110000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2025-04-06'),
+          escalation: 'cpi',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      incomes: [salary],
+    })
+
+    const out = run(cashflow)
+
+    const outputIncomeYear = out.incomes[salary.id].years[0]
+    const bands = outputIncomeYear.tax.bands
+
+    expect(bands).toEqual({
+      personal_allowance: { tax_paid: 0, used: 7570 },
+      starter_rate_sco: { tax_paid: 2799.08, used: 14732 },
+      basic_rate_sco: { tax_paid: 2191.2, used: 10956 },
+      intermediate_rate_sco: { tax_paid: 3774.54, used: 17974 },
+      higher_rate_sco: { tax_paid: 24682.56, used: 58768 },
+    })
   })
 
   test('scottish dividend income uses correct bands', () => {
-    //
+    const person = makePerson({ sex: 'female', tax_residency: 'sco' })
+
+    const salary = makeIncome({
+      id: v4(),
+      people: [person],
+      type: 'dividend',
+      values: [
+        {
+          value: 95000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2025-04-06'),
+          escalation: 0,
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      incomes: [salary],
+    })
+
+    const out = run(cashflow)
+
+    const outputIncomeYear = out.incomes[salary.id].years[0]
+    const bands = outputIncomeYear.tax.bands
+
+    expect(bands).toEqual({
+      personal_allowance: { tax_paid: 0, used: 12570 },
+      basic_rate_eng: { tax_paid: 3298.75, used: 37700 },
+      dividend_allowance: { tax_paid: 0, used: 1000 },
+      higher_rate_eng: { tax_paid: 14758.88, used: 43730 },
+    })
   })
 
   test('taxable "other" income taxed correctly', () => {
-    //
+    const person = makePerson({ sex: 'female', tax_residency: 'eng' })
+    const salary = makeIncome({
+      id: v4(),
+      people: [person],
+      type: 'other',
+      tax_category: 'earned',
+      values: [
+        {
+          value: 85000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2025-04-06'),
+          escalation: 'cpi',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      incomes: [salary],
+    })
+    const out = run(cashflow)
+    const outputIncomeYear = out.incomes[salary.id].years[0]
+    const bands = outputIncomeYear.tax.bands
+
+    expect(bands).toEqual({
+      personal_allowance: { used: 12570, tax_paid: 0 },
+      basic_rate_eng: { used: 37700, tax_paid: 7540 },
+      higher_rate_eng: { used: 34730, tax_paid: 13892 },
+    })
   })
 
   test('non-taxable "other" income is not taxed', () => {
