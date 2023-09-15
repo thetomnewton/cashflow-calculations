@@ -341,7 +341,10 @@ function useTaxBands(person: Person, output: Output, incomes: Income[]) {
 
           outputYear.tax.bands[band.key] = {
             used,
-            tax_paid: used * bandDefinition.rates[getIncomeTaxCategory(income)],
+            tax_paid: round(
+              used * bandDefinition.rates[getIncomeTaxCategory(income)],
+              2
+            ),
           }
 
           band.remaining -= used

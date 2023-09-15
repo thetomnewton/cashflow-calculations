@@ -240,25 +240,57 @@ describe('income tax', () => {
     const outputIncomeYear = out.incomes[salary.id].years[0]
     const bands = outputIncomeYear.tax.bands
 
-    // todo: check additional rates
-
     expect(bands).toEqual({
       personal_allowance: { used: 12570, tax_paid: 0 },
       dividend_allowance: { used: 1000, tax_paid: 0 },
       basic_rate_eng: { used: 37700, tax_paid: 3298.75 },
-      higher_rate_eng: { used: 13730, tax_paid: 4633.875 },
+      higher_rate_eng: { used: 13730, tax_paid: 4633.88 },
     })
   })
 
   test('earned income uses scottish rates correctly', () => {
+    const person = makePerson({ sex: 'female', tax_residency: 'sco' })
+
+    const salary = makeIncome({
+      id: v4(),
+      people: [person],
+      type: 'employment',
+      values: [
+        {
+          value: 72000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2025-04-06'),
+          escalation: 'rpi',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      incomes: [salary],
+    })
+
+    const out = run(cashflow)
+
+    const outputIncomeYear = out.incomes[salary.id].years[0]
+    const bands = outputIncomeYear.tax.bands
+
+    expect(bands).toEqual({
+      personal_allowance: { tax_paid: 0, used: 12570 },
+      starter_rate_sco: { tax_paid: 2799.08, used: 14732 },
+      basic_rate_sco: { tax_paid: 2191.2, used: 10956 },
+      higher_rate_sco: { tax_paid: 6622.56, used: 15768 },
+      intermediate_rate_sco: { tax_paid: 3774.54, used: 17974 },
+    })
+  })
+
+  test('scottish self employed income uses correct bands', () => {
     //
   })
 
-  test('self employed income uses scottish rates correctly', () => {
-    //
-  })
-
-  test('dividend income uses scottish rates correctly', () => {
+  test('scottish dividend income uses correct bands', () => {
     //
   })
 
