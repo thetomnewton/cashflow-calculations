@@ -428,10 +428,68 @@ describe('income tax', () => {
   })
 
   test('pension income taxed correctly', () => {
-    //
+    const person = makePerson({ sex: 'male', tax_residency: 'wal' })
+    const salary = makeIncome({
+      id: v4(),
+      people: [person],
+      type: 'pension',
+      values: [
+        {
+          value: 99000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2025-04-06'),
+          escalation: 'cpi',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      incomes: [salary],
+    })
+    const out = run(cashflow)
+    const outputIncomeYear = out.incomes[salary.id].years[0]
+    const bands = outputIncomeYear.tax.bands
+
+    expect(bands).toEqual({
+      personal_allowance: { used: 12570, tax_paid: 0 },
+      basic_rate_eng: { used: 37700, tax_paid: 7540 },
+      higher_rate_eng: { used: 48730, tax_paid: 19492 },
+    })
   })
 
   test('savings income taxed correctly', () => {
-    //
+    const person = makePerson({ sex: 'female', tax_residency: 'eng' })
+    const salary = makeIncome({
+      id: v4(),
+      people: [person],
+      type: 'savings',
+      values: [
+        {
+          value: 99000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2025-04-06'),
+          escalation: 'cpi',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      incomes: [salary],
+    })
+    const out = run(cashflow)
+    const outputIncomeYear = out.incomes[salary.id].years[0]
+    const bands = outputIncomeYear.tax.bands
+
+    expect(bands).toEqual({
+      personal_allowance: { used: 12570, tax_paid: 0 },
+      basic_rate_eng: { used: 37700, tax_paid: 7540 },
+      higher_rate_eng: { used: 48730, tax_paid: 19492 },
+    })
   })
 })
