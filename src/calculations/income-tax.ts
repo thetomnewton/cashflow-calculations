@@ -154,8 +154,9 @@ function getTaxableValue(income: Income, value: OutputIncomeYear) {
 }
 
 export function incomeIsTaxable(income: Income) {
-  // todo: "other" income can specify whether it is taxable or not
   // todo: "pension" income may be taxable depending on the withdrawal type
+  if (income.type === 'other' && income.tax_category === 'non_taxable')
+    return false
   return true
 }
 
