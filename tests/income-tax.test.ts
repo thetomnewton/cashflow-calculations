@@ -257,7 +257,7 @@ describe('income tax', () => {
       type: 'employment',
       values: [
         {
-          value: 72000,
+          value: 200000,
           starts_at: iso('2023-04-06'),
           ends_at: iso('2025-04-06'),
           escalation: 'rpi',
@@ -278,11 +278,11 @@ describe('income tax', () => {
     const bands = outputIncomeYear.tax.bands
 
     expect(bands).toEqual({
-      personal_allowance: { tax_paid: 0, used: 12570 },
       starter_rate_sco: { tax_paid: 2799.08, used: 14732 },
       basic_rate_sco: { tax_paid: 2191.2, used: 10956 },
-      higher_rate_sco: { tax_paid: 6622.56, used: 15768 },
       intermediate_rate_sco: { tax_paid: 3774.54, used: 17974 },
+      higher_rate_sco: { tax_paid: 34220.76, used: 81478 },
+      top_rate_sco: { tax_paid: 35184.2, used: 74860 },
     })
   })
 
