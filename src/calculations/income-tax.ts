@@ -255,7 +255,10 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
         const bandDefinition = bands.find(({ key }) => key === allowance.key)
         if (!bandDefinition) throw new Error('Missing tax band definition')
 
-        return bandDefinition.regions[getIncomeTaxCategory(income)].includes(
+        const taxCategory = getIncomeTaxCategory(income)
+        if (taxCategory === 'non_taxable') return false
+
+        return bandDefinition.regions[taxCategory].includes(
           person.tax_residency
         )
       })
@@ -339,12 +342,13 @@ function useTaxBands(person: Person, output: Output, incomes: Income[]) {
           const bandDefinition = bands.find(({ key }) => key === band.key)
           if (!bandDefinition) throw new Error('Missing tax band definition')
 
+          const taxCategory = getIncomeTaxCategory(income)
+          if (taxCategory === 'non_taxable')
+            throw new Error('Taxing non-taxable income')
+
           outputYear.tax.bands[band.key] = {
             used,
-            tax_paid: round(
-              used * bandDefinition.rates[getIncomeTaxCategory(income)],
-              2
-            ),
+            tax_paid: round(used * bandDefinition.rates[taxCategory], 2),
           }
 
           band.remaining -= used
@@ -387,6 +391,7 @@ function isDividendIncome(income: Income) {
 }
 
 function getIncomeTaxCategory(income: Income) {
+  if (income.tax_category === 'non_taxable') return 'non_taxable'
   if (isEarnedIncome(income)) return 'earned'
   if (isSavingsIncome(income)) return 'savings'
   if (isDividendIncome(income)) return 'dividend'

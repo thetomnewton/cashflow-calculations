@@ -122,8 +122,7 @@ export interface Income extends Entity {
     | 'other'
     | 'pension'
     | 'savings'
-  // tax_category used when type is 'other'
-  tax_category?: IncomeTaxTypes
+  tax_category?: IncomeTaxTypes | 'non_taxable' // only applies when type is 'other'
 }
 
 export type IncomeTaxTypes = 'earned' | 'savings' | 'dividend'

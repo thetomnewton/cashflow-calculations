@@ -396,7 +396,35 @@ describe('income tax', () => {
   })
 
   test('non-taxable "other" income is not taxed', () => {
-    //
+    const person = makePerson({ sex: 'female', tax_residency: 'eng' })
+    const salary = makeIncome({
+      id: v4(),
+      people: [person],
+      type: 'other',
+      tax_category: 'non_taxable',
+      values: [
+        {
+          value: 85000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2025-04-06'),
+          escalation: 'cpi',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      incomes: [salary],
+    })
+    const out = run(cashflow)
+    const outputIncomeYear = out.incomes[salary.id].years[0]
+    const bands = outputIncomeYear.tax.bands
+
+    expect(Object.keys(bands).length).toEqual(0)
+    expect(outputIncomeYear.taxable_value).toBe(0)
+    expect(outputIncomeYear.net_value).toBe(85000)
   })
 
   test('pension income taxed correctly', () => {
