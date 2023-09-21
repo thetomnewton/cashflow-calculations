@@ -64,6 +64,16 @@ export interface OutputTaxBand {
 export interface Output {
   starts_at: string
   years: PlanningYear[]
+  people: {
+    [personId: Person['id']]: {
+      start: {
+        in_drawdown: boolean
+      }
+      end: {
+        in_drawdown: boolean
+      }
+    }
+  }
   tax: {
     bands: {
       [taxYear: string]: {
@@ -126,3 +136,23 @@ export interface Income extends Entity {
 }
 
 export type IncomeTaxTypes = 'earned' | 'savings' | 'dividend'
+
+interface Valuation {
+  date: string
+  value: number
+}
+
+interface GrowthTemplate {
+  //
+}
+
+interface Account {
+  category: string
+  owner_id: Person['id']
+  valuations: Valuation[]
+  growth_template: GrowthTemplate
+}
+
+export interface MoneyPurchase extends Account {
+  category: 'money_purchase'
+}

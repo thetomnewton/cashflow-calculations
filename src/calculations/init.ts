@@ -18,6 +18,15 @@ function makeInitOutput(cashflow: Cashflow): Output {
   return {
     starts_at: cashflow.starts_at,
     years: [],
+    people: Object.fromEntries(
+      cashflow.people.map(person => [
+        person.id,
+        {
+          start: { in_drawdown: false },
+          end: { in_drawdown: false },
+        },
+      ])
+    ),
     tax: {
       bands: {},
     },
