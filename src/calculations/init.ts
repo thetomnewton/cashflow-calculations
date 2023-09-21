@@ -10,6 +10,7 @@ export function initialise(cashflow: Cashflow) {
   initYears(cashflow, output)
   initBands(cashflow, output)
   initIncomes(cashflow, output)
+  initAccounts(cashflow, output)
 
   return output
 }
@@ -84,5 +85,19 @@ function makeOutputIncomeObj(
 function initIncomes(cashflow: Cashflow, output: Output) {
   cashflow.incomes.forEach(income => {
     output.incomes[income.id] = makeOutputIncomeObj(income, cashflow, output)
+  })
+}
+
+function initAccounts(cashflow: Cashflow, output: Output) {
+  cashflow.accounts.forEach(account => {
+    output.accounts[account.id] = {
+      years: output.years.map(year => {
+        return {
+          start_value: undefined,
+          growth: undefined, // todo: get real growth value
+          end_value: undefined,
+        }
+      }),
+    }
   })
 }
