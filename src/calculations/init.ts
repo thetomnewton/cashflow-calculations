@@ -91,10 +91,10 @@ function initIncomes(cashflow: Cashflow, output: Output) {
 function initAccounts(cashflow: Cashflow, output: Output) {
   cashflow.accounts.forEach(account => {
     output.accounts[account.id] = {
-      years: output.years.map(year => {
+      years: output.years.map((year, idx) => {
         return {
           start_value: undefined,
-          growth: undefined, // todo: get real growth value
+          growth: undefined,
           end_value: undefined,
         }
       }),

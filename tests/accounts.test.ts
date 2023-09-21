@@ -9,7 +9,7 @@ describe('accounts', () => {
     const account = makeMoneyPurchase({
       owner_id: person.id,
       valuations: [{ date: '2023-04-06', value: 10000 }],
-      growth_template: { type: 'flat', rate: { gross_rate: 0.25 } },
+      growth_template: { type: 'flat', rate: { gross_rate: 0.025 } },
     })
 
     const cashflow = makeCashflow({
@@ -24,8 +24,8 @@ describe('accounts', () => {
 
     expect(outputAccountYear).toEqual({
       start_value: 10000,
-      end_value: 12000,
-      growth: 0.5,
+      end_value: 10250,
+      growth: 0.025,
     })
   })
 })

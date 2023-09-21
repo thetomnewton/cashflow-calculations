@@ -179,6 +179,6 @@ export interface MoneyPurchase extends Account {
 
 interface OutputAccountYear {
   start_value: number | undefined
-  end_value: number
+  end_value: number | undefined
   growth: number | undefined
 }
