@@ -5,6 +5,7 @@ export interface Cashflow {
   people: Person[]
   assumptions: CashflowAssumptions
   incomes: Income[]
+  accounts: Account[]
 }
 
 export interface CashflowAssumptions {
@@ -147,11 +148,24 @@ interface Valuation {
   value: number
 }
 
-interface GrowthTemplate {
-  //
+export type GrowthTemplate = FlatGrowthTemplate | ArrayGrowthTemplate
+
+interface FlatGrowthTemplate {
+  type: 'flat'
+  rate: GrowthRateEntry
 }
 
-interface Account {
+interface ArrayGrowthTemplate {
+  type: 'array'
+  rate: GrowthRateEntry[]
+}
+
+type GrowthRateEntry = {
+  gross_rate: number
+  charges?: number
+}
+
+export interface Account {
   id: string
   category: string
   owner_id: Person['id']
@@ -164,5 +178,7 @@ export interface MoneyPurchase extends Account {
 }
 
 interface OutputAccountYear {
-  //
+  start_value: number
+  end_value: number
+  growth: number
 }
