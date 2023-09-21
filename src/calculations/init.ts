@@ -31,6 +31,7 @@ function makeInitOutput(cashflow: Cashflow): Output {
       bands: {},
     },
     incomes: {},
+    accounts: {},
   }
 }
 

@@ -61,17 +61,17 @@ export interface OutputTaxBand {
   remaining: number
 }
 
+type OutputPersonValues = {
+  in_drawdown: false
+}
+
 export interface Output {
   starts_at: string
   years: PlanningYear[]
   people: {
     [personId: Person['id']]: {
-      start: {
-        in_drawdown: boolean
-      }
-      end: {
-        in_drawdown: boolean
-      }
+      start: OutputPersonValues
+      end: OutputPersonValues
     }
   }
   tax: {
@@ -84,6 +84,11 @@ export interface Output {
   incomes: {
     [id: Income['id']]: {
       years: OutputIncomeYear[]
+    }
+  }
+  accounts: {
+    [id: Account['id']]: {
+      years: OutputAccountYear[]
     }
   }
 }
@@ -147,6 +152,7 @@ interface GrowthTemplate {
 }
 
 interface Account {
+  id: string
   category: string
   owner_id: Person['id']
   valuations: Valuation[]
@@ -155,4 +161,8 @@ interface Account {
 
 export interface MoneyPurchase extends Account {
   category: 'money_purchase'
+}
+
+interface OutputAccountYear {
+  //
 }
