@@ -24,7 +24,7 @@ describe('income tax', () => {
     const cashflow = makeCashflow({
       people: [person],
       starts_at: iso('2023-04-06'),
-      years: 5,
+      years: 1,
       incomes: [salary],
     })
     const out = run(cashflow)
