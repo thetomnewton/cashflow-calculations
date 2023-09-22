@@ -1,8 +1,9 @@
 import { clone } from 'lodash'
-import { date } from '../lib/date'
+import { date, iso } from '../lib/date'
 import { Cashflow, Income, Output } from '../types'
 import { generateBandsFor, getTaxYearFromDate } from './income-tax'
 import { getValueInYear } from './entity'
+import { v4 } from 'uuid'
 
 export function initialise(cashflow: Cashflow) {
   const output = makeInitOutput(cashflow)
@@ -89,9 +90,11 @@ function initIncomes(cashflow: Cashflow, output: Output) {
 }
 
 function initAccounts(cashflow: Cashflow, output: Output) {
+  ensureSweepAccountsExist(cashflow)
+
   cashflow.accounts.forEach(account => {
     output.accounts[account.id] = {
-      years: output.years.map((year, idx) => {
+      years: output.years.map(_ => {
         return {
           start_value: undefined,
           current_value: undefined,
@@ -100,5 +103,29 @@ function initAccounts(cashflow: Cashflow, output: Output) {
         }
       }),
     }
+  })
+}
+
+function ensureSweepAccountsExist(cashflow: Cashflow) {
+  cashflow.people.forEach(person => {
+    // Check if the person has a sweep account
+    const sweepAcct = cashflow.accounts.find(
+      acct => acct.owner_id === person.id && !!acct.is_sweep
+    )
+
+    if (sweepAcct) return
+
+    // If not, create one
+    cashflow.accounts.push({
+      id: v4(),
+      category: 'cash',
+      owner_id: person.id,
+      is_sweep: true,
+      valuations: [{ value: 0, date: iso() }],
+      growth_template: {
+        type: 'flat',
+        rate: { gross_rate: 0.005, charges: 0 },
+      },
+    })
   })
 }

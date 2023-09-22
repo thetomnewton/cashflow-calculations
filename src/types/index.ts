@@ -171,6 +171,7 @@ export interface Account {
   owner_id: Person['id']
   valuations: Valuation[]
   growth_template: GrowthTemplate
+  is_sweep?: boolean
 }
 
 export interface MoneyPurchase extends Account {

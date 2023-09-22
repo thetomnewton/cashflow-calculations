@@ -3,6 +3,27 @@ import { iso } from '../src/lib/date'
 import { run } from '../src/calculations'
 
 describe('accounts', () => {
+  test('sweep account exists automatically', () => {
+    const person = makePerson({ sex: 'male', date_of_birth: '1980-01-01' })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 1,
+    })
+    const out = run(cashflow)
+
+    const keys = Object.keys(out.accounts)
+    expect(keys).toHaveLength(1)
+
+    expect(out.accounts[keys[0]].years[0]).toEqual({
+      current_value: 0,
+      start_value: 0,
+      end_value: 0,
+      growth: 0.005,
+    })
+  })
+
   test('money purchase initialises correctly', () => {
     const person = makePerson({ sex: 'male', date_of_birth: '1980-01-01' })
 
