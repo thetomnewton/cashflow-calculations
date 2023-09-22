@@ -148,7 +148,6 @@ describe('accounts', () => {
     const person = makePerson({ sex: 'female', date_of_birth: '1960-01-01' })
 
     const account1 = makeAccount({
-      is_sweep: true,
       category: 'cash',
       owner_id: person.id,
       valuations: [{ date: '2023-04-06', value: 1000 }],
@@ -159,7 +158,6 @@ describe('accounts', () => {
     })
 
     const account2 = makeAccount({
-      is_sweep: true,
       category: 'cash',
       owner_id: person.id,
       valuations: [{ date: '2023-04-06', value: 2000 }],
@@ -189,6 +187,20 @@ describe('accounts', () => {
       current_value: 2000,
       end_value: 2030,
       growth: 0.015,
+    })
+
+    const sweep = cashflow.accounts.find(
+      account => account.category === 'cash' && !!account.is_sweep
+    )
+
+    expect(sweep).not.toBeUndefined()
+    expect(sweep?.id).not.toBe(account1.id)
+    expect(sweep?.id).not.toBe(account2.id)
+    expect(out.accounts[sweep?.id as string].years[0]).toEqual({
+      start_value: 0,
+      current_value: 0,
+      end_value: 0,
+      growth: 0.005,
     })
   })
 })
