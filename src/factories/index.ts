@@ -63,9 +63,10 @@ export function makeIncome(params: FactoryIncome): Income {
   }
 }
 
-function makeAccount(params: FactoryAccount) {
+export function makeAccount(params: FactoryAccount) {
   return {
     id: params.id ?? v4(),
+    is_sweep: params.is_sweep ?? false,
     category: params.category,
     owner_id: params.owner_id,
     valuations: params.valuations,

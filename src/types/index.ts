@@ -143,19 +143,19 @@ export interface Income extends Entity {
 
 export type IncomeTaxTypes = 'earned' | 'savings' | 'dividend'
 
-interface Valuation {
+export interface Valuation {
   date: string
   value: number
 }
 
 export type GrowthTemplate = FlatGrowthTemplate | ArrayGrowthTemplate
 
-interface FlatGrowthTemplate {
+export interface FlatGrowthTemplate {
   type: 'flat'
   rate: GrowthRateEntry
 }
 
-interface ArrayGrowthTemplate {
+export interface ArrayGrowthTemplate {
   type: 'array'
   rate: GrowthRateEntry[]
 }

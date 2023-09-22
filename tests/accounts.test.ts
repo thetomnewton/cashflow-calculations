@@ -1,4 +1,9 @@
-import { makeCashflow, makePerson, makeMoneyPurchase } from '../src/factories'
+import {
+  makeCashflow,
+  makePerson,
+  makeMoneyPurchase,
+  makeAccount,
+} from '../src/factories'
 import { iso } from '../src/lib/date'
 import { run } from '../src/calculations'
 
@@ -112,5 +117,30 @@ describe('accounts', () => {
       end_value: 9855.77,
       growth: 0.025,
     })
+  })
+
+  test('only 1 sweep account per person', () => {
+    const person = makePerson({ sex: 'female', date_of_birth: '1960-01-01' })
+
+    const account = makeAccount({
+      is_sweep: true,
+      category: 'cash',
+      owner_id: person.id,
+      valuations: [{ date: '2023-04-06', value: 0 }],
+      growth_template: {
+        type: 'flat',
+        rate: { gross_rate: 0.005, charges: 0 },
+      },
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      accounts: [account],
+    })
+    const out = run(cashflow)
+
+    expect(Object.keys(out.accounts)).toHaveLength(1)
   })
 })
