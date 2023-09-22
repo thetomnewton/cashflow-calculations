@@ -75,6 +75,7 @@ export function makeAccount(params: FactoryAccount) {
     owner_id: params.owner_id,
     valuations: params.valuations,
     growth_template: params.growth_template,
+    contributions: params.contributions ?? [],
   }
 }
 

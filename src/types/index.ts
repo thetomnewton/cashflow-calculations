@@ -172,7 +172,12 @@ export interface Account {
   owner_id: Person['id'] | Person['id'][]
   valuations: Valuation[]
   growth_template: GrowthTemplate
+  contributions: Contribution[]
   is_sweep?: boolean
+}
+
+export interface Contribution extends EntityValue {
+  type: 'personal' | 'employer'
 }
 
 export interface MoneyPurchase extends Account {
