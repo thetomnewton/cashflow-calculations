@@ -143,4 +143,52 @@ describe('accounts', () => {
 
     expect(Object.keys(out.accounts)).toHaveLength(1)
   })
+
+  test('multiple non-sweep cash accounts can be added', () => {
+    const person = makePerson({ sex: 'female', date_of_birth: '1960-01-01' })
+
+    const account1 = makeAccount({
+      is_sweep: true,
+      category: 'cash',
+      owner_id: person.id,
+      valuations: [{ date: '2023-04-06', value: 1000 }],
+      growth_template: {
+        type: 'flat',
+        rate: { gross_rate: 0.01, charges: 0 },
+      },
+    })
+
+    const account2 = makeAccount({
+      is_sweep: true,
+      category: 'cash',
+      owner_id: person.id,
+      valuations: [{ date: '2023-04-06', value: 2000 }],
+      growth_template: {
+        type: 'flat',
+        rate: { gross_rate: 0.015, charges: 0 },
+      },
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      accounts: [account1, account2],
+    })
+    const out = run(cashflow)
+
+    expect(out.accounts[account1.id].years[0]).toEqual({
+      start_value: 1000,
+      current_value: 1000,
+      end_value: 1010,
+      growth: 0.01,
+    })
+
+    expect(out.accounts[account2.id].years[0]).toEqual({
+      start_value: 2000,
+      current_value: 2000,
+      end_value: 2030,
+      growth: 0.015,
+    })
+  })
 })

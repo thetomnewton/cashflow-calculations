@@ -49,7 +49,7 @@ export function applyGrowth(cashflow: Cashflow, output: Output) {
     const endValue =
       (outputYear.current_value ?? 0) *
       applyGrowthRate(
-        0.025,
+        getGrowthRateFromTemplate(account),
         cashflow.assumptions.terms === 'real' ? cashflow.assumptions.cpi : 0
       )
 
