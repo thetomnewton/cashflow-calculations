@@ -3,7 +3,7 @@ import { Cashflow, Output } from '../types'
 import { calcNICs } from './national-insurance'
 import { calcIncomeTaxLiability } from './income-tax'
 import { setNetValues } from './incomes'
-import { initialiseAccounts } from './accounts'
+import { applyGrowth, initialiseAccounts } from './accounts'
 
 export function run(cashflow: Cashflow): Output {
   const output = initialise(cashflow)
@@ -20,6 +20,7 @@ export function run(cashflow: Cashflow): Output {
     // handle income windfall / shortfall
     // apply charges
     // apply growth
+    applyGrowth(cashflow, output)
     // apply liability interest
   })
 

@@ -94,8 +94,9 @@ function initAccounts(cashflow: Cashflow, output: Output) {
       years: output.years.map((year, idx) => {
         return {
           start_value: undefined,
-          growth: undefined,
+          current_value: undefined,
           end_value: undefined,
+          growth: undefined,
         }
       }),
     }

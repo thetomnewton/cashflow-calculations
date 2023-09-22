@@ -1,6 +1,7 @@
 import { round } from 'lodash'
 import { Account, Cashflow, Output, PlanningYear } from '../types'
 import { getYearIndex } from './income-tax'
+import { applyGrowth as applyGrowthRate } from './growth'
 
 let yearIndex: number
 
@@ -23,6 +24,7 @@ export function initialiseAccounts(
         output.accounts[account.id].years[yearIndex - 1].end_value
     }
 
+    outputYear.current_value = outputYear.start_value
     outputYear.growth = getGrowthRateFromTemplate(account)
   })
 }
@@ -38,4 +40,19 @@ function getGrowthRateFromTemplate(account: Account) {
 
   // todo: Handle non-flat growth template
   return 0
+}
+
+export function applyGrowth(cashflow: Cashflow, output: Output) {
+  cashflow.accounts.forEach(account => {
+    const outputYear = output.accounts[account.id].years[yearIndex]
+
+    const endValue =
+      (outputYear.current_value ?? 0) *
+      applyGrowthRate(
+        0.025,
+        cashflow.assumptions.terms === 'real' ? cashflow.assumptions.cpi : 0
+      )
+
+    outputYear.end_value = round(endValue, 2)
+  })
 }
