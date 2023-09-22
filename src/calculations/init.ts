@@ -1,6 +1,6 @@
 import { clone } from 'lodash'
 import { date, iso } from '../lib/date'
-import { Cashflow, Income, Output } from '../types'
+import { Account, Cashflow, Income, Output, Person } from '../types'
 import { generateBandsFor, getTaxYearFromDate } from './income-tax'
 import { getValueInYear } from './entity'
 import { v4 } from 'uuid'
@@ -113,19 +113,21 @@ function ensureSweepAccountsExist(cashflow: Cashflow) {
       acct => acct.owner_id === person.id && !!acct.is_sweep
     )
 
-    if (sweepAcct) return
-
     // If not, create one
-    cashflow.accounts.push({
-      id: v4(),
-      category: 'cash',
-      owner_id: person.id,
-      is_sweep: true,
-      valuations: [{ value: 0, date: iso() }],
-      growth_template: {
-        type: 'flat',
-        rate: { gross_rate: 0.005, charges: 0 },
-      },
-    })
+    if (!sweepAcct) cashflow.accounts.push(createSweepAccount(person))
   })
+}
+
+function createSweepAccount(person: Person): Account {
+  return {
+    id: v4(),
+    category: 'cash',
+    owner_id: person.id,
+    is_sweep: true,
+    valuations: [{ value: 0, date: iso() }],
+    growth_template: {
+      type: 'flat',
+      rate: { gross_rate: 0.005, charges: 0 },
+    },
+  }
 }
