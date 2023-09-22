@@ -168,7 +168,7 @@ type GrowthRateEntry = {
 export interface Account {
   id: string
   category: string
-  owner_id: Person['id']
+  owner_id: Person['id'] | Person['id'][]
   valuations: Valuation[]
   growth_template: GrowthTemplate
   is_sweep?: boolean

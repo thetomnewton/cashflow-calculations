@@ -194,9 +194,33 @@ describe('accounts', () => {
     )
 
     expect(sweep).not.toBeUndefined()
-    expect(sweep?.id).not.toBe(account1.id)
-    expect(sweep?.id).not.toBe(account2.id)
-    expect(out.accounts[sweep?.id as string].years[0]).toEqual({
+
+    const sweepId = sweep?.id as string
+    expect(sweepId).not.toBe(account1.id)
+    expect(sweepId).not.toBe(account2.id)
+    expect(out.accounts[sweepId].years[0]).toEqual({
+      start_value: 0,
+      current_value: 0,
+      end_value: 0,
+      growth: 0.005,
+    })
+  })
+
+  test('sweep account is assigned to both people in a joint case', () => {
+    const person1 = makePerson({ sex: 'female', date_of_birth: '1965-01-01' })
+    const person2 = makePerson({ sex: 'female', date_of_birth: '1962-01-01' })
+
+    const cashflow = makeCashflow({
+      people: [person1, person2],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+    })
+    const out = run(cashflow)
+
+    expect(cashflow.accounts).toHaveLength(1)
+    expect(cashflow.accounts[0].is_sweep).toBe(true)
+    expect(cashflow.accounts[0].owner_id).toEqual([person1.id, person2.id])
+    expect(out.accounts[cashflow.accounts[0].id].years[0]).toEqual({
       start_value: 0,
       current_value: 0,
       end_value: 0,
