@@ -37,7 +37,7 @@ export function makePerson(params: FactoryPerson): Person {
       params.date_of_birth ?? date('1970-01-01 00:00:00').toISOString(),
     tax_residency: params.tax_residency ?? 'eng',
     sex: params.sex,
-    mpaa_triggered: params.mpaa_triggered ?? false,
+    in_drawdown: params.in_drawdown ?? false,
     registered_blind: params.registered_blind ?? false,
   }
 }

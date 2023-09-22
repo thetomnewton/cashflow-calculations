@@ -28,7 +28,7 @@ export interface Person {
   date_of_birth: string
   tax_residency: PossibleCountries
   sex: 'male' | 'female'
-  mpaa_triggered: boolean
+  in_drawdown: boolean
   registered_blind: boolean
 }
 
