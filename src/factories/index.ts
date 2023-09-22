@@ -3,6 +3,7 @@ import {
   Account,
   Cashflow,
   CashflowAssumptions,
+  ISA,
   Income,
   MoneyPurchase,
   Person,
@@ -19,6 +20,8 @@ type FactoryAccount = Partial<Account> &
   Pick<Account, 'category' | 'owner_id' | 'valuations' | 'growth_template'>
 type FactoryMoneyPurchase = Partial<MoneyPurchase> &
   Pick<MoneyPurchase, 'owner_id' | 'valuations' | 'growth_template'>
+type FactoryISA = Partial<ISA> &
+  Pick<ISA, 'owner_id' | 'valuations' | 'growth_template'>
 
 const defaultAssumptions: Cashflow['assumptions'] = {
   terms: 'nominal',
@@ -68,6 +71,7 @@ export function makeAccount(params: FactoryAccount) {
     id: params.id ?? v4(),
     is_sweep: params.is_sweep ?? false,
     category: params.category,
+    sub_category: params.sub_category,
     owner_id: params.owner_id,
     valuations: params.valuations,
     growth_template: params.growth_template,
@@ -79,4 +83,11 @@ export function makeMoneyPurchase(params: FactoryMoneyPurchase) {
     ...params,
     ...{ category: 'money_purchase' },
   }) as MoneyPurchase
+}
+
+export function makeISA(params: FactoryISA) {
+  return makeAccount({
+    ...params,
+    ...{ category: 'isa' },
+  }) as ISA
 }

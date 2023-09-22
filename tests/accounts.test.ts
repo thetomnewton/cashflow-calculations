@@ -3,9 +3,11 @@ import {
   makePerson,
   makeMoneyPurchase,
   makeAccount,
+  makeISA,
 } from '../src/factories'
 import { iso } from '../src/lib/date'
 import { run } from '../src/calculations'
+import { ISA } from '../src/types'
 
 describe('accounts', () => {
   test('sweep account exists automatically', () => {
@@ -25,7 +27,7 @@ describe('accounts', () => {
       current_value: 0,
       start_value: 0,
       end_value: 0,
-      growth: 0.005,
+      net_growth: 0.005,
     })
   })
 
@@ -52,14 +54,14 @@ describe('accounts', () => {
       start_value: 10000,
       current_value: 10000,
       end_value: 10250,
-      growth: 0.025,
+      net_growth: 0.025,
     })
 
     expect(year2).toEqual({
       start_value: 10250,
       current_value: 10250,
       end_value: 10506.25,
-      growth: 0.025,
+      net_growth: 0.025,
     })
   })
 
@@ -87,7 +89,7 @@ describe('accounts', () => {
       start_value: 10000,
       current_value: 10000,
       end_value: 10000,
-      growth: 0.025,
+      net_growth: 0.025,
     })
   })
 
@@ -115,7 +117,7 @@ describe('accounts', () => {
       start_value: 10000,
       current_value: 10000,
       end_value: 9855.77,
-      growth: 0.025,
+      net_growth: 0.025,
     })
   })
 
@@ -179,14 +181,14 @@ describe('accounts', () => {
       start_value: 1000,
       current_value: 1000,
       end_value: 1010,
-      growth: 0.01,
+      net_growth: 0.01,
     })
 
     expect(out.accounts[account2.id].years[0]).toEqual({
       start_value: 2000,
       current_value: 2000,
       end_value: 2030,
-      growth: 0.015,
+      net_growth: 0.015,
     })
 
     const sweep = cashflow.accounts.find(
@@ -202,7 +204,7 @@ describe('accounts', () => {
       start_value: 0,
       current_value: 0,
       end_value: 0,
-      growth: 0.005,
+      net_growth: 0.005,
     })
   })
 
@@ -224,7 +226,37 @@ describe('accounts', () => {
       start_value: 0,
       current_value: 0,
       end_value: 0,
-      growth: 0.005,
+      net_growth: 0.005,
+    })
+  })
+
+  test('Cash ISA can be added', () => {
+    const person = makePerson({ date_of_birth: '1970-01-01', sex: 'male' })
+
+    const isa = makeISA({
+      category: 'isa',
+      sub_category: 'cash_isa',
+      owner_id: person.id,
+      valuations: [{ date: iso(), value: 15000 }],
+      growth_template: {
+        type: 'flat',
+        rate: { gross_rate: 0.05, charges: 0 },
+      },
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      accounts: [isa],
+    })
+    const out = run(cashflow)
+
+    expect(out.accounts[isa.id].years[0]).toEqual({
+      start_value: 15000,
+      current_value: 15000,
+      end_value: 15750,
+      net_growth: 0.05,
     })
   })
 })

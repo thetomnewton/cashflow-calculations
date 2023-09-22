@@ -25,7 +25,7 @@ export function initialiseAccounts(
     }
 
     outputYear.current_value = outputYear.start_value
-    outputYear.growth = getGrowthRateFromTemplate(account)
+    outputYear.net_growth = getGrowthRateFromTemplate(account)
   })
 }
 

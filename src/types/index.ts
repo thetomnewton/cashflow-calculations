@@ -168,6 +168,7 @@ type GrowthRateEntry = {
 export interface Account {
   id: string
   category: string
+  sub_category?: string
   owner_id: Person['id'] | Person['id'][]
   valuations: Valuation[]
   growth_template: GrowthTemplate
@@ -178,9 +179,14 @@ export interface MoneyPurchase extends Account {
   category: 'money_purchase'
 }
 
+export interface ISA extends Account {
+  category: 'isa'
+  sub_category: 'cash_isa' | 'stocks_shares_isa' | 'lifetime_isa' | 'junior_isa'
+}
+
 interface OutputAccountYear {
   start_value: number | undefined
   current_value: number | undefined
   end_value: number | undefined
-  growth: number | undefined
+  net_growth: number | undefined
 }
