@@ -63,7 +63,7 @@ export interface OutputTaxBand {
 }
 
 type OutputPersonValues = {
-  in_drawdown: false
+  in_drawdown: boolean
 }
 
 export interface Output {

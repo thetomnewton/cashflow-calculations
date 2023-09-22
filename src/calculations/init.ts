@@ -24,8 +24,8 @@ function makeInitOutput(cashflow: Cashflow): Output {
       cashflow.people.map(person => [
         person.id,
         {
-          start: { in_drawdown: false },
-          end: { in_drawdown: false },
+          start: { in_drawdown: person.in_drawdown },
+          end: { in_drawdown: person.in_drawdown },
         },
       ])
     ),
@@ -93,7 +93,7 @@ function initAccounts(cashflow: Cashflow, output: Output) {
           start_value: undefined,
           current_value: undefined,
           end_value: undefined,
-          growth: undefined,
+          net_growth: undefined,
         }
       }),
     }
