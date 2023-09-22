@@ -3,7 +3,7 @@ import { run } from '../src/calculations'
 import { makeCashflow, makeIncome, makePerson } from '../src/factories'
 
 describe('national insurance', () => {
-  test('salary below threshold has no NI to pay', () => {
+  test('salary below threshold has no NICs to pay', () => {
     const person = makePerson({ date_of_birth: '1980-01-01', sex: 'male' })
     const salary = makeIncome({
       id: v4(),

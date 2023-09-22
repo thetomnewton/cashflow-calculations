@@ -5,6 +5,7 @@ export interface Cashflow {
   people: Person[]
   assumptions: CashflowAssumptions
   incomes: Income[]
+  accounts: Account[]
 }
 
 export interface CashflowAssumptions {
@@ -27,7 +28,7 @@ export interface Person {
   date_of_birth: string
   tax_residency: PossibleCountries
   sex: 'male' | 'female'
-  mpaa_triggered: boolean
+  in_drawdown: boolean
   registered_blind: boolean
 }
 
@@ -61,9 +62,19 @@ export interface OutputTaxBand {
   remaining: number
 }
 
+type OutputPersonValues = {
+  in_drawdown: boolean
+}
+
 export interface Output {
   starts_at: string
   years: PlanningYear[]
+  people: {
+    [personId: Person['id']]: {
+      start: OutputPersonValues
+      end: OutputPersonValues
+    }
+  }
   tax: {
     bands: {
       [taxYear: string]: {
@@ -74,6 +85,11 @@ export interface Output {
   incomes: {
     [id: Income['id']]: {
       years: OutputIncomeYear[]
+    }
+  }
+  accounts: {
+    [id: Account['id']]: {
+      years: OutputAccountYear[]
     }
   }
 }
@@ -126,3 +142,51 @@ export interface Income extends Entity {
 }
 
 export type IncomeTaxTypes = 'earned' | 'savings' | 'dividend'
+
+export interface Valuation {
+  date: string
+  value: number
+}
+
+export type GrowthTemplate = FlatGrowthTemplate | ArrayGrowthTemplate
+
+export interface FlatGrowthTemplate {
+  type: 'flat'
+  rate: GrowthRateEntry
+}
+
+export interface ArrayGrowthTemplate {
+  type: 'array'
+  rate: GrowthRateEntry[]
+}
+
+type GrowthRateEntry = {
+  gross_rate: number
+  charges?: number
+}
+
+export interface Account {
+  id: string
+  category: string
+  sub_category?: string
+  owner_id: Person['id'] | Person['id'][]
+  valuations: Valuation[]
+  growth_template: GrowthTemplate
+  is_sweep?: boolean
+}
+
+export interface MoneyPurchase extends Account {
+  category: 'money_purchase'
+}
+
+export interface ISA extends Account {
+  category: 'isa'
+  sub_category: 'cash_isa' | 'stocks_shares_isa' | 'lifetime_isa' | 'junior_isa'
+}
+
+interface OutputAccountYear {
+  start_value: number | undefined
+  current_value: number | undefined
+  end_value: number | undefined
+  net_growth: number | undefined
+}

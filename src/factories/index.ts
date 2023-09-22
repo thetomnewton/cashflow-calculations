@@ -1,5 +1,13 @@
 import { date } from '../lib/date'
-import { Cashflow, CashflowAssumptions, Income, Person } from '../types'
+import {
+  Account,
+  Cashflow,
+  CashflowAssumptions,
+  ISA,
+  Income,
+  MoneyPurchase,
+  Person,
+} from '../types'
 import { v4 } from 'uuid'
 
 type FactoryPerson = Partial<Person> & Pick<Person, 'sex'>
@@ -8,6 +16,12 @@ type FactoryCashflow = Partial<Omit<Cashflow, 'assumptions'>> &
     assumptions?: Partial<CashflowAssumptions> | undefined
   }
 type FactoryIncome = Partial<Income> & Pick<Income, 'people'>
+type FactoryAccount = Partial<Account> &
+  Pick<Account, 'category' | 'owner_id' | 'valuations' | 'growth_template'>
+type FactoryMoneyPurchase = Partial<MoneyPurchase> &
+  Pick<MoneyPurchase, 'owner_id' | 'valuations' | 'growth_template'>
+type FactoryISA = Partial<ISA> &
+  Pick<ISA, 'owner_id' | 'valuations' | 'growth_template'>
 
 const defaultAssumptions: Cashflow['assumptions'] = {
   terms: 'nominal',
@@ -23,7 +37,7 @@ export function makePerson(params: FactoryPerson): Person {
       params.date_of_birth ?? date('1970-01-01 00:00:00').toISOString(),
     tax_residency: params.tax_residency ?? 'eng',
     sex: params.sex,
-    mpaa_triggered: params.mpaa_triggered ?? false,
+    in_drawdown: params.in_drawdown ?? false,
     registered_blind: params.registered_blind ?? false,
   }
 }
@@ -34,6 +48,7 @@ export function makeCashflow(params: FactoryCashflow): Cashflow {
     starts_at: params.starts_at ?? date().startOf('day').toISOString(),
     years: params.years ?? 1,
     people: params.people,
+    accounts: params.accounts ?? [],
     incomes: params.incomes ?? [],
     assumptions: params.assumptions
       ? { ...defaultAssumptions, ...params.assumptions }
@@ -49,4 +64,30 @@ export function makeIncome(params: FactoryIncome): Income {
     type: params.type || 'employment',
     tax_category: params.tax_category,
   }
+}
+
+export function makeAccount(params: FactoryAccount) {
+  return {
+    id: params.id ?? v4(),
+    is_sweep: params.is_sweep ?? false,
+    category: params.category,
+    sub_category: params.sub_category,
+    owner_id: params.owner_id,
+    valuations: params.valuations,
+    growth_template: params.growth_template,
+  }
+}
+
+export function makeMoneyPurchase(params: FactoryMoneyPurchase) {
+  return makeAccount({
+    ...params,
+    ...{ category: 'money_purchase' },
+  }) as MoneyPurchase
+}
+
+export function makeISA(params: FactoryISA) {
+  return makeAccount({
+    ...params,
+    ...{ category: 'isa' },
+  }) as ISA
 }
