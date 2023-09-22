@@ -99,10 +99,8 @@ function initAccounts(cashflow: Cashflow, output: Output) {
 }
 
 function ensureSweepAccountExists(cashflow: Cashflow) {
-  // Check if the person has a sweep account
+  // Check if the person has a sweep account. If not, create one.
   const sweep = cashflow.accounts.find(({ is_sweep }) => is_sweep)
-
-  // If not, create one
   if (!sweep) cashflow.accounts.push(createSweepAccount(cashflow.people))
 }
 
@@ -110,7 +108,7 @@ function createSweepAccount(people: Person[]): Account {
   return {
     id: v4(),
     category: 'cash',
-    owner_id: people.map(person => person.id),
+    owner_id: people.map(({ id }) => id),
     is_sweep: true,
     valuations: [{ value: 0, date: iso() }],
     growth_template: {
