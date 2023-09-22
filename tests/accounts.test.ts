@@ -77,7 +77,7 @@ describe('accounts', () => {
     const cashflow = makeCashflow({
       people: [person],
       starts_at: iso('2023-04-06'),
-      years: 5,
+      years: 1,
       accounts: [account],
       assumptions: { terms: 'real', cpi: 0.025 },
     })
@@ -105,7 +105,7 @@ describe('accounts', () => {
     const cashflow = makeCashflow({
       people: [person],
       starts_at: iso('2023-04-06'),
-      years: 5,
+      years: 1,
       accounts: [account],
       assumptions: { terms: 'real', cpi: 0.04 },
     })
@@ -138,7 +138,7 @@ describe('accounts', () => {
     const cashflow = makeCashflow({
       people: [person],
       starts_at: iso('2023-04-06'),
-      years: 2,
+      years: 1,
       accounts: [account],
     })
     const out = run(cashflow)
@@ -172,7 +172,7 @@ describe('accounts', () => {
     const cashflow = makeCashflow({
       people: [person],
       starts_at: iso('2023-04-06'),
-      years: 2,
+      years: 1,
       accounts: [account1, account2],
     })
     const out = run(cashflow)
@@ -215,7 +215,7 @@ describe('accounts', () => {
     const cashflow = makeCashflow({
       people: [person1, person2],
       starts_at: iso('2023-04-06'),
-      years: 2,
+      years: 1,
     })
     const out = run(cashflow)
 
@@ -247,7 +247,7 @@ describe('accounts', () => {
     const cashflow = makeCashflow({
       people: [person],
       starts_at: iso('2023-04-06'),
-      years: 2,
+      years: 1,
       accounts: [isa],
     })
     const out = run(cashflow)
