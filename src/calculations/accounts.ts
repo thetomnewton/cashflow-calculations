@@ -46,10 +46,13 @@ export function applyGrowth(cashflow: Cashflow, output: Output) {
   cashflow.accounts.forEach(account => {
     const outputYear = output.accounts[account.id].years[yearIndex]
 
+    const currentValue = outputYear.current_value ?? 0
+    const growthRate = currentValue < 0 ? 0 : getGrowthRateFromTemplate(account)
+
     const endValue =
-      (outputYear.current_value ?? 0) *
+      currentValue *
       applyGrowthRate(
-        getGrowthRateFromTemplate(account),
+        growthRate,
         cashflow.assumptions.terms === 'real' ? cashflow.assumptions.cpi : 0
       )
 

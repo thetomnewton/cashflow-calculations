@@ -1,4 +1,5 @@
-import { makeAccount, makePerson } from '../src/factories'
+import { run } from '../src/calculations'
+import { makeAccount, makeCashflow, makePerson } from '../src/factories'
 import { iso } from '../src/lib/date'
 
 describe('contributions', () => {
@@ -21,8 +22,19 @@ describe('contributions', () => {
       ],
     })
 
-    // expect the 1000 to be added to cash1 in year 0
-    // expect 1000 to be drawn from the sweep account
-    // expect the person to be overdrawn
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 1,
+      accounts: [cash1],
+    })
+    const output = run(cashflow)
+
+    expect(output.accounts[cash1.id].years[0].end_value).toEqual(2100)
+
+    const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+    expect(output.accounts[sweep?.id as string].years[0].end_value).toEqual(
+      -1000
+    )
   })
 })

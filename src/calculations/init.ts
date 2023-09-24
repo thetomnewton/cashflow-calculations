@@ -111,6 +111,7 @@ function createSweepAccount(people: Person[]): Account {
     owner_id: people.map(({ id }) => id),
     is_sweep: true,
     valuations: [{ value: 0, date: iso() }],
+    contributions: [],
     growth_template: {
       type: 'flat',
       rate: { gross_rate: 0.005, charges: 0 },

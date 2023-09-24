@@ -15,7 +15,7 @@ describe('income tax', () => {
         {
           value: 40000,
           starts_at: iso('2023-04-06'),
-          ends_at: iso('2028-01-01'), // Should still apply for the whole year
+          ends_at: iso('2024-01-01'), // Should still apply for the whole year
           escalation: 0,
         },
       ],
@@ -24,7 +24,7 @@ describe('income tax', () => {
     const cashflow = makeCashflow({
       people: [person],
       starts_at: iso('2023-04-06'),
-      years: 1,
+      years: 2,
       incomes: [salary],
     })
     const out = run(cashflow)
