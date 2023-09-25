@@ -4,6 +4,7 @@ import { Account, Cashflow, Income, Output, Person } from '../types'
 import { generateBandsFor, getTaxYearFromDate } from './income-tax'
 import { getValueInYear } from './entity'
 import { v4 } from 'uuid'
+import { isAccount } from './accounts'
 
 export function initialise(cashflow: Cashflow) {
   const output = makeInitOutput(cashflow)
@@ -100,7 +101,7 @@ function initAccounts(cashflow: Cashflow, output: Output) {
 
 function ensureSweepAccountExists(cashflow: Cashflow) {
   // Check if the person has a sweep account. If not, create one.
-  const sweep = cashflow.accounts.find(({ is_sweep }) => is_sweep)
+  const sweep = cashflow.accounts.find(acc => 'is_sweep' in acc && acc.is_sweep)
   if (!sweep) cashflow.accounts.push(createSweepAccount(cashflow.people))
 }
 
