@@ -9,6 +9,7 @@ import {
   Output,
   PlanningYear,
 } from '../types'
+import { isAccount } from './accounts'
 
 let cashflow: Cashflow
 let output: Output
@@ -60,7 +61,7 @@ function addContributionToAccount(account: BaseAccount, value: number) {
 }
 
 function deductContributionFromSweepAccount(value: number) {
-  const sweep = cashflow.accounts.find(acc => 'is_sweep' in acc && acc.is_sweep)
+  const sweep = cashflow.accounts.find(acc => isAccount(acc) && acc.is_sweep)
   if (!sweep) throw new Error('Missing sweep account when making contribution')
 
   const outputYear = output.accounts[sweep.id].years[yearIndex]
