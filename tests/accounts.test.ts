@@ -302,5 +302,12 @@ describe('accounts', () => {
       end_value: 10659,
       net_growth: 0.045,
     })
+
+    expect(output.accounts[cash1.id].years[2]).toEqual({
+      start_value: 10659,
+      current_value: 10659,
+      end_value: 10872.18,
+      net_growth: 0.02,
+    })
   })
 })
