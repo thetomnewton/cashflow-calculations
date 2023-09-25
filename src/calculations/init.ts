@@ -101,7 +101,7 @@ function initAccounts(cashflow: Cashflow, output: Output) {
 
 function ensureSweepAccountExists(cashflow: Cashflow) {
   // Check if the person has a sweep account. If not, create one.
-  const sweep = cashflow.accounts.find(acc => 'is_sweep' in acc && acc.is_sweep)
+  const sweep = cashflow.accounts.find(acc => isAccount(acc) && acc.is_sweep)
   if (!sweep) cashflow.accounts.push(createSweepAccount(cashflow.people))
 }
 
