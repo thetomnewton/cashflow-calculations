@@ -1,5 +1,10 @@
 import { run } from '../src/calculations'
-import { makeAccount, makeCashflow, makePerson } from '../src/factories'
+import {
+  makeAccount,
+  makeCashflow,
+  makeMoneyPurchase,
+  makePerson,
+} from '../src/factories'
 import { iso } from '../src/lib/date'
 
 describe('contributions', () => {
@@ -38,7 +43,22 @@ describe('contributions', () => {
     )
   })
 
-  test('contribution to money purchase is grossed up', () => {
-    //
+  test('personal contribution to money purchase is grossed up', () => {
+    const person = makePerson({ date_of_birth: '1985-01-01', sex: 'female' })
+
+    const pension = makeMoneyPurchase({
+      owner_id: person.id,
+      valuations: [{ date: iso('2023-09-30'), value: 10000 }],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+      contributions: [
+        {
+          type: 'personal',
+          value: 2000,
+          starts_at: iso('2023-09-30'),
+          ends_at: iso('2025-09-30'),
+          escalation: 'cpi',
+        },
+      ],
+    })
   })
 })

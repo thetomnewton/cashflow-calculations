@@ -38,7 +38,6 @@ function getGrowthRateFromTemplate(account: Account) {
     )
   }
 
-  // todo: Handle non-flat growth template
   const item =
     account.growth_template.rate[
       yearIndex % account.growth_template.rate.length
