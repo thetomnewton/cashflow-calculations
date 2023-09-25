@@ -89,4 +89,9 @@ describe('contributions', () => {
       net_growth: 0.05,
     })
   })
+
+  // basic band gets grossed up (england)
+  // basic band gets grossed up (scotland)
+  // only relevant individuals are applicable for tax relief
+  // employer contributions don't get grossed up
 })

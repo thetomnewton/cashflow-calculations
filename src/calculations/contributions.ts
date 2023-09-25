@@ -5,11 +5,12 @@ import {
   Account,
   BaseAccount,
   Cashflow,
+  Contribution,
   Entity,
   Output,
   PlanningYear,
 } from '../types'
-import { isAccount } from './accounts'
+import { isAccount, isMoneyPurchase } from './accounts'
 
 let cashflow: Cashflow
 let output: Output
@@ -40,7 +41,7 @@ export function applyContributions(
         output
       )
 
-      addContributionToAccount(account, value)
+      addContributionToAccount(account, contribution, value)
 
       if (contribution.type === 'personal')
         deductContributionFromSweepAccount(value)
@@ -48,10 +49,14 @@ export function applyContributions(
   })
 }
 
-function addContributionToAccount(account: BaseAccount, value: number) {
+function addContributionToAccount(
+  account: BaseAccount,
+  contribution: Contribution,
+  value: number
+) {
   const outputYear = output.accounts[account.id].years[yearIndex]
 
-  const grossValue = calculateGrossContribution(account, value)
+  const grossValue = calculateGrossContribution(account, contribution, value)
 
   if (typeof outputYear.current_value === 'undefined')
     outputYear.current_value = grossValue
@@ -70,9 +75,18 @@ function deductContributionFromSweepAccount(value: number) {
   else outputYear.current_value -= value
 }
 
-function calculateGrossContribution(account: BaseAccount, value: number) {
-  if (account.category === 'money_purchase') {
-    // todo: Apply possible gross-up rules
+function calculateGrossContribution(
+  account: BaseAccount,
+  contribution: Contribution,
+  value: number
+) {
+  if (isMoneyPurchase(account) && contribution.type === 'personal') {
+    // todo
+    // If the person is a relevant individual in the current year,
+    // they are eligible for tax relief.
+    // Get the tax relief rate.
+    // Determine the max tax relief available, which is the larger of the person's
+    //   total relevant earnings this tax year and the contribution tax relief basic amount.
   }
 
   return value
