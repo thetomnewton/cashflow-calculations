@@ -17,13 +17,15 @@ import { date } from '../lib/date'
 
 let cashflow: Cashflow
 let output: Output
+let year: PlanningYear
 let yearIndex: number
 
 export function applyContributions(
-  year: PlanningYear,
+  initYear: PlanningYear,
   initCashflow: Cashflow,
   initOutput: Output
 ) {
+  year = initYear
   output = initOutput
   cashflow = initCashflow
   yearIndex = getYearIndex(year.tax_year, output)
@@ -90,10 +92,16 @@ function calculateGrossContribution(
     if (!isRelevantIndividualThisTaxYear(account.owner_id as string))
       return baseValue
 
-    // todo
     // Get the tax relief rate.
+    const rates = getRatesInTaxYear(year.tax_year)
+    const taxReliefRate = rates.contribution_tax_relief_rate
+
+    // todo: Convert to real terms if required
+    const basicAmount = rates.contribution_tax_relief_basic_amount
+
+    // todo:
     // Determine the max tax relief available, which is the larger of the person's
-    //   total relevant earnings this tax year and the contribution tax relief "basic amount".
+    // total relevant earnings this tax year and the basic amount.
   }
 
   return baseValue
@@ -109,6 +117,6 @@ function isRelevantIndividualThisTaxYear(personId: Person['id']) {
 
   return (
     ageAtDate(person, yearStartDate) <
-    getRatesInTaxYear('2324').relevant_individual_age_range_upper
+    getRatesInTaxYear(year.tax_year).relevant_individual_age_range_upper
   )
 }
