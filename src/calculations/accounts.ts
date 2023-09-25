@@ -39,7 +39,12 @@ function getGrowthRateFromTemplate(account: Account) {
   }
 
   // todo: Handle non-flat growth template
-  return 0
+  const item =
+    account.growth_template.rate[
+      yearIndex % account.growth_template.rate.length
+    ]
+
+  return round(item.gross_rate - (item.charges ?? 0), 4)
 }
 
 export function applyGrowth(cashflow: Cashflow, output: Output) {
