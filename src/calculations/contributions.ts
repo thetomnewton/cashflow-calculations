@@ -2,7 +2,6 @@ import { v4 } from 'uuid'
 import { getValueInYear } from './entity'
 import { getYearIndex } from './income-tax'
 import {
-  Account,
   BaseAccount,
   Cashflow,
   Contribution,
@@ -78,7 +77,7 @@ function deductContributionFromSweepAccount(value: number) {
 function calculateGrossContribution(
   account: BaseAccount,
   contribution: Contribution,
-  value: number
+  baseValue: number
 ) {
   if (isMoneyPurchase(account) && contribution.type === 'personal') {
     // todo
@@ -89,5 +88,5 @@ function calculateGrossContribution(
     //   total relevant earnings this tax year and the contribution tax relief basic amount.
   }
 
-  return value
+  return baseValue
 }
