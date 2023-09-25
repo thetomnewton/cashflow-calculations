@@ -1,10 +1,17 @@
 import { v4 } from 'uuid'
-import { Account, Cashflow, Entity, Output, PlanningYear } from '../types'
 import { getValueInYear } from './entity'
 import { getYearIndex } from './income-tax'
+import {
+  Account,
+  BaseAccount,
+  Cashflow,
+  Entity,
+  Output,
+  PlanningYear,
+} from '../types'
 
-let output: Output
 let cashflow: Cashflow
+let output: Output
 let yearIndex: number
 
 export function applyContributions(
@@ -40,24 +47,32 @@ export function applyContributions(
   })
 }
 
-function addContributionToAccount(account: Account, value: number) {
+function addContributionToAccount(account: BaseAccount, value: number) {
   const outputYear = output.accounts[account.id].years[yearIndex]
 
-  // todo: If contribution to DC pension then use gross up logic
+  const grossValue = calculateGrossContribution(account, value)
 
   if (typeof outputYear.current_value === 'undefined')
-    outputYear.current_value = value
-  else outputYear.current_value += value
+    outputYear.current_value = grossValue
+  else outputYear.current_value += grossValue
 
-  // todo: track that the contribution happened
+  // todo: Track that the contribution happened
 }
 
 function deductContributionFromSweepAccount(value: number) {
-  const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+  const sweep = cashflow.accounts.find(acc => 'is_sweep' in acc && acc.is_sweep)
   if (!sweep) throw new Error('Missing sweep account when making contribution')
 
   const outputYear = output.accounts[sweep.id].years[yearIndex]
   if (typeof outputYear.current_value === 'undefined')
     outputYear.current_value = -value
   else outputYear.current_value -= value
+}
+
+function calculateGrossContribution(account: BaseAccount, value: number) {
+  if (account.category === 'money_purchase') {
+    // todo: Apply possible gross-up rules
+  }
+
+  return value
 }

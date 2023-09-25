@@ -1,5 +1,12 @@
 import { round } from 'lodash'
-import { Account, Cashflow, Output, PlanningYear } from '../types'
+import {
+  Account,
+  BaseAccount,
+  Cashflow,
+  MoneyPurchase,
+  Output,
+  PlanningYear,
+} from '../types'
 import { getYearIndex } from './income-tax'
 import { applyGrowth as applyGrowthRate } from './growth'
 
@@ -29,7 +36,7 @@ export function initialiseAccounts(
   })
 }
 
-function getGrowthRateFromTemplate(account: Account) {
+function getGrowthRateFromTemplate(account: BaseAccount) {
   if (account.growth_template.type === 'flat') {
     return round(
       account.growth_template.rate.gross_rate -
@@ -62,4 +69,14 @@ export function applyGrowth(cashflow: Cashflow, output: Output) {
 
     outputYear.end_value = round(endValue, 2)
   })
+}
+
+export function isAccount(account: BaseAccount): account is Account {
+  return account.category === 'cash' || account.category === 'isa'
+}
+
+export function isMoneyPurchase(
+  account: BaseAccount
+): account is MoneyPurchase {
+  return account.category === 'money_purchase'
 }

@@ -37,7 +37,9 @@ describe('contributions', () => {
 
     expect(output.accounts[cash1.id].years[0].end_value).toEqual(2100)
 
-    const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+    const sweep = cashflow.accounts.find(
+      acc => 'is_sweep' in acc && acc.is_sweep
+    )
     expect(output.accounts[sweep?.id as string].years[0].end_value).toEqual(
       -1000
     )
@@ -48,7 +50,14 @@ describe('contributions', () => {
 
     const pension = makeMoneyPurchase({
       owner_id: person.id,
-      valuations: [{ date: iso('2023-09-30'), value: 10000 }],
+      valuations: [
+        {
+          date: iso('2023-09-30'),
+          value: 10000,
+          uncrystallised_value: 10000,
+          crystallised_value: 0,
+        },
+      ],
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       contributions: [
         {
@@ -72,6 +81,11 @@ describe('contributions', () => {
     const [year0, year1] = output.accounts[pension.id].years
 
     expect(year0).toEqual({
+      start_value: 10000,
+      net_growth: 0.05,
+    })
+
+    expect(year1).toEqual({
       start_value: 10000,
       net_growth: 0.05,
     })

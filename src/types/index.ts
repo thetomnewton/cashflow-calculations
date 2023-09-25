@@ -5,7 +5,7 @@ export interface Cashflow {
   people: Person[]
   assumptions: CashflowAssumptions
   incomes: Income[]
-  accounts: Account[]
+  accounts: (Account | MoneyPurchase)[]
 }
 
 export interface CashflowAssumptions {
@@ -148,6 +148,11 @@ export interface Valuation {
   value: number
 }
 
+export interface MoneyPurchaseValuation extends Valuation {
+  uncrystallised_value: number
+  crystallised_value: number
+}
+
 export type GrowthTemplate = FlatGrowthTemplate | ArrayGrowthTemplate
 
 export interface FlatGrowthTemplate {
@@ -165,14 +170,17 @@ type GrowthRateEntry = {
   charges?: number
 }
 
-export interface Account {
+export interface BaseAccount {
   id: string
   category: string
   sub_category?: string
   owner_id: Person['id'] | Person['id'][]
-  valuations: Valuation[]
   growth_template: GrowthTemplate
   contributions: Contribution[]
+}
+
+export interface Account extends BaseAccount {
+  valuations: Valuation[]
   is_sweep?: boolean
 }
 
@@ -180,8 +188,9 @@ export interface Contribution extends EntityValue {
   type: 'personal' | 'employer'
 }
 
-export interface MoneyPurchase extends Account {
+export interface MoneyPurchase extends BaseAccount {
   category: 'money_purchase'
+  valuations: MoneyPurchaseValuation[]
 }
 
 export interface ISA extends Account {
