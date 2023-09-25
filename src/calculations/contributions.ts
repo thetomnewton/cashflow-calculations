@@ -1,15 +1,19 @@
 import { v4 } from 'uuid'
 import { getValueInYear } from './entity'
 import { getYearIndex } from './income-tax'
+import { getRatesInTaxYear, knownRates } from '../config/pensions'
 import {
   BaseAccount,
   Cashflow,
   Contribution,
   Entity,
   Output,
+  Person,
   PlanningYear,
 } from '../types'
 import { isAccount, isMoneyPurchase } from './accounts'
+import { ageAtDate } from './person'
+import { date } from '../lib/date'
 
 let cashflow: Cashflow
 let output: Output
@@ -80,13 +84,31 @@ function calculateGrossContribution(
   baseValue: number
 ) {
   if (isMoneyPurchase(account) && contribution.type === 'personal') {
-    // todo
     // If the person is a relevant individual in the current year,
     // they are eligible for tax relief.
+
+    if (!isRelevantIndividualThisTaxYear(account.owner_id as string))
+      return baseValue
+
+    // todo
     // Get the tax relief rate.
     // Determine the max tax relief available, which is the larger of the person's
-    //   total relevant earnings this tax year and the contribution tax relief basic amount.
+    //   total relevant earnings this tax year and the contribution tax relief "basic amount".
   }
 
   return baseValue
+}
+
+function isRelevantIndividualThisTaxYear(personId: Person['id']) {
+  const person = cashflow.people.find(({ id }) => id === personId)
+  if (!person) throw new Error(`Account has missing owner`)
+
+  const yearStartDate = date(cashflow.starts_at)
+    .add(yearIndex, 'year')
+    .toISOString()
+
+  return (
+    ageAtDate(person, yearStartDate) <
+    getRatesInTaxYear('2324').relevant_individual_age_range_upper
+  )
 }
