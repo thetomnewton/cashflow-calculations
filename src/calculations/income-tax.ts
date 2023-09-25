@@ -293,11 +293,11 @@ function getTaxableUnusedTotal(income: Income, output: Output) {
 
   // Get the total of the taxable value which has not
   // yet been accounted for by any other bands.
-  return round(
+  const value =
     taxableValuePerPersonThisYear(income, output) -
-      sumBy(Object.values(outputYear.tax.bands), 'used'),
-    2
-  )
+    sumBy(Object.values(outputYear.tax.bands), 'used')
+
+  return round(value, 2)
 }
 
 /**
