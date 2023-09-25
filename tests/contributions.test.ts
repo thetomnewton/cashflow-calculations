@@ -60,5 +60,20 @@ describe('contributions', () => {
         },
       ],
     })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-09-30'),
+      years: 2,
+      accounts: [pension],
+    })
+
+    const output = run(cashflow)
+    const [year0, year1] = output.accounts[pension.id].years
+
+    expect(year0).toEqual({
+      start_value: 10000,
+      net_growth: 0.05,
+    })
   })
 })
