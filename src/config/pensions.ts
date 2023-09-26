@@ -21,8 +21,9 @@ export const knownRates: KnownRatesType = {
 
 export function getRatesInTaxYear(taxYear: string) {
   // If the known rates are not available, use the most recent rates
+
   return (
     knownRates[taxYear] ||
-    Object.entries(knownRates).sort((a, b) => +b[0] - +a[0])[0]
+    Object.entries(knownRates).sort((a, b) => +b[0] - +a[0])[0][1]
   )
 }

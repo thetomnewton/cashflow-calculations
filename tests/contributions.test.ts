@@ -77,7 +77,7 @@ describe('contributions', () => {
           value: 2000,
           starts_at: iso('2023-09-30'),
           ends_at: iso('2025-09-30'),
-          escalation: 'cpi',
+          escalation: 0,
         },
       ],
     })
@@ -95,12 +95,16 @@ describe('contributions', () => {
 
     expect(year0).toEqual({
       start_value: 10000,
+      current_value: 12500, // 2000 contribution grossed-up to 2500
+      end_value: 13125,
       net_growth: 0.05,
     })
 
     expect(year1).toEqual({
-      start_value: 10000,
+      start_value: 13125,
+      current_value: 15625,
       net_growth: 0.05,
+      end_value: 16406.25,
     })
   })
 

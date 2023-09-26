@@ -1,7 +1,7 @@
 import { v4 } from 'uuid'
 import { getValueInYear } from './entity'
 import { getYearIndex } from './income-tax'
-import { getRatesInTaxYear, knownRates } from '../config/pensions'
+import { getRatesInTaxYear } from '../config/pensions'
 import {
   BaseAccount,
   Cashflow,
@@ -15,11 +15,13 @@ import {
 import { isAccount, isMoneyPurchase } from './accounts'
 import { ageAtDate } from './person'
 import { date } from '../lib/date'
+import { round } from 'lodash'
 
 let cashflow: Cashflow
 let output: Output
 let year: PlanningYear
 let yearIndex: number
+let totalGrossPersonalContributions = 0
 
 export function applyContributions(
   initYear: PlanningYear,
@@ -30,6 +32,8 @@ export function applyContributions(
   output = initOutput
   cashflow = initCashflow
   yearIndex = getYearIndex(year.tax_year, output)
+
+  totalGrossPersonalContributions = 0
 
   cashflow.accounts.forEach(account => {
     const contributions = account.contributions ?? []
@@ -47,7 +51,9 @@ export function applyContributions(
         output
       )
 
-      addContributionToAccount(account, contribution, value)
+      const grossValue = addContributionToAccount(account, contribution, value)
+
+      totalGrossPersonalContributions += grossValue
 
       if (contribution.type === 'personal')
         deductContributionFromSweepAccount(value)
@@ -69,6 +75,7 @@ function addContributionToAccount(
   else outputYear.current_value += grossValue
 
   // todo: Track that the contribution happened
+  return grossValue
 }
 
 function deductContributionFromSweepAccount(value: number) {
@@ -109,7 +116,23 @@ function calculateGrossContribution(
     totalRelevantEarnings(account.owner_id as string)
   )
 
-  return 0
+  const remainingTaxRelievableGrossContributions = Math.max(
+    0,
+    maxTaxReliefAvailable - totalGrossPersonalContributions
+  )
+
+  const taxRelievableNetContribution = Math.min(
+    baseValue,
+    remainingTaxRelievableGrossContributions * (1 - taxReliefRate)
+  )
+  const nonTaxRelievableNetContribution =
+    baseValue - taxRelievableNetContribution
+
+  const grossContribution =
+    taxRelievableNetContribution / (1 - taxReliefRate) +
+    nonTaxRelievableNetContribution
+
+  return round(grossContribution, 2)
 }
 
 function isRelevantIndividualThisTaxYear(personId: Person['id']) {
