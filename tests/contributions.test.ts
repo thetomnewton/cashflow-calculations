@@ -108,38 +108,47 @@ describe('contributions', () => {
     })
   })
 
-  test('basic band gets grossed up (england)', () => {
-    const person = makePerson({ date_of_birth: '1985-01-01', sex: 'female' })
+  test('higher rate english taxpayer gets higher rate tax relief', () => {
+    /**
+     * - Salary £80,000
+     * - Pays £35,000 net personally into a PPP
+     * - Basic rate relief is applied to the whole contribution, taking it to £43,750
+     * - An additional 20% relief is available on the £30,000 above the higher rate threshold
+     * - 29730/.6=49550, 5270/.8=6587.5 so £56,137.50 goes into the pot
+     * - Basic band gets extended by £56,137.50
+     */
 
+    const person = makePerson({ date_of_birth: '1980-05-05', sex: 'male' })
     const salary = makeIncome({
+      type: 'employment',
       people: [person],
       values: [
         {
-          value: 55000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2030-09-30'),
-          escalation: 'cpi',
+          value: 80000,
+          starts_at: iso('2023-09-01'),
+          ends_at: iso('2040-09-01'),
+          escalation: 0,
         },
       ],
     })
 
     const pension = makeMoneyPurchase({
       owner_id: person.id,
-      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       valuations: [
         {
-          date: iso('2023-09-30'),
-          value: 10000,
-          uncrystallised_value: 10000,
+          value: 0,
+          uncrystallised_value: 0,
           crystallised_value: 0,
+          date: iso('2023-09-01'),
         },
       ],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       contributions: [
         {
           type: 'personal',
-          value: 2000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2025-09-30'),
+          value: 35000,
+          starts_at: iso('2023-09-01'),
+          ends_at: iso('2040-09-01'),
           escalation: 0,
         },
       ],
@@ -147,23 +156,32 @@ describe('contributions', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-09-30'),
-      years: 2,
-      accounts: [pension],
+      starts_at: iso('2023-09-01'),
+      years: 3,
       incomes: [salary],
+      accounts: [pension],
     })
-
     const output = run(cashflow)
 
-    const basicBand2324 = output.tax.bands[2324][person.id].find(
-      ({ key }) => key === 'basic_rate_eng'
-    )
-    const basicBand2425 = output.tax.bands[2425][person.id].find(
-      ({ key }) => key === 'basic_rate_eng'
+    expect(output.accounts[pension.id].years[0]).toEqual({
+      start_value: 0,
+      net_growth: 0.05,
+      current_value: 56137.5,
+      end_value: 58944.38,
+    })
+
+    const basicBand = output.tax.bands[2324][person.id].find(
+      band => band.key === 'basic_rate_eng'
     )
 
-    expect(basicBand2324?.bound_upper).toEqual(42700)
-    expect(basicBand2425?.bound_upper).toEqual(43000)
+    expect(basicBand).toEqual({
+      key: 'basic_rate_eng',
+      bound_lower: 0,
+      bound_upper_original: 37700,
+      bound_upper: 96644.38,
+      remaining: 0,
+      id: basicBand?.id,
+    })
   })
 
   test('basic band gets grossed up (scotland)', () => {
