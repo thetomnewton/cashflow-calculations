@@ -125,6 +125,7 @@ describe('contributions', () => {
 
     const pension = makeMoneyPurchase({
       owner_id: person.id,
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       valuations: [
         {
           date: iso('2023-09-30'),
@@ -133,7 +134,6 @@ describe('contributions', () => {
           crystallised_value: 0,
         },
       ],
-      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       contributions: [
         {
           type: 'personal',
@@ -154,7 +154,6 @@ describe('contributions', () => {
     })
 
     const output = run(cashflow)
-    const [year0, year1] = output.accounts[pension.id].years
 
     const basicBand2324 = output.tax.bands[2324][person.id].find(
       ({ key }) => key === 'basic_rate_eng'

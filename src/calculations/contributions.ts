@@ -169,5 +169,9 @@ function totalRelevantEarnings(personId: Person['id']) {
 }
 
 function isRelevantIncome(income: Income) {
-  return income.type === 'employment' || income.type === 'self_employment'
+  return (
+    income.type === 'employment' ||
+    income.type === 'self_employment' ||
+    (income.type === 'other' && income.tax_category === 'earned')
+  )
 }
