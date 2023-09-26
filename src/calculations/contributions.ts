@@ -7,6 +7,7 @@ import {
   Cashflow,
   Contribution,
   Entity,
+  Income,
   Output,
   Person,
   PlanningYear,
@@ -85,26 +86,30 @@ function calculateGrossContribution(
   contribution: Contribution,
   baseValue: number
 ) {
-  if (isMoneyPurchase(account) && contribution.type === 'personal') {
-    // If the person is a relevant individual in the current year,
-    // they are eligible for tax relief.
+  if (!isMoneyPurchase(account) || contribution.type !== 'personal')
+    return baseValue
 
-    if (!isRelevantIndividualThisTaxYear(account.owner_id as string))
-      return baseValue
+  // Only if the person is a relevant individual in the
+  // current year, are they eligible for tax relief.
 
-    // Get the tax relief rate.
-    const rates = getRatesInTaxYear(year.tax_year)
-    const taxReliefRate = rates.contribution_tax_relief_rate
+  if (!isRelevantIndividualThisTaxYear(account.owner_id as string))
+    return baseValue
 
-    // todo: Convert to real terms if required
-    const basicAmount = rates.contribution_tax_relief_basic_amount
+  // Get the tax relief rate.
+  const rates = getRatesInTaxYear(year.tax_year)
+  const taxReliefRate = rates.contribution_tax_relief_rate
 
-    // todo:
-    // Determine the max tax relief available, which is the larger of the person's
-    // total relevant earnings this tax year and the basic amount.
-  }
+  // todo: Convert to real terms if required
+  const basicAmount = rates.contribution_tax_relief_basic_amount
 
-  return baseValue
+  // Determine the max tax relief available, which is the larger of the person's
+  // total relevant earnings this tax year and the basic amount.
+  const maxTaxReliefAvailable = Math.max(
+    basicAmount,
+    totalRelevantEarnings(account.owner_id as string)
+  )
+
+  return 0
 }
 
 function isRelevantIndividualThisTaxYear(personId: Person['id']) {
@@ -119,4 +124,27 @@ function isRelevantIndividualThisTaxYear(personId: Person['id']) {
     ageAtDate(person, yearStartDate) <
     getRatesInTaxYear(year.tax_year).relevant_individual_age_range_upper
   )
+}
+
+function totalRelevantEarnings(personId: Person['id']) {
+  const person = cashflow.people.find(({ id }) => id === personId)
+  if (!person) throw new Error(`Account has missing owner`)
+
+  if (cashflow.incomes.length === 0) return 0
+
+  let total = 0
+
+  cashflow.incomes
+    .filter(
+      income => income.people.includes(person) && isRelevantIncome(income)
+    )
+    .forEach(income => {
+      total += output.incomes[income.id].years[yearIndex].taxable_value
+    })
+
+  return total
+}
+
+function isRelevantIncome(income: Income) {
+  return income.type === 'employment' || income.type === 'self_employment'
 }

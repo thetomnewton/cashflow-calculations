@@ -60,6 +60,7 @@ export interface OutputTaxBand {
   bound_lower: number
   bound_upper: number
   remaining: number
+  bound_upper_original?: number
 }
 
 type OutputPersonValues = {

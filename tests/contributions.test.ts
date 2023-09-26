@@ -3,6 +3,7 @@ import { isAccount } from '../src/calculations/accounts'
 import {
   makeAccount,
   makeCashflow,
+  makeIncome,
   makeMoneyPurchase,
   makePerson,
 } from '../src/factories'
@@ -47,6 +48,18 @@ describe('contributions', () => {
   test('personal contribution to money purchase is grossed up', () => {
     const person = makePerson({ date_of_birth: '1985-01-01', sex: 'female' })
 
+    const salary = makeIncome({
+      people: [person],
+      values: [
+        {
+          value: 20000,
+          starts_at: iso('2023-09-30'),
+          ends_at: iso('2030-09-30'),
+          escalation: 'cpi',
+        },
+      ],
+    })
+
     const pension = makeMoneyPurchase({
       owner_id: person.id,
       valuations: [
@@ -74,6 +87,7 @@ describe('contributions', () => {
       starts_at: iso('2023-09-30'),
       years: 2,
       accounts: [pension],
+      incomes: [salary],
     })
 
     const output = run(cashflow)

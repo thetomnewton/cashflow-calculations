@@ -19,6 +19,11 @@ export function run(base: Cashflow): Output {
 }
 
 function runYearCalculation(year: PlanningYear) {
+  // Calculate initial income tax liability, before withdrawals.
+  // This is needed for things like the total relevant
+  // earnings applying tax relief on contributions
+  calcIncomeTaxLiability(year, cashflow, output)
+
   initialiseAccounts(year, cashflow, output)
   applyContributions(year, cashflow, output)
   // apply withdrawals

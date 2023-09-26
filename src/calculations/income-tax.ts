@@ -208,6 +208,13 @@ function taperPersonalAllowance(
   const bandConfig = bands.find(isPersonalAllowance)
   if (!bandConfig) throw new Error(`No Personal Allowance config in ${taxYear}`)
 
+  // If PA already tapered, don't taper again
+  if (
+    typeof pa.bound_upper_original !== 'undefined' &&
+    pa.bound_upper_original > pa.bound_upper
+  )
+    return
+
   const surplus = adjustedNetIncome - bandConfig.adjusted_net_income_limit
   if (surplus <= 0) return
 
@@ -215,6 +222,8 @@ function taperPersonalAllowance(
     0,
     pa.bound_upper - surplus * bandConfig.taper_rate
   )
+
+  pa.bound_upper_original = pa.bound_upper
 
   pa.bound_upper = newUpperBound
   pa.remaining = newUpperBound
