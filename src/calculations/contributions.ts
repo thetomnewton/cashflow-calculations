@@ -125,6 +125,7 @@ function calculateGrossContribution(
     baseValue,
     remainingTaxRelievableGrossContributions * (1 - taxReliefRate)
   )
+
   const nonTaxRelievableNetContribution =
     baseValue - taxRelievableNetContribution
 
