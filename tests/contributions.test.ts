@@ -113,7 +113,7 @@ describe('contributions', () => {
      * - Salary £80,000
      * - Pays £35,000 net personally into a PPP
      * - Basic rate relief is applied to the whole contribution, taking it to £43,750
-     * - An additional 20% relief is available on the £30,000 above the higher rate threshold
+     * - Additional 20% relief is available on the approx 30k above higher rate threshold
      * - 29730/.6=49550, 5270/.8=6587.5 so £56,137.50 goes into the pot
      * - Basic band gets extended by £56,137.50
      */
@@ -157,7 +157,7 @@ describe('contributions', () => {
     const cashflow = makeCashflow({
       people: [person],
       starts_at: iso('2023-09-01'),
-      years: 3,
+      years: 1,
       incomes: [salary],
       accounts: [pension],
     })

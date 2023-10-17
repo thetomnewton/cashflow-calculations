@@ -1,7 +1,7 @@
+import { round } from 'lodash'
 import { v4 } from 'uuid'
-import { getValueInYear } from './entity'
-import { getYearIndex } from './income-tax'
 import { getRatesInTaxYear } from '../config/pensions'
+import { date } from '../lib/date'
 import {
   BaseAccount,
   Cashflow,
@@ -13,9 +13,10 @@ import {
   PlanningYear,
 } from '../types'
 import { isAccount, isMoneyPurchase } from './accounts'
+import { getValueInYear } from './entity'
+import { applyGrowth } from './growth'
+import { getYearIndex } from './income-tax'
 import { ageAtDate } from './person'
-import { date } from '../lib/date'
-import { round } from 'lodash'
 
 let cashflow: Cashflow
 let output: Output
@@ -93,8 +94,7 @@ function calculateGrossContribution(
   contribution: Contribution,
   baseValue: number
 ) {
-  if (!isMoneyPurchase(account) || contribution.type !== 'personal')
-    return baseValue
+  if (!contributionCanGetTaxRelief(account, contribution)) return baseValue
 
   // Only if the person is a relevant individual in the
   // current year, are they eligible for tax relief.
@@ -107,7 +107,11 @@ function calculateGrossContribution(
   const taxReliefRate = rates.contribution_tax_relief_rate
 
   // todo: Convert to real terms if required
-  const basicAmount = rates.contribution_tax_relief_basic_amount
+  let basicAmount = rates.contribution_tax_relief_basic_amount
+  if (cashflow.assumptions.terms === 'real') {
+    basicAmount =
+      basicAmount * applyGrowth(0, cashflow.assumptions.cpi) ** yearIndex
+  }
 
   // Determine the max tax relief available, which is the larger of the person's
   // total relevant earnings this tax year and the basic amount.
@@ -116,6 +120,8 @@ function calculateGrossContribution(
     totalRelevantEarnings(account.owner_id as string)
   )
 
+  // Deduct the gross contributions that have already been made from
+  // the remaining tax relievable portion of gross contributions.
   const remainingTaxRelievableGrossContributions = Math.max(
     0,
     maxTaxReliefAvailable - totalGrossPersonalContributions
@@ -175,4 +181,11 @@ function isRelevantIncome(income: Income) {
     income.type === 'self_employment' ||
     (income.type === 'other' && income.tax_category === 'earned')
   )
+}
+
+function contributionCanGetTaxRelief(
+  account: BaseAccount,
+  contribution: Contribution
+) {
+  return isMoneyPurchase(account) && contribution.type === 'personal'
 }
