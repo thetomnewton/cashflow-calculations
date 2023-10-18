@@ -165,11 +165,9 @@ function totalRelevantEarnings(personId: Person['id']) {
   let total = 0
 
   cashflow.incomes
-    .filter(
-      income => income.people.includes(person) && isRelevantIncome(income)
-    )
-    .forEach(income => {
-      total += output.incomes[income.id].years[yearIndex].taxable_value
+    .filter(inc => inc.people.includes(person) && isRelevantIncome(inc))
+    .forEach(inc => {
+      total += output.incomes[inc.id].years[yearIndex].taxable_value
     })
 
   return total
