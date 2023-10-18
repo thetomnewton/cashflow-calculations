@@ -1,5 +1,5 @@
 {
-  "name": "@advicehome/cashflow-calculations",
+  "name": "@horizonadvice/cashflow-calculations",
   "version": "0.0.2",
   "description": "Cashflow calculations",
   "main": "src/calculations/index.ts",
@@ -11,8 +11,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/advicehome/cashflow-calculations.git",
-    "directory": "@advicehome/cashflow-calculations"
+    "url": "git+ssh://git@github.com/horizonadvice/cashflow-calculations.git",
+    "directory": "@horizonadvice/cashflow-calculations"
   },
   "files": [
     "src"
