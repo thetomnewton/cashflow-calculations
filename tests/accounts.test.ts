@@ -7,7 +7,6 @@ import {
 } from '../src/factories'
 import { iso } from '../src/lib/date'
 import { run } from '../src/calculations'
-import { ISA } from '../src/types'
 
 describe('accounts', () => {
   test('sweep account exists automatically', () => {
@@ -257,6 +256,58 @@ describe('accounts', () => {
       current_value: 15000,
       end_value: 15750,
       net_growth: 0.05,
+    })
+  })
+
+  test('non-flat growth template calculates correctly', () => {
+    const person = makePerson({ date_of_birth: '1980-05-01', sex: 'female' })
+
+    const cash1 = makeAccount({
+      category: 'cash',
+      owner_id: person.id,
+      valuations: [
+        {
+          date: iso('2023-08-01'),
+          value: 10000,
+        },
+      ],
+      growth_template: {
+        type: 'array',
+        rate: [
+          { gross_rate: 0.03, charges: 0.01 },
+          { gross_rate: 0.05, charges: 0.005 },
+        ],
+      },
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-08-01'),
+      years: 4,
+      accounts: [cash1],
+    })
+
+    const output = run(cashflow)
+
+    expect(output.accounts[cash1.id].years[0]).toEqual({
+      start_value: 10000,
+      current_value: 10000,
+      end_value: 10200,
+      net_growth: 0.02,
+    })
+
+    expect(output.accounts[cash1.id].years[1]).toEqual({
+      start_value: 10200,
+      current_value: 10200,
+      end_value: 10659,
+      net_growth: 0.045,
+    })
+
+    expect(output.accounts[cash1.id].years[2]).toEqual({
+      start_value: 10659,
+      current_value: 10659,
+      end_value: 10872.18,
+      net_growth: 0.02,
     })
   })
 })

@@ -1,5 +1,12 @@
 import { round } from 'lodash'
-import { Account, Cashflow, Output, PlanningYear } from '../types'
+import {
+  Account,
+  BaseAccount,
+  Cashflow,
+  MoneyPurchase,
+  Output,
+  PlanningYear,
+} from '../types'
 import { getYearIndex } from './income-tax'
 import { applyGrowth as applyGrowthRate } from './growth'
 
@@ -29,7 +36,7 @@ export function initialiseAccounts(
   })
 }
 
-function getGrowthRateFromTemplate(account: Account) {
+function getGrowthRateFromTemplate(account: BaseAccount) {
   if (account.growth_template.type === 'flat') {
     return round(
       account.growth_template.rate.gross_rate -
@@ -38,21 +45,38 @@ function getGrowthRateFromTemplate(account: Account) {
     )
   }
 
-  // todo: Handle non-flat growth template
-  return 0
+  const item =
+    account.growth_template.rate[
+      yearIndex % account.growth_template.rate.length
+    ]
+
+  return round(item.gross_rate - (item.charges ?? 0), 4)
 }
 
 export function applyGrowth(cashflow: Cashflow, output: Output) {
   cashflow.accounts.forEach(account => {
     const outputYear = output.accounts[account.id].years[yearIndex]
 
+    const currentValue = outputYear.current_value ?? 0
+    const growthRate = currentValue < 0 ? 0 : getGrowthRateFromTemplate(account)
+
     const endValue =
-      (outputYear.current_value ?? 0) *
+      currentValue *
       applyGrowthRate(
-        getGrowthRateFromTemplate(account),
+        growthRate,
         cashflow.assumptions.terms === 'real' ? cashflow.assumptions.cpi : 0
       )
 
     outputYear.end_value = round(endValue, 2)
   })
+}
+
+export function isAccount(account: BaseAccount): account is Account {
+  return account.category === 'cash' || account.category === 'isa'
+}
+
+export function isMoneyPurchase(
+  account: BaseAccount
+): account is MoneyPurchase {
+  return account.category === 'money_purchase'
 }

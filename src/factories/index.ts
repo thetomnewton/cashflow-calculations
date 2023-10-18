@@ -75,14 +75,20 @@ export function makeAccount(params: FactoryAccount) {
     owner_id: params.owner_id,
     valuations: params.valuations,
     growth_template: params.growth_template,
+    contributions: params.contributions ?? [],
   }
 }
 
-export function makeMoneyPurchase(params: FactoryMoneyPurchase) {
-  return makeAccount({
-    ...params,
-    ...{ category: 'money_purchase' },
-  }) as MoneyPurchase
+export function makeMoneyPurchase(params: FactoryMoneyPurchase): MoneyPurchase {
+  return {
+    id: params.id ?? v4(),
+    category: 'money_purchase',
+    sub_category: params.sub_category,
+    owner_id: params.owner_id,
+    valuations: params.valuations,
+    growth_template: params.growth_template,
+    contributions: params.contributions ?? [],
+  }
 }
 
 export function makeISA(params: FactoryISA) {
