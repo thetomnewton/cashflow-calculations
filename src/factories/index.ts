@@ -1,3 +1,4 @@
+import { v4 } from 'uuid'
 import { date } from '../lib/date'
 import {
   Account,
@@ -8,9 +9,8 @@ import {
   MoneyPurchase,
   Person,
 } from '../types'
-import { v4 } from 'uuid'
 
-type FactoryPerson = Partial<Person> & Pick<Person, 'sex'>
+type FactoryPerson = Partial<Person>
 type FactoryCashflow = Partial<Omit<Cashflow, 'assumptions'>> &
   Pick<Cashflow, 'people'> & {
     assumptions?: Partial<CashflowAssumptions> | undefined
@@ -36,7 +36,7 @@ export function makePerson(params: FactoryPerson): Person {
     date_of_birth:
       params.date_of_birth ?? date('1970-01-01 00:00:00').toISOString(),
     tax_residency: params.tax_residency ?? 'eng',
-    sex: params.sex,
+    sex: params.sex ?? Math.random() < 0.5 ? 'male' : 'female',
     in_drawdown: params.in_drawdown ?? false,
     registered_blind: params.registered_blind ?? false,
   }

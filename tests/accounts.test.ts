@@ -1,12 +1,13 @@
+import { run } from '../src/calculations'
+import { isAccount } from '../src/calculations/accounts'
 import {
-  makeCashflow,
-  makePerson,
-  makeMoneyPurchase,
   makeAccount,
+  makeCashflow,
   makeISA,
+  makeMoneyPurchase,
+  makePerson,
 } from '../src/factories'
 import { iso } from '../src/lib/date'
-import { run } from '../src/calculations'
 
 describe('accounts', () => {
   test('sweep account exists automatically', () => {
@@ -35,7 +36,14 @@ describe('accounts', () => {
 
     const account = makeMoneyPurchase({
       owner_id: person.id,
-      valuations: [{ date: '2023-04-06', value: 10000 }],
+      valuations: [
+        {
+          date: '2023-04-06',
+          value: 10000,
+          uncrystallised_value: 10000,
+          crystallised_value: 0,
+        },
+      ],
       growth_template: { type: 'flat', rate: { gross_rate: 0.025 } },
     })
 
@@ -69,7 +77,14 @@ describe('accounts', () => {
 
     const account = makeMoneyPurchase({
       owner_id: person.id,
-      valuations: [{ date: '2023-04-06', value: 10000 }],
+      valuations: [
+        {
+          date: '2023-04-06',
+          value: 10000,
+          uncrystallised_value: 10000,
+          crystallised_value: 0,
+        },
+      ],
       growth_template: { type: 'flat', rate: { gross_rate: 0.025 } },
     })
 
@@ -97,7 +112,14 @@ describe('accounts', () => {
 
     const account = makeMoneyPurchase({
       owner_id: person.id,
-      valuations: [{ date: '2023-04-06', value: 10000 }],
+      valuations: [
+        {
+          date: '2023-04-06',
+          value: 10000,
+          uncrystallised_value: 10000,
+          crystallised_value: 0,
+        },
+      ],
       growth_template: { type: 'flat', rate: { gross_rate: 0.025 } },
     })
 
@@ -219,7 +241,7 @@ describe('accounts', () => {
     const out = run(cashflow)
 
     expect(cashflow.accounts).toHaveLength(1)
-    expect(cashflow.accounts[0].is_sweep).toBe(true)
+    expect(cashflow.accounts.filter(isAccount)[0].is_sweep).toBe(true)
     expect(cashflow.accounts[0].owner_id).toEqual([person1.id, person2.id])
     expect(out.accounts[cashflow.accounts[0].id].years[0]).toEqual({
       start_value: 0,

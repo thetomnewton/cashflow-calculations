@@ -11,7 +11,7 @@ import { iso } from '../src/lib/date'
 
 describe('contributions', () => {
   test('can make a personal contribution to a cash account', () => {
-    const person = makePerson({ date_of_birth: '1985-01-01', sex: 'female' })
+    const person = makePerson({ date_of_birth: '1985-01-01' })
 
     const cash1 = makeAccount({
       category: 'cash',
@@ -46,7 +46,7 @@ describe('contributions', () => {
   })
 
   test('personal contribution to money purchase is grossed up', () => {
-    const person = makePerson({ date_of_birth: '1985-01-01', sex: 'female' })
+    const person = makePerson({ date_of_birth: '1985-01-01' })
 
     const salary = makeIncome({
       people: [person],
@@ -177,7 +177,7 @@ describe('contributions', () => {
 
   test('only relevant individuals are applicable for tax relief', () => {
     // Over 75 years old
-    const person = makePerson({ date_of_birth: '1948-01-01', sex: 'female' })
+    const person = makePerson({ date_of_birth: '1948-01-01' })
 
     const pension = makeMoneyPurchase({
       owner_id: person.id,
@@ -228,7 +228,7 @@ describe('contributions', () => {
   })
 
   test('non-personal contributions dont get tax relief', () => {
-    const person = makePerson({ date_of_birth: '1985-01-01', sex: 'female' })
+    const person = makePerson({ date_of_birth: '1985-01-01' })
 
     const salary = makeIncome({
       people: [person],
