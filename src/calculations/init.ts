@@ -10,12 +10,13 @@ import {
   Person,
 } from '../types'
 import { isAccount } from './accounts'
-import { getValueInYear } from './entity'
+import { findActiveEntityValue, getValueInYear } from './entity'
 import {
   generateBandsFor,
   getTaxYearFromDate,
   getTaxableValue,
 } from './income-tax'
+import { isEmployment } from './incomes'
 
 export function initialise(cashflow: Cashflow) {
   const output = makeInitOutput(cashflow)
@@ -74,7 +75,7 @@ function initBands(cashflow: Cashflow, output: Output) {
 
 /**
  * Initialise an output income object. Many of the values would
- * not yet be calculated at this stage of the calculations'
+ * not yet be calculated at this stage of the calculation
  * lifecycle.
  */
 function makeOutputIncomeObj(
@@ -83,12 +84,30 @@ function makeOutputIncomeObj(
   output: Output
 ): { years: OutputIncomeYear[] } {
   return {
-    years: output.years.map(year => ({
-      gross_value: getValueInYear(income, year, cashflow, output),
-      taxable_value: 0,
-      net_value: 0,
-      tax: { ni_paid: {}, bands: {} },
-    })),
+    years: output.years.map(year => {
+      // todo: calculate bonus and benefits if employment income
+      const entityValue = findActiveEntityValue(income, year)
+
+      const out = {
+        gross_value: entityValue
+          ? getValueInYear(entityValue, year, cashflow, output)
+          : 0,
+        taxable_value: 0,
+        net_value: 0,
+        tax: { ni_paid: {}, bands: {} },
+      }
+
+      if (isEmployment(income)) {
+        out.bonus = entityValue
+          ? getValueInYear(entityValue, year, cashflow, output, 'bonus')
+          : 0
+        out.benefits = entityValue
+          ? getValueInYear(entityValue, year, cashflow, output, 'benefits')
+          : 0
+      }
+
+      return out
+    }),
   }
 }
 

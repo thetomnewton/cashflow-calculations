@@ -1,12 +1,10 @@
 import { round } from 'lodash'
-import { v4 } from 'uuid'
 import { getRatesInTaxYear } from '../config/pensions'
 import { date } from '../lib/date'
 import {
   BaseAccount,
   Cashflow,
   Contribution,
-  Entity,
   Income,
   Output,
   Person,
@@ -41,17 +39,7 @@ export function applyContributions(
     const contributions = account.contributions ?? []
 
     contributions.forEach(contribution => {
-      const value = getValueInYear(
-        {
-          type: 'contribution',
-          id: v4(),
-          people: [],
-          values: [contribution],
-        } as Entity,
-        year,
-        cashflow,
-        output
-      )
+      const value = getValueInYear(contribution, year, cashflow, output)
 
       const grossValue = addContributionToAccount(account, contribution, value)
 

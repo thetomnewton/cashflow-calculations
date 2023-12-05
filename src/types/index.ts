@@ -122,6 +122,9 @@ export interface EntityValue {
   ends_at: string
   escalation: number | 'cpi' | 'rpi'
   adjusted?: boolean
+
+  bonus?: number
+  benefits?: number
 }
 
 export interface EmploymentIncomeEntityValue extends EntityValue {

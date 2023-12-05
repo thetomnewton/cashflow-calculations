@@ -155,7 +155,7 @@ describe('initialisation tests', () => {
       year => year.taxable_value
     )
 
-    expect(grossValues).toEqual([20000, 20000, 20000])
+    expect(grossValues).toEqual([15000, 15000, 15000])
     expect(taxableValues).toEqual([20000, 20000, 20000])
   })
 

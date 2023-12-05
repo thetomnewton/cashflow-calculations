@@ -21,15 +21,32 @@ function entityValueActive(year: PlanningYear, ev: EntityValue) {
   return false
 }
 
-export function getValueInYear(
+export function findActiveEntityValue(entity: Entity, year: PlanningYear) {
+  return entity.values.find(ev => entityValueActive(year, ev))
+}
+
+export function getEntityValueInYear(
   entity: Entity,
   year: PlanningYear,
   cashflow: Cashflow,
   output: Output
 ) {
-  const entityValue = entity.values.find(ev => entityValueActive(year, ev))
-
+  const entityValue = findActiveEntityValue(entity, year)
   if (!entityValue) return 0
+
+  return getValueInYear(entityValue, year, cashflow, output)
+}
+
+export function getValueInYear(
+  entityValue: EntityValue,
+  year: PlanningYear,
+  cashflow: Cashflow,
+  output: Output,
+  key: 'value' | 'bonus' | 'benefits' = 'value'
+) {
+  if (!entityValue || typeof entityValue[key] === 'undefined') return 0
+
+  const num = entityValue[key] as number
 
   const yearsSinceCashflowStart = Math.max(
     0,
@@ -45,7 +62,7 @@ export function getValueInYear(
   const yearsSinceEntityStart = thisTaxYear - startDateTaxYear
 
   const startingValue = round(
-    entityValue.value *
+    num *
       applyGrowth(
         entityValue.adjusted ? cashflow.assumptions.cpi : 0,
         cashflow.assumptions.terms === 'real' ? cashflow.assumptions.cpi : 0
@@ -59,15 +76,33 @@ export function getValueInYear(
       ? cashflow.assumptions[entityValue.escalation]
       : entityValue.escalation
 
-  const out = round(
+  const inflation =
+    cashflow.assumptions.terms === 'real' ? cashflow.assumptions.cpi : 0
+
+  return runValueProjection({
+    startingValue,
+    escalationRate,
+    inflation,
+    yearsSinceEntityStart,
+  })
+}
+
+type RunValueProjectionProps = {
+  startingValue: number
+  escalationRate: number
+  inflation: number
+  yearsSinceEntityStart: number
+}
+
+function runValueProjection({
+  startingValue,
+  escalationRate,
+  inflation,
+  yearsSinceEntityStart,
+}: RunValueProjectionProps) {
+  return round(
     startingValue *
-      applyGrowth(
-        escalationRate,
-        cashflow.assumptions.terms === 'real' ? cashflow.assumptions.cpi : 0
-      ) **
-        yearsSinceEntityStart,
+      applyGrowth(escalationRate, inflation) ** yearsSinceEntityStart,
     2
   )
-
-  return out
 }
