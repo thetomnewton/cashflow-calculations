@@ -85,7 +85,6 @@ function makeOutputIncomeObj(
 ): { years: OutputIncomeYear[] } {
   return {
     years: output.years.map(year => {
-      // todo: calculate bonus and benefits if employment income
       const entityValue = findActiveEntityValue(income, year)
 
       const out: OutputIncomeYear = {
