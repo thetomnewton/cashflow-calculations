@@ -1,7 +1,14 @@
 import { clone } from 'lodash'
 import { v4 } from 'uuid'
 import { date, iso } from '../lib/date'
-import { Account, Cashflow, Income, Output, Person } from '../types'
+import {
+  Account,
+  Cashflow,
+  Income,
+  Output,
+  OutputIncomeYear,
+  Person,
+} from '../types'
 import { isAccount } from './accounts'
 import { getValueInYear } from './entity'
 import {
@@ -71,7 +78,7 @@ function makeOutputIncomeObj(
   income: Income,
   cashflow: Cashflow,
   output: Output
-) {
+): { years: OutputIncomeYear[] } {
   return {
     years: output.years.map(year => ({
       gross_value: getValueInYear(income, year, cashflow, output),
