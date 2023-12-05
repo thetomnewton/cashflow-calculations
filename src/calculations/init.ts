@@ -1,10 +1,14 @@
 import { clone } from 'lodash'
+import { v4 } from 'uuid'
 import { date, iso } from '../lib/date'
 import { Account, Cashflow, Income, Output, Person } from '../types'
-import { generateBandsFor, getTaxYearFromDate } from './income-tax'
-import { getValueInYear } from './entity'
-import { v4 } from 'uuid'
 import { isAccount } from './accounts'
+import { getValueInYear } from './entity'
+import {
+  generateBandsFor,
+  getTaxYearFromDate,
+  getTaxableValue,
+} from './income-tax'
 
 export function initialise(cashflow: Cashflow) {
   const output = makeInitOutput(cashflow)
@@ -81,6 +85,10 @@ function makeOutputIncomeObj(
 function initIncomes(cashflow: Cashflow, output: Output) {
   cashflow.incomes.forEach(income => {
     output.incomes[income.id] = makeOutputIncomeObj(income, cashflow, output)
+
+    output.incomes[income.id].years.forEach(year => {
+      year.taxable_value = getTaxableValue(income, year)
+    })
   })
 }
 

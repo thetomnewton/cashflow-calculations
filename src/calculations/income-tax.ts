@@ -1,5 +1,7 @@
 import { Dayjs } from 'dayjs'
 import { round, sumBy } from 'lodash'
+import { v4 } from 'uuid'
+import { bands, knownRates } from '../config/income-tax'
 import {
   Band,
   Cashflow,
@@ -13,8 +15,6 @@ import {
   PersonalAllowance,
   PlanningYear,
 } from '../types'
-import { bands, knownRates } from '../config/income-tax'
-import { v4 } from 'uuid'
 
 let taxYear: string
 
@@ -117,7 +117,7 @@ export function calcIncomeTaxLiability(
 }
 
 /**
- * Get the person's total income which comprises the following 8 categories:
+ * Get the person's total (taxable) income which comprises the following 8 categories:
  * employment, pension, social security, trading, property, savings,
  * dividend and miscellaneous.
  */
@@ -126,18 +126,15 @@ function getTotalIncome(
   year: PlanningYear,
   output: Output
 ) {
-  return baseIncomes.reduce((acc, income) => {
+  return baseIncomes.reduce((total, income) => {
     const outputYearValue =
       output.incomes[income.id].years[getYearIndex(year.tax_year, output)]
 
-    const taxableValue = getTaxableValue(income, outputYearValue)
-    outputYearValue.taxable_value = taxableValue
-
-    return acc + taxableValue / income.people.length
+    return total + outputYearValue.taxable_value / income.people.length
   }, 0)
 }
 
-function getTaxableValue(income: Income, value: OutputIncomeYear) {
+export function getTaxableValue(income: Income, value: OutputIncomeYear) {
   if (!incomeIsTaxable(income)) return 0
 
   const baseFn = (value: OutputIncomeYear) => value.gross_value
