@@ -1,5 +1,13 @@
 import { round, sum, sumBy } from 'lodash'
-import { Cashflow, Output, PlanningYear } from '../types'
+import {
+  Cashflow,
+  EmploymentIncome,
+  Income,
+  OtherIncome,
+  Output,
+  PlanningYear,
+  SelfEmploymentIncome,
+} from '../types'
 import { getYearIndex, incomeIsTaxable } from './income-tax'
 
 export function setNetValues(
@@ -18,7 +26,7 @@ export function setNetValues(
 
     out.net_value = out.gross_value
 
-    if (income.type === 'employment')
+    if (isEmployment(income))
       out.net_value += (out.bonus ?? 0) + (out.benefits ?? 0)
 
     out.net_value -= sum(Object.values(out.tax.ni_paid))
@@ -28,4 +36,18 @@ export function setNetValues(
 
     out.net_value = round(out.net_value, 2)
   })
+}
+
+export function isEmployment(income: Income): income is EmploymentIncome {
+  return income.type === 'employment'
+}
+
+export function isSelfEmployment(
+  income: Income
+): income is SelfEmploymentIncome {
+  return income.type === 'self_employment'
+}
+
+export function isOtherIncome(income: Income): income is OtherIncome {
+  return income.type === 'other'
 }

@@ -41,9 +41,7 @@ function makeInitOutput(cashflow: Cashflow): Output {
         },
       ])
     ),
-    tax: {
-      bands: {},
-    },
+    tax: { bands: {} },
     incomes: {},
     accounts: {},
   }

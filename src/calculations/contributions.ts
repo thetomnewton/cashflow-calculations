@@ -16,6 +16,7 @@ import { isAccount, isMoneyPurchase } from './accounts'
 import { getValueInYear } from './entity'
 import { applyGrowth } from './growth'
 import { getYearIndex } from './income-tax'
+import { isEmployment, isOtherIncome, isSelfEmployment } from './incomes'
 import { ageAtDate } from './person'
 
 let cashflow: Cashflow
@@ -175,9 +176,9 @@ function totalRelevantEarnings(personId: Person['id']) {
 
 function isRelevantIncome(income: Income) {
   return (
-    income.type === 'employment' ||
-    income.type === 'self_employment' ||
-    (income.type === 'other' && income.tax_category === 'earned')
+    isEmployment(income) ||
+    isSelfEmployment(income) ||
+    (isOtherIncome(income) && income.tax_category === 'earned')
   )
 }
 

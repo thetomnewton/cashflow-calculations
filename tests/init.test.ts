@@ -1,7 +1,8 @@
-import { run } from '../src/calculations'
-import { date, iso } from '../src/lib/date'
-import { makeCashflow, makePerson } from '../src/factories'
 import { v4 } from 'uuid'
+import { run } from '../src/calculations'
+import { makeCashflow, makePerson } from '../src/factories'
+import { date, iso } from '../src/lib/date'
+import { EmploymentIncome } from '../src/types'
 
 describe('initialisation tests', () => {
   test('can set cashflow params', () => {
@@ -117,6 +118,45 @@ describe('initialisation tests', () => {
     expect(values[2]).toBe(15145.98)
     expect(values[3]).toBe(15219.51)
     expect(values[4]).toBe(15293.39)
+  })
+
+  test('income with bonus and benefits initialises correctly', () => {
+    const person = makePerson({ sex: 'male' })
+    const startsAt = date().startOf('day')
+    const salary: EmploymentIncome = {
+      id: v4(),
+      type: 'employment',
+      people: [person],
+      values: [
+        {
+          value: 15000,
+          bonus: 3000,
+          benefits: 2000,
+          starts_at: startsAt.toISOString(),
+          ends_at: startsAt.add(5, 'year').toISOString(),
+          escalation: 0,
+        },
+      ],
+    }
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: startsAt.toISOString(),
+      years: 3,
+      assumptions: { terms: 'nominal' },
+      incomes: [salary],
+    })
+
+    const out = run(cashflow)
+    const grossValues = out.incomes[salary.id].years.map(
+      year => year.gross_value
+    )
+    const taxableValues = out.incomes[salary.id].years.map(
+      year => year.taxable_value
+    )
+
+    expect(grossValues).toEqual([20000, 20000, 20000])
+    expect(taxableValues).toEqual([20000, 20000, 20000])
   })
 
   test('can run a cashflow', () => {
