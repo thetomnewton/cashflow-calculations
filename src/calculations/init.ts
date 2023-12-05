@@ -74,6 +74,11 @@ function initBands(cashflow: Cashflow, output: Output) {
   })
 }
 
+/**
+ * Initialise an output income object. Many of the values would
+ * not yet be calculated at this stage of the calculations'
+ * lifecycle.
+ */
 function makeOutputIncomeObj(
   income: Income,
   cashflow: Cashflow,
@@ -91,8 +96,10 @@ function makeOutputIncomeObj(
 
 function initIncomes(cashflow: Cashflow, output: Output) {
   cashflow.incomes.forEach(income => {
+    // Make an initial output income object
     output.incomes[income.id] = makeOutputIncomeObj(income, cashflow, output)
 
+    // Set the income's taxable value
     output.incomes[income.id].years.forEach(year => {
       year.taxable_value = getTaxableValue(income, year)
     })
