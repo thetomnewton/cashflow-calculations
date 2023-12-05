@@ -1,3 +1,12 @@
+import { inRange, round } from 'lodash'
+import {
+  class1Rates,
+  class2Tax,
+  class4Rates,
+  incomeClasses,
+  minAge,
+  taxableIncomeLimits,
+} from '../config/national-insurance'
 import {
   Cashflow,
   Income,
@@ -7,16 +16,7 @@ import {
   PlanningYear,
   PossibleNICs,
 } from '../types'
-import {
-  incomeClasses,
-  taxableIncomeLimits,
-  class1Rates,
-  class2Tax,
-  class4Rates,
-  minAge,
-} from '../config/national-insurance'
 import { getYearIndex } from './income-tax'
-import { inRange, round } from 'lodash'
 import { ageAtDate, statePensionAge } from './person'
 
 let taxYear: string

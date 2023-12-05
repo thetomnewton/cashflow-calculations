@@ -7,8 +7,8 @@ import {
   Output,
   PlanningYear,
 } from '../types'
-import { getYearIndex } from './income-tax'
 import { applyGrowth as applyGrowthRate } from './growth'
+import { getYearIndex } from './income-tax'
 
 let yearIndex: number
 
