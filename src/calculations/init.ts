@@ -88,7 +88,7 @@ function makeOutputIncomeObj(
       // todo: calculate bonus and benefits if employment income
       const entityValue = findActiveEntityValue(income, year)
 
-      const out = {
+      const out: OutputIncomeYear = {
         gross_value: entityValue
           ? getValueInYear(entityValue, year, cashflow, output)
           : 0,
