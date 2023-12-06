@@ -38,7 +38,40 @@ describe('planned withdrawals', () => {
     })
   })
 
-  test(`can't withdraw more than the remaining ongoing account value`, () => {})
+  test(`can't withdraw more than the remaining ongoing account value`, () => {
+    const person = makePerson({ date_of_birth: '1965-11-13', sex: 'female' })
+
+    const cash = makeAccount({
+      category: 'cash',
+      owner_id: person.id,
+      valuations: [{ date: iso(), value: 16123 }],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+      withdrawals: [
+        {
+          value: 18000,
+          starts_at: iso(),
+          ends_at: iso('2024-12-01'),
+          escalation: 0,
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-12-01'),
+      years: 1,
+      accounts: [cash],
+    })
+
+    const output = run(cashflow)
+
+    expect(output.accounts[cash.id].years[0]).toEqual({
+      start_value: 16123,
+      current_value: 0,
+      end_value: 0,
+      net_growth: 0.05,
+    })
+  })
 
   test(`ongoing withdrawal escalates correctly`, () => {})
 
@@ -47,4 +80,6 @@ describe('planned withdrawals', () => {
   test(`can make withdrawals from DC pension`, () => {})
 
   // test withdrawal from a joint account by 1 person?
+  // test withdrawals from other types of accounts e.g. ISA
+  // test nothing happens with gross withdrawal of 0 or less
 })

@@ -1,3 +1,4 @@
+import { round } from 'lodash'
 import { Account, Cashflow, Output, PlanningYear } from '../types'
 import { getValueInYear } from './entity'
 import { getYearIndex } from './income-tax'
@@ -23,23 +24,22 @@ export function applyPlannedWithdrawals(
     withdrawals.forEach(withdrawal => {
       const grossValue = getValueInYear(withdrawal, year, cashflow, output)
 
-      withdrawGrossValueFromAccount(account, grossValue)
+      if (grossValue > 0) withdrawGrossValueFromAccount(account, grossValue)
     })
   })
 }
 
-function withdrawGrossValueFromAccount(account: Account, grossValue: number) {
+function withdrawGrossValueFromAccount(
+  account: Account,
+  intendedValue: number
+) {
   const outputYear = output.accounts[account.id].years[yearIndex]
 
-  let actualWithdrawal: number
   const currentValue = outputYear.current_value ?? 0
 
-  actualWithdrawal = Math.max(
-    0,
-    Math.min(currentValue - grossValue, grossValue)
-  )
+  const actualValue = Math.max(0, Math.min(currentValue, intendedValue))
 
-  outputYear.current_value = currentValue - actualWithdrawal
+  outputYear.current_value = round(currentValue - actualValue, 2)
 
-  // todo: log the actual withdrawal somewhere
+  // todo: log the actual withdrawal
 }
