@@ -366,8 +366,7 @@ describe('income tax', () => {
     const salary = makeIncome({
       id: v4(),
       people: [person],
-      type: 'other',
-      tax_category: 'earned',
+      type: 'other_taxable',
       values: [
         {
           value: 85000,
@@ -400,8 +399,7 @@ describe('income tax', () => {
     const salary = makeIncome({
       id: v4(),
       people: [person],
-      type: 'other',
-      tax_category: 'non_taxable',
+      type: 'other_non_taxable',
       values: [
         {
           value: 85000,

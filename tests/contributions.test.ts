@@ -176,8 +176,7 @@ describe('contributions', () => {
     const person = makePerson({ date_of_birth: '1985-01-01' })
 
     const salary = makeIncome({
-      type: 'other',
-      tax_category: 'earned',
+      type: 'other_taxable',
       people: [person],
       values: [
         {

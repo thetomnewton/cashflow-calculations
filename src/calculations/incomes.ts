@@ -3,7 +3,7 @@ import {
   Cashflow,
   EmploymentIncome,
   Income,
-  OtherIncome,
+  OtherTaxableIncome,
   Output,
   PlanningYear,
   SelfEmploymentIncome,
@@ -46,6 +46,8 @@ export function isSelfEmployment(
   return income.type === 'self_employment'
 }
 
-export function isOtherIncome(income: Income): income is OtherIncome {
-  return income.type === 'other'
+export function isOtherTaxableIncome(
+  income: Income
+): income is OtherTaxableIncome {
+  return income.type === 'other_taxable'
 }

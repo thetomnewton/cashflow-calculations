@@ -14,7 +14,7 @@ import { isAccount, isMoneyPurchase } from './accounts'
 import { getValueInYear } from './entity'
 import { applyGrowth } from './growth'
 import { getYearIndex } from './income-tax'
-import { isEmployment, isOtherIncome, isSelfEmployment } from './incomes'
+import { isEmployment, isOtherTaxableIncome, isSelfEmployment } from './incomes'
 import { ageAtDate } from './person'
 
 let cashflow: Cashflow
@@ -161,12 +161,15 @@ function totalRelevantEarnings(personId: Person['id']) {
   return total
 }
 
+/**
+ * Relevant income includes things like employment income and self-employment income.
+ * It does not include dividends, pension income or most rental income.
+ */
 function isRelevantIncome(income: Income) {
   return (
     isEmployment(income) ||
     isSelfEmployment(income) ||
-    (isOtherIncome(income) &&
-      ['earned', 'savings'].includes(income.tax_category))
+    isOtherTaxableIncome(income)
   )
 }
 

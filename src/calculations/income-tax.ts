@@ -146,15 +146,14 @@ export function getTaxableValue(income: Income, value: OutputIncomeYear) {
     dividend: baseFn,
     pension: baseFn,
     savings: baseFn,
-    other: baseFn,
+    other_taxable: baseFn,
+    other_non_taxable: (value: OutputIncomeYear) => 0,
   }[income.type](value)
 }
 
 export function incomeIsTaxable(income: Income) {
   // todo: "pension" income may be taxable depending on the withdrawal type
-  if (income.type === 'other' && income.tax_category === 'non_taxable')
-    return false
-  return true
+  return income.type !== 'other_non_taxable'
 }
 
 /**
@@ -386,28 +385,21 @@ function taxableValuePerPersonThisYear(income: Income, output: Output) {
 }
 
 function isEarnedIncome(income: Income) {
-  return (
-    ['employment', 'self_employment', 'pension'].includes(income.type) ||
-    (income.type === 'other' && income.tax_category === 'earned')
+  return ['employment', 'self_employment', 'pension', 'other_taxable'].includes(
+    income.type
   )
 }
 
 function isSavingsIncome(income: Income) {
-  return (
-    income.type === 'savings' ||
-    (income.type === 'other' && income.tax_category === 'savings')
-  )
+  return income.type === 'savings'
 }
 
 function isDividendIncome(income: Income) {
-  return (
-    income.type === 'dividend' ||
-    (income.type === 'other' && income.tax_category === 'dividend')
-  )
+  return income.type === 'dividend'
 }
 
 function getIncomeTaxCategory(income: Income) {
-  if (income.tax_category === 'non_taxable') return 'non_taxable'
+  if (income.type === 'other_non_taxable') return 'non_taxable'
   if (isEarnedIncome(income)) return 'earned'
   if (isSavingsIncome(income)) return 'savings'
   if (isDividendIncome(income)) return 'dividend'

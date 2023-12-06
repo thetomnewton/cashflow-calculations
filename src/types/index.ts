@@ -127,11 +127,6 @@ export interface EntityValue {
   benefits?: number
 }
 
-export interface EmploymentIncomeEntityValue extends EntityValue {
-  bonus?: number
-  benefits?: number
-}
-
 export interface Entity {
   type: string
   id: string
@@ -144,15 +139,14 @@ export interface Income extends Entity {
     | 'employment'
     | 'self_employment'
     | 'dividend'
-    | 'other'
+    | 'other_taxable'
+    | 'other_non_taxable'
     | 'pension'
     | 'savings'
-  tax_category?: IncomeTaxTypes | 'non_taxable' // only applies when type is 'other'
 }
 
 export interface EmploymentIncome extends Income {
   type: 'employment'
-  values: EmploymentIncomeEntityValue[]
 }
 
 export interface SelfEmploymentIncome extends Income {
@@ -163,8 +157,12 @@ export interface DividendIncome extends Income {
   type: 'dividend'
 }
 
-export interface OtherIncome extends Income {
-  tax_category: IncomeTaxTypes | 'non_taxable'
+export interface OtherTaxableIncome extends Income {
+  type: 'other_taxable'
+}
+
+export interface OtherNonTaxableIncome extends Income {
+  type: 'other_non_taxable'
 }
 
 export type IncomeTaxTypes = 'earned' | 'savings' | 'dividend'

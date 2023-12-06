@@ -62,7 +62,6 @@ export function makeIncome(params: FactoryIncome): Income {
     people: params.people,
     values: params.values ?? [],
     type: params.type || 'employment',
-    tax_category: params.tax_category,
   }
 }
 
