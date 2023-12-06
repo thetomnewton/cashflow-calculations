@@ -87,7 +87,6 @@ function calculateGrossContribution(
 
   // Only if the person is a relevant individual in the
   // current year, are they eligible for tax relief.
-
   if (!isRelevantIndividualThisTaxYear(account.owner_id as string))
     return baseValue
 

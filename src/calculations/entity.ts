@@ -25,18 +25,6 @@ export function findActiveEntityValue(entity: Entity, year: PlanningYear) {
   return entity.values.find(ev => entityValueActive(year, ev))
 }
 
-export function getEntityValueInYear(
-  entity: Entity,
-  year: PlanningYear,
-  cashflow: Cashflow,
-  output: Output
-) {
-  const entityValue = findActiveEntityValue(entity, year)
-  if (!entityValue) return 0
-
-  return getValueInYear(entityValue, year, cashflow, output)
-}
-
 export function getValueInYear(
   entityValue: EntityValue,
   year: PlanningYear,

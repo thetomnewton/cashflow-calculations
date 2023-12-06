@@ -21,7 +21,7 @@ export function run(base: Cashflow): Output {
 function runYearCalculation(year: PlanningYear) {
   initialiseAccounts(year, cashflow, output)
   applyContributions(year, cashflow, output)
-  // todo: apply withdrawals
+  // todo: apply planned withdrawals
   calcIncomeTaxLiability(year, cashflow, output)
   calcNICs(year, cashflow, output)
   setNetValues(year, cashflow, output)

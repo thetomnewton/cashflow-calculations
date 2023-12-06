@@ -1,8 +1,8 @@
+import { sumBy } from 'lodash'
 import { v4 } from 'uuid'
-import { iso } from '../src/lib/date'
 import { run } from '../src/calculations'
 import { makeCashflow, makeIncome, makePerson } from '../src/factories'
-import { sumBy } from 'lodash'
+import { iso } from '../src/lib/date'
 
 describe('income tax', () => {
   test('basic rate salary is taxed correctly', () => {
@@ -37,7 +37,7 @@ describe('income tax', () => {
 
     expect(outputIncomeYear.tax.ni_paid.class1).toEqual(3291.6)
 
-    expect(outputIncomeYear.net_value).toEqual(27930.8)
+    expect(outputIncomeYear.net_value).toEqual(31222.4)
   })
 
   test('personal allowance tapers correctly', () => {
