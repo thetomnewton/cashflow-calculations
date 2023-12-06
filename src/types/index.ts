@@ -201,6 +201,7 @@ export interface BaseAccount {
   owner_id: Person['id'] | Person['id'][]
   growth_template: GrowthTemplate
   contributions: Contribution[]
+  withdrawals: Withdrawal[]
 }
 
 export interface Account extends BaseAccount {
@@ -211,6 +212,8 @@ export interface Account extends BaseAccount {
 export interface Contribution extends EntityValue {
   type: 'personal' | 'employer'
 }
+
+export interface Withdrawal extends EntityValue {}
 
 export interface MoneyPurchase extends BaseAccount {
   category: 'money_purchase'

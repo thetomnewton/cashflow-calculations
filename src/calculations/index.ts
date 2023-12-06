@@ -5,6 +5,7 @@ import { calcIncomeTaxLiability } from './income-tax'
 import { setNetValues } from './incomes'
 import { initialise } from './init'
 import { calcNICs } from './national-insurance'
+import { applyPlannedWithdrawals } from './planned-withdrawals'
 
 let output: Output
 let cashflow: Cashflow
@@ -21,7 +22,7 @@ export function run(base: Cashflow): Output {
 function runYearCalculation(year: PlanningYear) {
   initialiseAccounts(year, cashflow, output)
   applyContributions(year, cashflow, output)
-  // todo: apply planned withdrawals
+  applyPlannedWithdrawals(year, cashflow, output)
   calcIncomeTaxLiability(year, cashflow, output)
   calcNICs(year, cashflow, output)
   setNetValues(year, cashflow, output)

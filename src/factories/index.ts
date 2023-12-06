@@ -75,6 +75,7 @@ export function makeAccount(params: FactoryAccount) {
     valuations: params.valuations,
     growth_template: params.growth_template,
     contributions: params.contributions ?? [],
+    withdrawals: params.withdrawals ?? [],
   }
 }
 
@@ -87,6 +88,7 @@ export function makeMoneyPurchase(params: FactoryMoneyPurchase): MoneyPurchase {
     valuations: params.valuations,
     growth_template: params.growth_template,
     contributions: params.contributions ?? [],
+    withdrawals: params.withdrawals ?? [],
   }
 }
 

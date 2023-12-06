@@ -147,7 +147,7 @@ export function getTaxableValue(income: Income, value: OutputIncomeYear) {
     pension: baseFn,
     savings: baseFn,
     other_taxable: baseFn,
-    other_non_taxable: (value: OutputIncomeYear) => 0,
+    other_non_taxable: () => 0,
   }[income.type](value)
 }
 
@@ -384,19 +384,12 @@ function taxableValuePerPersonThisYear(income: Income, output: Output) {
   return outputYear.taxable_value / income.people.length
 }
 
-function isEarnedIncome(income: Income) {
-  return ['employment', 'self_employment', 'pension', 'other_taxable'].includes(
-    income.type
-  )
-}
+const isEarnedIncome = (i: Income) =>
+  ['employment', 'self_employment', 'pension', 'other_taxable'].includes(i.type)
 
-function isSavingsIncome(income: Income) {
-  return income.type === 'savings'
-}
+const isSavingsIncome = (i: Income) => i.type === 'savings'
 
-function isDividendIncome(income: Income) {
-  return income.type === 'dividend'
-}
+const isDividendIncome = (i: Income) => i.type === 'dividend'
 
 function getIncomeTaxCategory(income: Income) {
   if (income.type === 'other_non_taxable') return 'non_taxable'
