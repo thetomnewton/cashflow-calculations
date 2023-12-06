@@ -1,3 +1,4 @@
+import { round } from 'lodash'
 import { run } from '../src/calculations'
 import { makeAccount, makeCashflow, makePerson } from '../src/factories'
 import { iso } from '../src/lib/date'
@@ -117,10 +118,76 @@ describe('planned withdrawals', () => {
   })
 
   test(`multiple withdrawals from same account both apply`, () => {
-    //
+    const person = makePerson({ date_of_birth: '1985-01-01' })
+
+    const cash = makeAccount({
+      category: 'cash',
+      owner_id: person.id,
+      valuations: [{ date: iso(), value: 175000 }],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.03, charges: 0 } },
+      withdrawals: [
+        {
+          value: 5000,
+          starts_at: iso(),
+          ends_at: iso('2030-04-06'),
+          escalation: 0.07,
+        },
+        {
+          value: 12000,
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2030-04-06'),
+          escalation: 0.06,
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 7,
+      accounts: [cash],
+    })
+
+    const output = run(cashflow)
+
+    let cvYear1 = 175000 - 5000
+    expect(output.accounts[cash.id].years[0]).toEqual({
+      start_value: 175000,
+      current_value: cvYear1,
+      end_value: round(cvYear1 * 1.03, 2),
+      net_growth: 0.03,
+    })
+
+    let cvYear2 = round(175100 - 5000 * 1.07, 2)
+    expect(output.accounts[cash.id].years[1]).toEqual({
+      start_value: 175100,
+      current_value: cvYear2,
+      end_value: round(cvYear2 * 1.03, 2),
+      net_growth: 0.03,
+    })
+
+    let cvYear3 = round(174842.5 - 5350 * 1.07 - 12000, 2)
+    expect(output.accounts[cash.id].years[2]).toEqual({
+      start_value: 174842.5,
+      current_value: cvYear3,
+      end_value: round(cvYear3 * 1.03, 2),
+      net_growth: 0.03,
+    })
+
+    let cvYear4 = 142986.32 // 161831.54 - 5724.5 * 1.07 - 12720
+    expect(output.accounts[cash.id].years[3]).toEqual({
+      start_value: 161831.54,
+      current_value: cvYear4,
+      end_value: round(cvYear4 * 1.03, 2),
+      net_growth: 0.03,
+    })
   })
 
   test(`can make withdrawals from DC pension`, () => {
+    //
+  })
+
+  test('withdrawals starting in the future apply at the correct time', () => {
     //
   })
 

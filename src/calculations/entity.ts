@@ -4,7 +4,7 @@ import { Cashflow, Entity, EntityValue, Output, PlanningYear } from '../types'
 import { applyGrowth } from './growth'
 import { getTaxYearFromDate } from './income-tax'
 
-function entityValueActive(year: PlanningYear, ev: EntityValue) {
+export function entityValueActive(year: PlanningYear, ev: EntityValue) {
   const yearStart = date(year.starts_at)
   const yearEnd = date(year.ends_at)
   const entityStart = date(ev.starts_at)

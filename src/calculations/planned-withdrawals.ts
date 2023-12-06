@@ -1,6 +1,6 @@
 import { round } from 'lodash'
 import { Account, Cashflow, Output, PlanningYear } from '../types'
-import { getValueInYear } from './entity'
+import { entityValueActive, getValueInYear } from './entity'
 import { getYearIndex } from './income-tax'
 
 let cashflow: Cashflow
@@ -22,6 +22,8 @@ export function applyPlannedWithdrawals(
     const withdrawals = account.withdrawals ?? []
 
     withdrawals.forEach(withdrawal => {
+      if (!entityValueActive(year, withdrawal)) return
+
       const grossValue = getValueInYear(withdrawal, year, cashflow, output)
 
       if (grossValue > 0) withdrawGrossValueFromAccount(account, grossValue)
