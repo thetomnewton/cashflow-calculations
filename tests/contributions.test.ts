@@ -1,5 +1,7 @@
+import { round } from 'lodash'
 import { run } from '../src/calculations'
 import { isAccount } from '../src/calculations/accounts'
+import { applyGrowth } from '../src/calculations/growth'
 import {
   makeAccount,
   makeCashflow,
@@ -415,6 +417,77 @@ describe('contributions', () => {
       current_value: 14600,
       net_growth: 0.05,
       end_value: 15330,
+    })
+  })
+
+  test('basic amount gets converted to real terms', () => {
+    const person = makePerson({ date_of_birth: '1985-01-01' })
+
+    const growthRate = 0.05
+    const cpi = 0.025
+
+    const pension = makeMoneyPurchase({
+      owner_id: person.id,
+      valuations: [
+        {
+          date: iso('2023-09-30'),
+          value: 10000,
+          uncrystallised_value: 10000,
+          crystallised_value: 0,
+        },
+      ],
+      growth_template: {
+        type: 'flat',
+        rate: { gross_rate: growthRate, charges: 0 },
+      },
+      contributions: [
+        {
+          type: 'personal',
+          value: 4000,
+          starts_at: iso('2023-09-30'),
+          ends_at: iso('2026-09-30'),
+          escalation: 0,
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-09-30'),
+      years: 2,
+      accounts: [pension],
+      assumptions: { terms: 'real', cpi },
+    })
+
+    const output = run(cashflow)
+    const years = output.accounts[pension.id].years
+
+    /**
+     * 2880 out of 4000 gets grossed up, 1120 doesn't
+     * ((2880/.8)=3600)+1120 = 4720
+     */
+
+    expect(years[0]).toEqual({
+      start_value: 10000,
+      current_value: 10000 + 4720,
+      // end_value: 15079.02,
+      end_value: round((10000 + 4720) * applyGrowth(growthRate, cpi), 2),
+      net_growth: growthRate,
+    })
+
+    /**
+     * start value 15079.02
+     * net contribution drops to 3902.44 in real terms
+     * basic amount drops to 3512.2 (real terms)
+     * 2809.76 out of 3902.44 gets grossed up, 1092.68 doesn't
+     * ((2809.76/.8)=3512.2)+1092.68 = 4604.88
+     */
+
+    expect(years[1]).toEqual({
+      start_value: 15079.02,
+      current_value: 15079.02 + 4604.88,
+      end_value: round((15079.02 + 4604.88) * applyGrowth(growthRate, cpi), 2),
+      net_growth: growthRate,
     })
   })
 })

@@ -62,7 +62,8 @@ function addContributionToAccount(
 
   if (typeof outputYear.current_value === 'undefined')
     outputYear.current_value = grossValue
-  else outputYear.current_value += grossValue
+  else
+    outputYear.current_value = round(grossValue + outputYear.current_value, 2)
 
   // todo: Track that the contribution happened
   return grossValue
@@ -94,11 +95,13 @@ function calculateGrossContribution(
   const rates = getRatesInTaxYear(year.tax_year)
   const taxReliefRate = rates.contribution_tax_relief_rate
 
-  // todo: Convert to real terms if required
+  // Convert to real terms if required
   let basicAmount = rates.contribution_tax_relief_basic_amount
   if (cashflow.assumptions.terms === 'real') {
-    basicAmount =
-      basicAmount * applyGrowth(0, cashflow.assumptions.cpi) ** yearIndex
+    basicAmount = round(
+      basicAmount * applyGrowth(0, cashflow.assumptions.cpi) ** yearIndex,
+      2
+    )
   }
 
   // Determine the max tax relief available, which is the larger of the person's
