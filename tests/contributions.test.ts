@@ -108,6 +108,135 @@ describe('contributions', () => {
     })
   })
 
+  test('personal contribution to money purchase is grossed up (self-employed)', () => {
+    const person = makePerson({ date_of_birth: '1985-01-01' })
+
+    const salary = makeIncome({
+      type: 'self_employment',
+      people: [person],
+      values: [
+        {
+          value: 15000,
+          starts_at: iso('2023-09-30'),
+          ends_at: iso('2028-09-30'),
+          escalation: 'rpi',
+        },
+      ],
+    })
+
+    const pension = makeMoneyPurchase({
+      owner_id: person.id,
+      valuations: [
+        {
+          date: iso('2023-09-30'),
+          value: 10000,
+          uncrystallised_value: 10000,
+          crystallised_value: 0,
+        },
+      ],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+      contributions: [
+        {
+          type: 'personal',
+          value: 2000,
+          starts_at: iso('2023-09-30'),
+          ends_at: iso('2025-09-30'),
+          escalation: 0,
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-09-30'),
+      years: 2,
+      accounts: [pension],
+      incomes: [salary],
+    })
+
+    const output = run(cashflow)
+    const [year0, year1] = output.accounts[pension.id].years
+
+    expect(year0).toEqual({
+      start_value: 10000,
+      current_value: 12500, // 2000 contribution grossed-up to 2500
+      end_value: 13125,
+      net_growth: 0.05,
+    })
+
+    expect(year1).toEqual({
+      start_value: 13125,
+      current_value: 15625,
+      net_growth: 0.05,
+      end_value: 16406.25,
+    })
+  })
+
+  test('personal contribution to money purchase is grossed up (taxable "other")', () => {
+    const person = makePerson({ date_of_birth: '1985-01-01' })
+
+    const salary = makeIncome({
+      type: 'other',
+      tax_category: 'earned',
+      people: [person],
+      values: [
+        {
+          value: 15000,
+          starts_at: iso('2023-09-30'),
+          ends_at: iso('2028-09-30'),
+          escalation: 'rpi',
+        },
+      ],
+    })
+
+    const pension = makeMoneyPurchase({
+      owner_id: person.id,
+      valuations: [
+        {
+          date: iso('2023-09-30'),
+          value: 10000,
+          uncrystallised_value: 10000,
+          crystallised_value: 0,
+        },
+      ],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+      contributions: [
+        {
+          type: 'personal',
+          value: 2000,
+          starts_at: iso('2023-09-30'),
+          ends_at: iso('2025-09-30'),
+          escalation: 0,
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-09-30'),
+      years: 2,
+      accounts: [pension],
+      incomes: [salary],
+    })
+
+    const output = run(cashflow)
+    const [year0, year1] = output.accounts[pension.id].years
+
+    expect(year0).toEqual({
+      start_value: 10000,
+      current_value: 12500, // 2000 contribution grossed-up to 2500
+      end_value: 13125,
+      net_growth: 0.05,
+    })
+
+    expect(year1).toEqual({
+      start_value: 13125,
+      current_value: 15625,
+      net_growth: 0.05,
+      end_value: 16406.25,
+    })
+  })
+
   test('correct basic rate relief applied (scotland)', () => {
     const person = makePerson({
       date_of_birth: '1980-01-01',

@@ -165,7 +165,8 @@ function isRelevantIncome(income: Income) {
   return (
     isEmployment(income) ||
     isSelfEmployment(income) ||
-    (isOtherIncome(income) && income.tax_category === 'earned')
+    (isOtherIncome(income) &&
+      ['earned', 'savings'].includes(income.tax_category))
   )
 }
 
