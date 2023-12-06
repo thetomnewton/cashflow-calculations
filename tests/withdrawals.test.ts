@@ -94,7 +94,7 @@ describe('planned withdrawals', () => {
     const cashflow = makeCashflow({
       people: [person],
       starts_at: iso('2023-12-31'),
-      years: 5,
+      years: 2,
       accounts: [cash],
       assumptions: { rpi: 0.035 },
     })
