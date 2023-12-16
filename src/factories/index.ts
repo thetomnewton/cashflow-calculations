@@ -49,6 +49,7 @@ export function makeCashflow(params: FactoryCashflow): Cashflow {
     years: params.years ?? 1,
     people: params.people,
     accounts: params.accounts ?? [],
+    money_purchases: params.money_purchases ?? [],
     incomes: params.incomes ?? [],
     assumptions: params.assumptions
       ? { ...defaultAssumptions, ...params.assumptions }
@@ -68,6 +69,7 @@ export function makeIncome(params: FactoryIncome): Income {
 export function makeAccount(params: FactoryAccount) {
   return {
     id: params.id ?? v4(),
+    section: 'accounts' as const,
     is_sweep: params.is_sweep ?? false,
     category: params.category,
     sub_category: params.sub_category,
@@ -82,6 +84,7 @@ export function makeAccount(params: FactoryAccount) {
 export function makeMoneyPurchase(params: FactoryMoneyPurchase): MoneyPurchase {
   return {
     id: params.id ?? v4(),
+    section: 'money_purchases' as const,
     category: 'money_purchase',
     sub_category: params.sub_category,
     owner_id: params.owner_id,

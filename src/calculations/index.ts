@@ -1,5 +1,9 @@
 import { Cashflow, Output, PlanningYear } from '../types'
-import { applyGrowth, initialiseAccounts } from './accounts'
+import {
+  applyGrowth,
+  initialiseAccounts,
+  initialiseMoneyPurchases,
+} from './accounts'
 import { applyContributions } from './contributions'
 import { calcIncomeTaxLiability } from './income-tax'
 import { setNetValues } from './incomes'
@@ -21,6 +25,7 @@ export function run(base: Cashflow): Output {
 
 function runYearCalculation(year: PlanningYear) {
   initialiseAccounts(year, cashflow, output)
+  initialiseMoneyPurchases(year, cashflow, output)
   applyContributions(year, cashflow, output)
   applyPlannedWithdrawals(year, cashflow, output)
   calcIncomeTaxLiability(year, cashflow, output)

@@ -25,6 +25,7 @@ export function initialise(cashflow: Cashflow) {
   initBands(cashflow, output)
   initIncomes(cashflow, output)
   initAccounts(cashflow, output)
+  initMoneyPurchases(cashflow, output)
 
   return output
 }
@@ -45,6 +46,7 @@ function makeInitOutput(cashflow: Cashflow): Output {
     tax: { bands: {} },
     incomes: {},
     accounts: {},
+    money_purchases: {},
   }
 }
 
@@ -137,6 +139,25 @@ function initAccounts(cashflow: Cashflow, output: Output) {
   })
 }
 
+function initMoneyPurchases(cashflow: Cashflow, output: Output) {
+  cashflow.money_purchases.forEach(account => {
+    output.money_purchases[account.id] = {
+      years: output.years.map(_ => ({
+        start_value: undefined,
+        start_value_crystallised: undefined,
+        start_value_uncrystallised: undefined,
+        current_value: undefined,
+        current_value_crystallised: undefined,
+        current_value_uncrystallised: undefined,
+        end_value: undefined,
+        end_value_crystallised: undefined,
+        end_value_uncrystallised: undefined,
+        net_growth: undefined,
+      })),
+    }
+  })
+}
+
 function ensureSweepAccountExists(cashflow: Cashflow) {
   // Check if the person has a sweep account. If not, create one.
   const sweep = cashflow.accounts.find(acc => isAccount(acc) && acc.is_sweep)
@@ -146,11 +167,13 @@ function ensureSweepAccountExists(cashflow: Cashflow) {
 function createSweepAccount(people: Person[]): Account {
   return {
     id: v4(),
+    section: 'accounts',
     category: 'cash',
     owner_id: people.map(({ id }) => id),
     is_sweep: true,
     valuations: [{ value: 0, date: iso() }],
     contributions: [],
+    withdrawals: [],
     growth_template: {
       type: 'flat',
       rate: { gross_rate: 0.005, charges: 0 },

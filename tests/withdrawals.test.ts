@@ -1,6 +1,11 @@
 import { round } from 'lodash'
 import { run } from '../src/calculations'
-import { makeAccount, makeCashflow, makePerson } from '../src/factories'
+import {
+  makeAccount,
+  makeCashflow,
+  makeMoneyPurchase,
+  makePerson,
+} from '../src/factories'
 import { iso } from '../src/lib/date'
 
 describe('planned withdrawals', () => {
@@ -183,8 +188,77 @@ describe('planned withdrawals', () => {
     })
   })
 
-  test(`can make withdrawals from DC pension`, () => {
-    //
+  test(`can make withdrawals from money purchase`, () => {
+    const person = makePerson({ date_of_birth: '1980-03-04' })
+
+    const pension = makeMoneyPurchase({
+      owner_id: person.id,
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+      valuations: [
+        {
+          uncrystallised_value: 150000,
+          crystallised_value: 0,
+          date: iso(),
+          value: 150000,
+        },
+      ],
+      withdrawals: [
+        {
+          value: 15000,
+          starts_at: iso(),
+          ends_at: iso('2028-12-31'),
+          escalation: 'cpi',
+          method: 'ufpls',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-12-16'),
+      years: 5,
+      money_purchases: [pension],
+    })
+
+    const out = run(cashflow)
+
+    expect(out.money_purchases[pension.id].years[0]).toEqual({
+      start_value: 150000,
+      start_value_uncrystallised: 150000,
+      start_value_crystallised: 0,
+      current_value: 135000,
+      current_value_uncrystallised: 135000,
+      current_value_crystallised: 0,
+      end_value: 135000 * 1.05,
+      end_value_uncrystallised: 135000 * 1.05,
+      end_value_crystallised: 0,
+      net_growth: 0.05,
+    })
+
+    expect(out.money_purchases[pension.id].years[1]).toEqual({
+      start_value: 141750,
+      start_value_uncrystallised: 141750,
+      start_value_crystallised: 0,
+      current_value: 141750 - 15000 * 1.025,
+      current_value_uncrystallised: 141750 - 15000 * 1.025,
+      current_value_crystallised: 0,
+      end_value: (141750 - 15000 * 1.025) * 1.05,
+      end_value_uncrystallised: (141750 - 15000 * 1.025) * 1.05,
+      end_value_crystallised: 0,
+      net_growth: 0.05,
+    })
+
+    const pa = out.tax.bands[2324][person.id].find(
+      band => band.key === 'personal_allowance'
+    )
+
+    expect(pa?.remaining).toEqual(0)
+
+    const basicBand = out.tax.bands[2324][person.id].find(
+      band => band.key === 'basic_eng'
+    )
+
+    expect(basicBand?.remaining).toEqual(37700 - (15000 - 12570))
   })
 
   test('withdrawals starting in the future apply at the correct time', () => {

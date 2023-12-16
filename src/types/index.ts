@@ -5,7 +5,8 @@ export interface Cashflow {
   people: Person[]
   assumptions: CashflowAssumptions
   incomes: Income[]
-  accounts: (Account | MoneyPurchase)[]
+  accounts: Account[]
+  money_purchases: MoneyPurchase[]
 }
 
 export interface CashflowAssumptions {
@@ -91,6 +92,11 @@ export interface Output {
   accounts: {
     [id: Account['id']]: {
       years: OutputAccountYear[]
+    }
+  }
+  money_purchases: {
+    [id: MoneyPurchase['id']]: {
+      years: OutputMoneyPurchaseYear[]
     }
   }
 }
@@ -196,6 +202,7 @@ type GrowthRateEntry = {
 
 export interface BaseAccount {
   id: string
+  section: string
   category: string
   sub_category?: string
   owner_id: Person['id'] | Person['id'][]
@@ -205,6 +212,7 @@ export interface BaseAccount {
 }
 
 export interface Account extends BaseAccount {
+  section: 'accounts'
   valuations: Valuation[]
   is_sweep?: boolean
 }
@@ -214,10 +222,15 @@ export interface Contribution extends EntityValue {
 }
 
 export interface Withdrawal extends EntityValue {}
+export interface MoneyPurchaseWithdrawal extends EntityValue {
+  method: 'ufpls' | 'fad' | 'pcls'
+}
 
 export interface MoneyPurchase extends BaseAccount {
+  section: 'money_purchases'
   category: 'money_purchase'
   valuations: MoneyPurchaseValuation[]
+  withdrawals: MoneyPurchaseWithdrawal[]
 }
 
 export interface ISA extends Account {
@@ -230,4 +243,13 @@ interface OutputAccountYear {
   current_value: number | undefined
   end_value: number | undefined
   net_growth: number | undefined
+}
+
+interface OutputMoneyPurchaseYear extends OutputAccountYear {
+  start_value_crystallised: number | undefined
+  start_value_uncrystallised: number | undefined
+  current_value_crystallised: number | undefined
+  current_value_uncrystallised: number | undefined
+  end_value_crystallised: number | undefined
+  end_value_uncrystallised: number | undefined
 }
