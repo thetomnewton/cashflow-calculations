@@ -7,6 +7,7 @@ import {
   makePerson,
 } from '../src/factories'
 import { iso } from '../src/lib/date'
+import { Income } from '../src/types'
 
 describe('planned withdrawals', () => {
   test('can make withdrawal from cash account', () => {
@@ -41,6 +42,16 @@ describe('planned withdrawals', () => {
       current_value: 1000 - 100,
       end_value: (1000 - 100) * 1.05,
       net_growth: 0.05,
+    })
+
+    const income = cashflow.incomes.find(
+      inc => inc.type === 'other_non_taxable'
+    )
+    expect(income).not.toBe(undefined)
+    expect(output.incomes[(income as Income).id].years[0]).toEqual({
+      gross_value: 100,
+      taxable_value: 0,
+      net_value: 100,
     })
   })
 

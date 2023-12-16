@@ -63,7 +63,7 @@ function withdrawGrossValueFromAccount(
 
   outputYear.current_value = round(currentValue - actualValue, 2)
 
-  // todo: log the actual withdrawal
+  // todo: make an income
 }
 
 function withdrawGrossValueFromMoneyPurchase(
@@ -73,7 +73,7 @@ function withdrawGrossValueFromMoneyPurchase(
 ) {
   const outputYear = output.money_purchases[account.id].years[yearIndex]
 
-  let keys = [
+  const keys = [
     'current_value',
     'current_value_uncrystallised',
     'current_value_crystallised',

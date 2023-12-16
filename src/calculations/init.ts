@@ -23,9 +23,9 @@ export function initialise(cashflow: Cashflow) {
 
   initYears(cashflow, output)
   initBands(cashflow, output)
-  initIncomes(cashflow, output)
   initAccounts(cashflow, output)
   initMoneyPurchases(cashflow, output)
+  initIncomes(cashflow, output)
 
   return output
 }
