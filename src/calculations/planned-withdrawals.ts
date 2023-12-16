@@ -83,5 +83,7 @@ function withdrawGrossValueFromMoneyPurchase(
     const currentValue = outputYear[key] ?? 0
     const actualValue = Math.max(0, Math.min(currentValue, intendedValue))
     outputYear[key] = round(currentValue - actualValue, 2)
+
+    // create an income which may get taxed later
   })
 }
