@@ -141,12 +141,10 @@ function initAccounts() {
       })),
     }
 
-    const owners = getAccountOwners(account.owner_id)
-
     account.withdrawals.forEach(withdrawal => {
       cashflow.incomes.push({
         id: v4(),
-        people: owners,
+        people: getAccountOwners(account.owner_id),
         values: [withdrawal],
         type: 'other_non_taxable', // todo: update based on account/withdrawal type
         source_id: account.id,
@@ -156,8 +154,8 @@ function initAccounts() {
 }
 
 function initMoneyPurchases() {
-  cashflow.money_purchases.forEach(account => {
-    output.money_purchases[account.id] = {
+  cashflow.money_purchases.forEach(pension => {
+    output.money_purchases[pension.id] = {
       years: output.years.map(_ => ({
         start_value: undefined,
         start_value_crystallised: undefined,
@@ -171,6 +169,16 @@ function initMoneyPurchases() {
         net_growth: undefined,
       })),
     }
+
+    pension.withdrawals.forEach(withdrawal => {
+      cashflow.incomes.push({
+        id: v4(),
+        people: getAccountOwners(pension.owner_id),
+        values: [withdrawal],
+        type: 'pension',
+        source_id: pension.id,
+      })
+    })
   })
 }
 

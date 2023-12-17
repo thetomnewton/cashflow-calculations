@@ -266,7 +266,7 @@ describe('planned withdrawals', () => {
     expect(pa?.remaining).toEqual(0)
 
     const basicBand = out.tax.bands[2324][person.id].find(
-      band => band.key === 'basic_eng'
+      band => band.key === 'basic_rate_eng'
     )
 
     expect(basicBand?.remaining).toEqual(37700 - (15000 - 12570))
