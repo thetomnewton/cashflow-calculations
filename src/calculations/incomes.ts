@@ -5,10 +5,11 @@ import {
   Income,
   OtherTaxableIncome,
   Output,
+  OutputIncomeYear,
   PlanningYear,
   SelfEmploymentIncome,
 } from '../types'
-import { getYearIndex, incomeIsTaxable } from './income-tax'
+import { getYearIndex } from './income-tax'
 
 export function setNetValues(
   year: PlanningYear,
@@ -50,4 +51,28 @@ export function isOtherTaxableIncome(
   income: Income
 ): income is OtherTaxableIncome {
   return income.type === 'other_taxable'
+}
+
+export function getTaxableValue(income: Income, value: OutputIncomeYear) {
+  if (!incomeIsTaxable(income)) return 0
+
+  const baseFn = (value: OutputIncomeYear) => value.gross_value
+
+  return {
+    employment: (value: OutputIncomeYear) =>
+      value.gross_value + (value.bonus ?? 0) + (value.benefits ?? 0),
+    self_employment: baseFn,
+    dividend: baseFn,
+    pension: (value: OutputIncomeYear) => {
+      return value.gross_value
+    },
+    savings: baseFn,
+    other_taxable: baseFn,
+    other_non_taxable: () => 0,
+  }[income.type](value)
+}
+
+function incomeIsTaxable(income: Income) {
+  // todo: "pension" income may be taxable depending on the withdrawal type
+  return income.type !== 'other_non_taxable'
 }

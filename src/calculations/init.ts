@@ -11,12 +11,8 @@ import {
 } from '../types'
 import { isAccount } from './accounts'
 import { findActiveEntityValue, getValueInYear } from './entity'
-import {
-  generateBandsFor,
-  getTaxYearFromDate,
-  getTaxableValue,
-} from './income-tax'
-import { isEmployment } from './incomes'
+import { generateBandsFor, getTaxYearFromDate } from './income-tax'
+import { getTaxableValue, isEmployment } from './incomes'
 
 let cashflow: Cashflow
 let output: Output
