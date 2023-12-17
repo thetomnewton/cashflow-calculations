@@ -141,7 +141,7 @@ function initAccounts() {
       cashflow.incomes.push({
         id: v4(),
         people: getAccountOwners(account.owner_id),
-        values: [withdrawal],
+        values: [], // value is dependent on the remaining account value
         type: 'other_non_taxable', // todo: update based on account/withdrawal type
         source_id: account.id,
       })
@@ -170,7 +170,7 @@ function initMoneyPurchases() {
       cashflow.incomes.push({
         id: v4(),
         people: getAccountOwners(pension.owner_id),
-        values: [withdrawal],
+        values: [], // value is dependent on the remaining account value
         type: 'pension',
         source_id: pension.id,
       })
