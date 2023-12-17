@@ -53,7 +53,11 @@ export function isOtherTaxableIncome(
   return income.type === 'other_taxable'
 }
 
-export function getTaxableValue(income: Income, value: OutputIncomeYear) {
+export function getTaxableValue(
+  income: Income,
+  value: OutputIncomeYear,
+  cashflow: Cashflow
+) {
   if (!incomeIsTaxable(income)) return 0
 
   const baseFn = (value: OutputIncomeYear) => value.gross_value
@@ -64,7 +68,20 @@ export function getTaxableValue(income: Income, value: OutputIncomeYear) {
     self_employment: baseFn,
     dividend: baseFn,
     pension: (value: OutputIncomeYear) => {
-      return value.gross_value
+      const source = cashflow.money_purchases.find(
+        mp => mp.id === income.source_id
+      )
+      if (!source) throw new Error('Missing source pension')
+
+      // how can we tell which type of withdrawal it is?
+      const method = source.withdrawals[0].method
+      // todo: calculate correct taxable value based on withdrawal type (fad/pcls/ufpls)
+
+      if (method === 'pcls') return 0
+      if (method === 'fad') return value.gross_value
+      if (method === 'ufpls') return value.gross_value * 0.75
+
+      throw new Error('Invalid method')
     },
     savings: baseFn,
     other_taxable: baseFn,

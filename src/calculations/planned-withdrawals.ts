@@ -145,6 +145,7 @@ function updateRelatedIncome(account: BaseAccount, amount: number) {
   outputIncomeYear.gross_value += amount
   outputIncomeYear.taxable_value = getTaxableValue(
     relatedIncome,
-    outputIncomeYear
+    outputIncomeYear,
+    cashflow
   )
 }

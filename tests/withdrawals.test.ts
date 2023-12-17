@@ -263,13 +263,13 @@ describe('planned withdrawals', () => {
       band => band.key === 'personal_allowance'
     )
 
-    expect(pa?.remaining).toEqual(0)
+    expect(pa?.remaining).toEqual(12570 - 11250)
 
     const basicBand = out.tax.bands[2324][person.id].find(
       band => band.key === 'basic_rate_eng'
     )
 
-    expect(basicBand?.remaining).toEqual(37700 - (15000 - 12570))
+    expect(basicBand?.remaining).toEqual(37700)
 
     const withdrawalIncome = cashflow.incomes.find(
       inc => inc.source_id === pension.id && !inc.ad_hoc
@@ -280,12 +280,17 @@ describe('planned withdrawals', () => {
     const outIncomeYear = out.incomes[(withdrawalIncome as Income).id].years[0]
     expect(outIncomeYear.gross_value).toEqual(15000)
     expect(outIncomeYear.taxable_value).toEqual(15000 * 0.75) // only 75% taxable when UFPLS
+    expect(outIncomeYear.tax.bands).toEqual({
+      personal_allowance: { tax_paid: 0, used: 11250 },
+    })
   })
 
   test('withdrawals starting in the future apply at the correct time', () => {
     //
   })
 
+  // test PCLS withdrawn and taxed correctly
+  // test FAD withdrawn and taxed correctly
   // test withdrawal from a joint account by 1 person?
   // test withdrawals from other types of accounts e.g. ISA
   // test nothing happens with gross withdrawal of 0 or less

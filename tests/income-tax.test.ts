@@ -1,8 +1,14 @@
 import { sumBy } from 'lodash'
 import { v4 } from 'uuid'
 import { run } from '../src/calculations'
-import { makeCashflow, makeIncome, makePerson } from '../src/factories'
+import {
+  makeCashflow,
+  makeIncome,
+  makeMoneyPurchase,
+  makePerson,
+} from '../src/factories'
 import { iso } from '../src/lib/date'
+import { Income } from '../src/types'
 
 describe('income tax', () => {
   test('basic rate salary is taxed correctly', () => {
@@ -427,13 +433,22 @@ describe('income tax', () => {
 
   test('pension income taxed correctly', () => {
     const person = makePerson({ sex: 'male', tax_residency: 'wal' })
-    const salary = makeIncome({
-      id: v4(),
-      people: [person],
-      type: 'pension',
-      values: [
+
+    const pension = makeMoneyPurchase({
+      owner_id: person.id,
+      valuations: [
+        {
+          value: 200000,
+          uncrystallised_value: 200000,
+          crystallised_value: 0,
+          date: iso('2023-04-06'),
+        },
+      ],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+      withdrawals: [
         {
           value: 99000,
+          method: 'ufpls',
           starts_at: iso('2023-04-06'),
           ends_at: iso('2025-04-06'),
           escalation: 'cpi',
@@ -445,16 +460,23 @@ describe('income tax', () => {
       people: [person],
       starts_at: iso('2023-04-06'),
       years: 2,
-      incomes: [salary],
+      incomes: [],
+      money_purchases: [pension],
     })
     const out = run(cashflow)
-    const outputIncomeYear = out.incomes[salary.id].years[0]
+
+    const salary = cashflow.incomes.find(
+      inc => inc.source_id === pension.id && !inc.ad_hoc
+    )
+
+    const outputIncomeYear = out.incomes[(salary as Income).id].years[0]
     const bands = outputIncomeYear.tax.bands
 
+    // 74,250 taxable, 12570 used by PA, 37700 used by basic, 23980 by higher
     expect(bands).toEqual({
       personal_allowance: { used: 12570, tax_paid: 0 },
       basic_rate_eng: { used: 37700, tax_paid: 7540 },
-      higher_rate_eng: { used: 48730, tax_paid: 19492 },
+      higher_rate_eng: { used: 23980, tax_paid: 9592 },
     })
   })
 

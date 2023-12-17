@@ -119,7 +119,7 @@ function initIncomes() {
 
     // Set the income's taxable value
     output.incomes[income.id].years.forEach(year => {
-      year.taxable_value = getTaxableValue(income, year)
+      year.taxable_value = getTaxableValue(income, year, cashflow)
     })
   })
 }
