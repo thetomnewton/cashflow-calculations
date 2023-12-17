@@ -100,31 +100,50 @@ function withdrawGrossValueFromMoneyPurchase(
 ) {
   const outputYear = output.money_purchases[account.id].years[yearIndex]
 
-  const currentValue = outputYear.current_value ?? 0
-  const actualValue = Math.max(0, Math.min(currentValue, intendedValue))
-  outputYear.current_value = round(currentValue - actualValue, 2)
-
   // todo: update crystallised/uncrystallised values based on method
 
+  const currentValue = outputYear.current_value ?? 0
   const currentUncrystallised = outputYear.current_value_uncrystallised ?? 0
-  const actualUncrystallised = Math.max(
-    0,
-    Math.min(currentUncrystallised, intendedValue)
-  )
+  const currentCrystallised = outputYear.current_value_crystallised ?? 0
+
+  let actualWithdrawal, uncrystallisedWithdrawal, crystallisedWithdrawal: number
+
+  if (method === 'ufpls') {
+    crystallisedWithdrawal = 0
+    uncrystallisedWithdrawal = Math.max(
+      0,
+      Math.min(currentUncrystallised, intendedValue)
+    )
+    actualWithdrawal = uncrystallisedWithdrawal
+  } else if (method === 'pcls') {
+    actualWithdrawal = Math.max(
+      0,
+      Math.min(currentUncrystallised / 4, intendedValue)
+    )
+    uncrystallisedWithdrawal = actualWithdrawal * 4
+    crystallisedWithdrawal = actualWithdrawal * -3
+  } else if (method === 'fad') {
+    uncrystallisedWithdrawal = 0
+    crystallisedWithdrawal = Math.max(
+      0,
+      Math.min(currentCrystallised, intendedValue)
+    )
+    actualWithdrawal = crystallisedWithdrawal
+  } else {
+    throw new Error('Invalid money purchase withdrawal method')
+  }
+
+  outputYear.current_value = round(currentValue - actualWithdrawal, 2)
   outputYear.current_value_uncrystallised = round(
-    currentUncrystallised - actualUncrystallised,
+    currentUncrystallised - uncrystallisedWithdrawal,
+    2
+  )
+  outputYear.current_value_crystallised = round(
+    currentCrystallised - crystallisedWithdrawal,
     2
   )
 
-  const currentCrystallised = outputYear.current_value_crystallised ?? 0
-  const actualCrystallised = Math.max(
-    0,
-    Math.min(currentCrystallised, intendedValue)
-  )
-  outputYear.current_value_crystallised = round(
-    currentCrystallised - actualCrystallised,
-    2
-  )
+  // Update related income with the correct withdrawal value:
 
   const relatedIncome = cashflow.incomes.find(
     inc => inc.source_id === account.id && !inc.ad_hoc
@@ -139,15 +158,15 @@ function withdrawGrossValueFromMoneyPurchase(
 
   if (!existingValue)
     relatedIncome.values.push({
-      value: actualValue,
+      value: actualWithdrawal,
       escalation: 0,
       starts_at: year.starts_at,
       ends_at: year.ends_at,
     })
-  else existingValue.value += actualValue
+  else existingValue.value += actualWithdrawal
 
   const outputIncomeYear = output.incomes[relatedIncome.id].years[yearIndex]
-  outputIncomeYear.gross_value += actualValue
+  outputIncomeYear.gross_value += actualWithdrawal
   outputIncomeYear.taxable_value = getTaxableValue(
     relatedIncome,
     outputIncomeYear
