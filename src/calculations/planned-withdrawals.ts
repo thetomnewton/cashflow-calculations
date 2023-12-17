@@ -1,6 +1,7 @@
 import { round } from 'lodash'
 import {
   Account,
+  BaseAccount,
   Cashflow,
   MoneyPurchase,
   MoneyPurchaseWithdrawal,
@@ -65,32 +66,7 @@ function withdrawGrossValueFromAccount(
 
   outputYear.current_value = round(currentAccountValue - actualValue, 2)
 
-  const relatedIncome = cashflow.incomes.find(
-    inc => inc.source_id === account.id && !inc.ad_hoc
-  )
-
-  if (!relatedIncome) throw new Error('Missing withdrawal income for account')
-
-  const existingValue = relatedIncome.values.find(
-    value =>
-      value.starts_at === year.starts_at && value.ends_at === year.ends_at
-  )
-
-  if (!existingValue)
-    relatedIncome.values.push({
-      value: actualValue,
-      escalation: 0,
-      starts_at: year.starts_at,
-      ends_at: year.ends_at,
-    })
-  else existingValue.value += actualValue
-
-  const outputIncomeYear = output.incomes[relatedIncome.id].years[yearIndex]
-  outputIncomeYear.gross_value += actualValue
-  outputIncomeYear.taxable_value = getTaxableValue(
-    relatedIncome,
-    outputIncomeYear
-  )
+  updateRelatedIncome(account, actualValue)
 }
 
 function withdrawGrossValueFromMoneyPurchase(
@@ -99,8 +75,6 @@ function withdrawGrossValueFromMoneyPurchase(
   method: MoneyPurchaseWithdrawal['method']
 ) {
   const outputYear = output.money_purchases[account.id].years[yearIndex]
-
-  // todo: update crystallised/uncrystallised values based on method
 
   const currentValue = outputYear.current_value ?? 0
   const currentUncrystallised = outputYear.current_value_uncrystallised ?? 0
@@ -143,8 +117,10 @@ function withdrawGrossValueFromMoneyPurchase(
     2
   )
 
-  // Update related income with the correct withdrawal value:
+  updateRelatedIncome(account, actualWithdrawal)
+}
 
+function updateRelatedIncome(account: BaseAccount, amount: number) {
   const relatedIncome = cashflow.incomes.find(
     inc => inc.source_id === account.id && !inc.ad_hoc
   )
@@ -158,15 +134,15 @@ function withdrawGrossValueFromMoneyPurchase(
 
   if (!existingValue)
     relatedIncome.values.push({
-      value: actualWithdrawal,
+      value: amount,
       escalation: 0,
       starts_at: year.starts_at,
       ends_at: year.ends_at,
     })
-  else existingValue.value += actualWithdrawal
+  else existingValue.value += amount
 
   const outputIncomeYear = output.incomes[relatedIncome.id].years[yearIndex]
-  outputIncomeYear.gross_value += actualWithdrawal
+  outputIncomeYear.gross_value += amount
   outputIncomeYear.taxable_value = getTaxableValue(
     relatedIncome,
     outputIncomeYear
