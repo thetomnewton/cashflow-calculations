@@ -199,7 +199,7 @@ describe('planned withdrawals', () => {
     })
   })
 
-  test(`can make withdrawals from money purchase`, () => {
+  test(`can make ufpls withdrawal from money purchase`, () => {
     const person = makePerson({ date_of_birth: '1980-03-04' })
 
     const pension = makeMoneyPurchase({
@@ -209,15 +209,15 @@ describe('planned withdrawals', () => {
         {
           uncrystallised_value: 150000,
           crystallised_value: 0,
-          date: iso(),
+          date: iso('2023-12-16'),
           value: 150000,
         },
       ],
       withdrawals: [
         {
           value: 15000,
-          starts_at: iso(),
-          ends_at: iso('2028-12-31'),
+          starts_at: iso('2023-12-16'),
+          ends_at: iso('2028-12-16'),
           escalation: 'cpi',
           method: 'ufpls',
         },
@@ -283,6 +283,77 @@ describe('planned withdrawals', () => {
     expect(outIncomeYear.tax.bands).toEqual({
       personal_allowance: { tax_paid: 0, used: 11250 },
     })
+  })
+
+  test(`can make pcls withdrawal from money purchase`, () => {
+    const person = makePerson({ date_of_birth: '1960-12-20' })
+
+    const pension = makeMoneyPurchase({
+      owner_id: person.id,
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+      valuations: [
+        {
+          uncrystallised_value: 150000,
+          crystallised_value: 0,
+          date: iso('2023-12-20'),
+          value: 150000,
+        },
+      ],
+      withdrawals: [
+        {
+          value: 40000,
+          starts_at: iso('2023-12-20'),
+          ends_at: iso('2024-12-20'),
+          escalation: 'cpi',
+          method: 'pcls',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-12-20'),
+      years: 5,
+      money_purchases: [pension],
+    })
+
+    const out = run(cashflow)
+
+    expect(out.money_purchases[pension.id].years[0]).toEqual({
+      start_value: 150000,
+      start_value_uncrystallised: 150000,
+      start_value_crystallised: 0,
+      current_value: 112500,
+      current_value_uncrystallised: 0,
+      current_value_crystallised: 112500,
+      end_value: 118125,
+      end_value_uncrystallised: 0,
+      end_value_crystallised: 118125,
+      net_growth: 0.05,
+    })
+
+    const pa = out.tax.bands[2324][person.id].find(
+      band => band.key === 'personal_allowance'
+    )
+
+    expect(pa?.remaining).toEqual(12570)
+
+    const basicBand = out.tax.bands[2324][person.id].find(
+      band => band.key === 'basic_rate_eng'
+    )
+
+    expect(basicBand?.remaining).toEqual(37700)
+
+    const withdrawalIncome = cashflow.incomes.find(
+      inc => inc.source_id === pension.id && !inc.ad_hoc
+    )
+
+    expect(withdrawalIncome).not.toBeUndefined()
+
+    const outIncomeYear = out.incomes[(withdrawalIncome as Income).id].years[0]
+    expect(outIncomeYear.gross_value).toEqual(37500)
+    expect(outIncomeYear.taxable_value).toEqual(0) // only 75% taxable when UFPLS
+    expect(outIncomeYear.tax.bands).toEqual({})
   })
 
   test('withdrawals starting in the future apply at the correct time', () => {
