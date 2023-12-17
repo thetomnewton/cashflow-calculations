@@ -141,6 +141,8 @@ export interface Entity {
 }
 
 export interface Income extends Entity {
+  ad_hoc?: boolean
+  source_id?: BaseAccount['id']
   type:
     | 'employment'
     | 'self_employment'

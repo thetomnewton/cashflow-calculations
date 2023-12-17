@@ -18,19 +18,23 @@ import {
 } from './income-tax'
 import { isEmployment } from './incomes'
 
-export function initialise(cashflow: Cashflow) {
-  const output = makeInitOutput(cashflow)
+let cashflow: Cashflow
+let output: Output
 
-  initYears(cashflow, output)
-  initBands(cashflow, output)
-  initAccounts(cashflow, output)
-  initMoneyPurchases(cashflow, output)
-  initIncomes(cashflow, output)
+export function initialise(baseCashflow: Cashflow) {
+  cashflow = baseCashflow
+  output = makeInitOutput()
+
+  initYears()
+  initBands()
+  initAccounts()
+  initMoneyPurchases()
+  initIncomes()
 
   return output
 }
 
-function makeInitOutput(cashflow: Cashflow): Output {
+function makeInitOutput(): Output {
   return {
     starts_at: cashflow.starts_at,
     years: [],
@@ -50,7 +54,7 @@ function makeInitOutput(cashflow: Cashflow): Output {
   }
 }
 
-function initYears(cashflow: Cashflow, output: Output) {
+function initYears() {
   const startDate = date(cashflow.starts_at)
   output.years = [...Array(cashflow.years)].map((_, idx) => {
     const yearStartDate = clone(startDate).add(idx, 'year')
@@ -62,7 +66,7 @@ function initYears(cashflow: Cashflow, output: Output) {
   })
 }
 
-function initBands(cashflow: Cashflow, output: Output) {
+function initBands() {
   output.years.forEach(year => {
     output.tax.bands[year.tax_year] = {}
     cashflow.people.forEach(person => {
@@ -112,7 +116,7 @@ function makeOutputIncomeObj(
   }
 }
 
-function initIncomes(cashflow: Cashflow, output: Output) {
+function initIncomes() {
   cashflow.incomes.forEach(income => {
     // Make an initial output income object
     output.incomes[income.id] = makeOutputIncomeObj(income, cashflow, output)
@@ -124,8 +128,8 @@ function initIncomes(cashflow: Cashflow, output: Output) {
   })
 }
 
-function initAccounts(cashflow: Cashflow, output: Output) {
-  ensureSweepAccountExists(cashflow)
+function initAccounts() {
+  ensureSweepAccountExists()
 
   cashflow.accounts.forEach(account => {
     output.accounts[account.id] = {
@@ -136,10 +140,22 @@ function initAccounts(cashflow: Cashflow, output: Output) {
         net_growth: undefined,
       })),
     }
+
+    const owners = getAccountOwners(account.owner_id)
+
+    account.withdrawals.forEach(withdrawal => {
+      cashflow.incomes.push({
+        id: v4(),
+        people: owners,
+        values: [withdrawal],
+        type: 'other_non_taxable', // todo: update based on account/withdrawal type
+        source_id: account.id,
+      })
+    })
   })
 }
 
-function initMoneyPurchases(cashflow: Cashflow, output: Output) {
+function initMoneyPurchases() {
   cashflow.money_purchases.forEach(account => {
     output.money_purchases[account.id] = {
       years: output.years.map(_ => ({
@@ -158,7 +174,7 @@ function initMoneyPurchases(cashflow: Cashflow, output: Output) {
   })
 }
 
-function ensureSweepAccountExists(cashflow: Cashflow) {
+function ensureSweepAccountExists() {
   // Check if the person has a sweep account. If not, create one.
   const sweep = cashflow.accounts.find(acc => isAccount(acc) && acc.is_sweep)
   if (!sweep) cashflow.accounts.push(createSweepAccount(cashflow.people))
@@ -179,4 +195,11 @@ function createSweepAccount(people: Person[]): Account {
       rate: { gross_rate: 0.005, charges: 0 },
     },
   }
+}
+
+function getAccountOwners(ownerId: string | string[]) {
+  return cashflow.people.filter(
+    ({ id }) =>
+      id === ownerId || (Array.isArray(ownerId) && ownerId.includes(id))
+  )
 }

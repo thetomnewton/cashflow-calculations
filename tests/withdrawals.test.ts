@@ -44,14 +44,14 @@ describe('planned withdrawals', () => {
       net_growth: 0.05,
     })
 
-    const income = cashflow.incomes.find(
-      inc => inc.type === 'other_non_taxable'
-    )
+    const income = cashflow.incomes.find(i => i.source_id === cash.id)
+
     expect(income).not.toBe(undefined)
     expect(output.incomes[(income as Income).id].years[0]).toEqual({
       gross_value: 100,
       taxable_value: 0,
       net_value: 100,
+      tax: { bands: {}, ni_paid: {} },
     })
   })
 
