@@ -356,6 +356,80 @@ describe('planned withdrawals', () => {
     expect(outIncomeYear.tax.bands).toEqual({})
   })
 
+  test(`can make FAD withdrawal from money purchase`, () => {
+    const person = makePerson({ date_of_birth: '1960-12-20' })
+
+    const pension = makeMoneyPurchase({
+      owner_id: person.id,
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+      valuations: [
+        {
+          uncrystallised_value: 20000,
+          crystallised_value: 80000,
+          date: iso('2023-12-20'),
+          value: 100000,
+        },
+      ],
+      withdrawals: [
+        {
+          value: 38000,
+          starts_at: iso('2023-12-20'),
+          ends_at: iso('2024-12-20'),
+          escalation: 'cpi',
+          method: 'fad',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-12-20'),
+      years: 5,
+      money_purchases: [pension],
+    })
+
+    const out = run(cashflow)
+
+    expect(out.money_purchases[pension.id].years[0]).toEqual({
+      start_value: 100000,
+      start_value_uncrystallised: 20000,
+      start_value_crystallised: 80000,
+      current_value: 62000,
+      current_value_uncrystallised: 20000,
+      current_value_crystallised: 42000,
+      end_value: 62000 * 1.05,
+      end_value_uncrystallised: 20000 * 1.05,
+      end_value_crystallised: 42000 * 1.05,
+      net_growth: 0.05,
+    })
+
+    const pa = out.tax.bands[2324][person.id].find(
+      band => band.key === 'personal_allowance'
+    )
+
+    expect(pa?.remaining).toEqual(0)
+
+    const basicBand = out.tax.bands[2324][person.id].find(
+      band => band.key === 'basic_rate_eng'
+    )
+
+    expect(basicBand?.remaining).toEqual(37700 - (38000 - 12570))
+
+    const withdrawalIncome = cashflow.incomes.find(
+      inc => inc.source_id === pension.id && !inc.ad_hoc
+    )
+
+    expect(withdrawalIncome).not.toBeUndefined()
+
+    const outIncomeYear = out.incomes[(withdrawalIncome as Income).id].years[0]
+    expect(outIncomeYear.gross_value).toEqual(38000)
+    expect(outIncomeYear.taxable_value).toEqual(38000)
+    expect(outIncomeYear.tax.bands).toEqual({
+      personal_allowance: { used: 12570, tax_paid: 0 },
+      basic_rate_eng: { used: 25430, tax_paid: 5086 },
+    })
+  })
+
   test('withdrawals starting in the future apply at the correct time', () => {
     //
   })
