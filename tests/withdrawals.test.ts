@@ -270,6 +270,16 @@ describe('planned withdrawals', () => {
     )
 
     expect(basicBand?.remaining).toEqual(37700 - (15000 - 12570))
+
+    const withdrawalIncome = cashflow.incomes.find(
+      inc => inc.source_id === pension.id && !inc.ad_hoc
+    )
+
+    expect(withdrawalIncome).not.toBeUndefined()
+
+    const outIncomeYear = out.incomes[(withdrawalIncome as Income).id].years[0]
+    expect(outIncomeYear.gross_value).toEqual(15000)
+    expect(outIncomeYear.taxable_value).toEqual(15000 * 0.75) // only 75% taxable when UFPLS
   })
 
   test('withdrawals starting in the future apply at the correct time', () => {
