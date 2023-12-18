@@ -3,11 +3,12 @@ import { run } from '../src/calculations'
 import {
   makeAccount,
   makeCashflow,
+  makeExpense,
   makeMoneyPurchase,
   makePerson,
 } from '../src/factories'
 import { iso } from '../src/lib/date'
-import { Income } from '../src/types'
+import { Account, Income } from '../src/types'
 
 describe('planned withdrawals', () => {
   test('can make withdrawal from cash account', () => {
@@ -467,5 +468,63 @@ describe('planned withdrawals', () => {
     } catch (e) {
       expect(e.message).toEqual('Invalid money purchase withdrawal method')
     }
+  })
+
+  test('correct gross withdrawal made from pension', () => {
+    const person = makePerson({ date_of_birth: '1965-06-30' })
+
+    const pension = makeMoneyPurchase({
+      owner_id: person.id,
+      valuations: [
+        {
+          value: 50000,
+          uncrystallised_value: 50000,
+          crystallised_value: 0,
+          date: iso('2023-12-31'),
+        },
+      ],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+    })
+
+    const expense = makeExpense({
+      people: [person],
+      values: [
+        {
+          value: 20000,
+          starts_at: iso('2023-12-31'),
+          ends_at: iso('2028-12-31'),
+          escalation: 'cpi',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      starts_at: iso('2023-12-31'),
+      years: 5,
+      people: [person],
+      money_purchases: [pension],
+      expenses: [expense],
+    })
+
+    const out = run(cashflow)
+
+    const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+    expect(out.accounts[(sweep as Account).id].years[0]).toEqual({
+      start_value: 0,
+      current_value: 0,
+      net_growth: 0.005,
+      end_value: 0,
+    })
+
+    expect(out.expenses[expense.id].years[0].value).toEqual(20000)
+
+    expect(out.money_purchases[pension.id].years[0].start_value).toEqual(50000)
+
+    /**
+     * 20k ad-hoc withdrawal would not be enough to cover the 20k shortfall
+     * due to tax, so need to establish the correct gross withdrawal
+     *
+     * 20571.76 is the correct gross withdrawal
+     */
   })
 })
