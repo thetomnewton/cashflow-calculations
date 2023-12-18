@@ -69,6 +69,8 @@ export function withdrawGrossValueFromAccount(
   else {
     // todo: update ad-hoc income
   }
+
+  return { actualValue }
 }
 
 export function withdrawGrossValueFromMoneyPurchase(
@@ -124,6 +126,8 @@ export function withdrawGrossValueFromMoneyPurchase(
   else {
     // todo: update ad-hoc income
   }
+
+  return { actualWithdrawal, uncrystallisedWithdrawal, crystallisedWithdrawal }
 }
 
 function updateRelatedIncome(account: BaseAccount, amount: number) {

@@ -88,7 +88,11 @@ function handleShortfall(initialShortfall: number) {
   const liquidAssets = getAvailableLiquidAssets()
   sortAssetsIntoLiquidationOrder(liquidAssets)
 
-  drawFromLiquidAssets(liquidAssets, remainingShortfall)
+  const tracker = drawFromLiquidAssets(liquidAssets, remainingShortfall)
+
+  // if we just took tax-free withdrawals from this asset, no problem,
+  // however if withdrawals are taxable then we need to figure out
+  // the correct gross amount that would meet the shortfall after tax.
 }
 
 function getAvailableLiquidAssets() {
@@ -119,6 +123,8 @@ function drawFromLiquidAssets(
   liquidAssets: BaseAccount[],
   remainingShortfall: number
 ) {
+  const tracker = []
+
   // Go through each asset. Each time we take money out, we need to re-tax
   // our incomes to see if our total income for the year is enough to meet
   // our total expenses. Repeat until the deficit is met.
@@ -133,23 +139,30 @@ function drawFromLiquidAssets(
     if (asset.section === 'accounts') {
       const withdrawal = Math.min(remainingShortfall, remainingAccountValue)
 
-      withdrawGrossValueFromAccount(asset as Account, withdrawal, true)
+      const { actualValue } = withdrawGrossValueFromAccount(
+        asset as Account,
+        withdrawal,
+        true
+      )
+
+      remainingShortfall -= actualValue
+      tracker.push({ id: asset.id, amount: actualValue })
     } else if (asset.section === 'money_purchases') {
       // todo: we might want to draw some from uncrystallised/crystallised
       // portions as FAD or UFPLS, or both.
       const withdrawal = Math.min(remainingShortfall, remainingAccountValue)
 
-      withdrawGrossValueFromMoneyPurchase(
+      const { actualWithdrawal } = withdrawGrossValueFromMoneyPurchase(
         asset as MoneyPurchase,
         withdrawal,
         'ufpls',
         true
       )
+
+      remainingShortfall -= actualWithdrawal
+      tracker.push({ id: asset.id, amount: actualWithdrawal })
     }
 
-    // if it's possible to make tax-free withdrawals from this asset,
-    // no problem, however if withdrawals are taxable then we need to
-    // figure out the correct gross amount that would meet the
-    // shortfall after tax.
+    return tracker
   }
 }
