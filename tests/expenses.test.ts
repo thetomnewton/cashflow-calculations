@@ -1,6 +1,7 @@
 import { round } from 'lodash'
 import { run } from '../src/calculations'
 import {
+  makeAccount,
   makeCashflow,
   makeExpense,
   makeIncome,
@@ -96,5 +97,71 @@ describe('expenses', () => {
 
     const sweep = cashflow.accounts.find(acc => acc.is_sweep)
     expect(out.accounts[(sweep as Account).id].years[0].current_value).toBe(0)
+  })
+
+  test('simple shortfall handled', () => {
+    /**
+     * 55k salary/year, 75k expenses/year, 100k in isa, 2 year cashflow
+     * isa covers shortfall, sweep account remains at 0
+     */
+
+    const person = makePerson({ date_of_birth: '1980-04-04' })
+
+    const salary = makeIncome({
+      type: 'employment',
+      people: [person],
+      values: [
+        {
+          value: 55000,
+          starts_at: iso('2023-12-20'),
+          ends_at: iso('2025-12-20'),
+          escalation: 'rpi',
+        },
+      ],
+    })
+
+    const costs = makeExpense({
+      values: [
+        {
+          value: 75000,
+          starts_at: iso('2023-12-20'),
+          ends_at: iso('2025-12-20'),
+          escalation: 'cpi',
+        },
+      ],
+    })
+
+    const isa = makeAccount({
+      category: 'isa',
+      owner_id: person.id,
+      valuations: [{ value: 100000, date: iso('2023-12-20') }],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.03, charges: 0 } },
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      incomes: [salary],
+      expenses: [costs],
+      accounts: [isa],
+    })
+    const out = run(cashflow)
+
+    const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+
+    expect(out.accounts[(sweep as Account).id].years[0]).toEqual({
+      start_value: 0,
+      current_value: 0,
+      end_value: 0,
+      net_growth: 0.005,
+    })
+
+    expect(out.incomes[salary.id].years[0].net_value).toEqual(40949.4)
+
+    expect(out.accounts[isa.id].years[0]).toEqual({
+      start_value: 100000,
+      net_growth: 0.03,
+      current_value: round(100000 - (75000 - 40949.4), 2),
+      end_value: 67927.88,
+    })
   })
 })
