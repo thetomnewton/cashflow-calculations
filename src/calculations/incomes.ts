@@ -77,7 +77,6 @@ export function getTaxableValue(
 
       // todo: how can we tell which type of withdrawal it is?
       const method = source.withdrawals[0].method
-      // todo: calculate correct taxable value based on withdrawal type (fad/pcls/ufpls)
 
       if (method === 'pcls') return 0
       if (method === 'fad') return value.gross_value

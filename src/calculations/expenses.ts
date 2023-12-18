@@ -160,7 +160,17 @@ function drawFromLiquidAssets(
     }
   }
 
-  // todo: if there is still a shortfall at this point, take the sweep account into an overdraft
+  // If there is still a shortfall at this point, take the sweep account into an overdraft
+  if (remainingShortfall > 0) {
+    const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+    if (!sweep) throw new Error('Missing sweep account')
+
+    output.accounts[sweep.id].years[yearIndex].current_value = round(
+      (output.accounts[sweep.id].years[yearIndex].current_value ?? 0) -
+        remainingShortfall,
+      2
+    )
+  }
 
   return { tracker, remainingShortfall }
 }

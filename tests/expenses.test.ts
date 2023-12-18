@@ -165,7 +165,7 @@ describe('expenses', () => {
     })
   })
 
-  test('simple shortfall handled (pension)', () => {
+  test('simple shortfall handled, pension, no tax', () => {
     /**
      * 5k salary/year, 7k expenses/year, 50k in DC pension, 3 year cashflow
      * pension covers shortfall, sweep account remains at 0
@@ -239,6 +239,53 @@ describe('expenses', () => {
       end_value_uncrystallised: 48000 * 1.03,
       end_value_crystallised: 0,
       net_growth: 0.03,
+    })
+  })
+
+  test('unresolved shortfall takes sweep to overdraft', () => {
+    const person = makePerson({ date_of_birth: '1985-01-01' })
+
+    const salary = makeIncome({
+      type: 'employment',
+      people: [person],
+      values: [
+        {
+          value: 10000,
+          starts_at: iso('2023-12-20'),
+          ends_at: iso('2025-12-20'),
+          escalation: 0,
+        },
+      ],
+    })
+
+    const expense = makeExpense({
+      people: [person],
+      values: [
+        {
+          value: 12000,
+          starts_at: iso('2023-12-20'),
+          ends_at: iso('2025-12-20'),
+          escalation: 'cpi',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-12-20'),
+      years: 5,
+      incomes: [salary],
+      expenses: [expense],
+    })
+
+    const out = run(cashflow)
+
+    const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+    expect(out.accounts[(sweep as Account).id].years[0]).toEqual({
+      start_value: 0,
+      current_value: -2000,
+      net_growth: 0.005,
+      end_value: -2000,
     })
   })
 })
