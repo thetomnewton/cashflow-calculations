@@ -217,7 +217,7 @@ type GrowthRateEntry = {
 
 export interface BaseAccount {
   id: string
-  section: string
+  section: 'accounts' | 'money_purchases'
   category: string
   sub_category?: string
   owner_id: Person['id'] | Person['id'][]

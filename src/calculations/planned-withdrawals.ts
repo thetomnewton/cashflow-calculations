@@ -54,9 +54,10 @@ export function applyPlannedWithdrawals(
   })
 }
 
-function withdrawGrossValueFromAccount(
+export function withdrawGrossValueFromAccount(
   account: Account,
-  intendedValue: number
+  intendedValue: number,
+  adHoc?: boolean
 ) {
   const outputYear = output.accounts[account.id].years[yearIndex]
   const currentAccountValue = outputYear.current_value ?? 0
@@ -64,13 +65,17 @@ function withdrawGrossValueFromAccount(
 
   outputYear.current_value = round(currentAccountValue - actualValue, 2)
 
-  updateRelatedIncome(account, actualValue)
+  if (!adHoc) updateRelatedIncome(account, actualValue)
+  else {
+    // todo: update ad-hoc income
+  }
 }
 
-function withdrawGrossValueFromMoneyPurchase(
+export function withdrawGrossValueFromMoneyPurchase(
   account: MoneyPurchase,
   intendedValue: number,
-  method: MoneyPurchaseWithdrawal['method']
+  method: MoneyPurchaseWithdrawal['method'],
+  adHoc?: boolean
 ) {
   const outputYear = output.money_purchases[account.id].years[yearIndex]
 
@@ -115,7 +120,10 @@ function withdrawGrossValueFromMoneyPurchase(
     2
   )
 
-  updateRelatedIncome(account, actualWithdrawal)
+  if (!adHoc) updateRelatedIncome(account, actualWithdrawal)
+  else {
+    // todo: update ad-hoc income
+  }
 }
 
 function updateRelatedIncome(account: BaseAccount, amount: number) {

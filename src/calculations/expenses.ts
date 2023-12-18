@@ -1,5 +1,16 @@
-import { BaseAccount, Cashflow, Output, PlanningYear } from '../types'
+import {
+  Account,
+  BaseAccount,
+  Cashflow,
+  MoneyPurchase,
+  Output,
+  PlanningYear,
+} from '../types'
 import { getYearIndex } from './income-tax'
+import {
+  withdrawGrossValueFromAccount,
+  withdrawGrossValueFromMoneyPurchase,
+} from './planned-withdrawals'
 
 let year: PlanningYear
 let yearIndex: number
@@ -77,16 +88,7 @@ function handleShortfall(initialShortfall: number) {
   const liquidAssets = getAvailableLiquidAssets()
   sortAssetsIntoLiquidationOrder(liquidAssets)
 
-  // Go through each asset. Each time we take money out, we need to re-tax
-  // our incomes to see if our total income for the year is enough to meet
-  // our total expenses. Repeat until the deficit is met.
-  for (const asset of liquidAssets) {
-    // make an ad-hoc withdrawal.
-    // if it's possible to make tax-free withdrawals from this asset,
-    // no problem, however if withdrawals are taxable then we need to
-    // figure out the correct gross amount that would meet the
-    // shortfall after tax.
-  }
+  drawFromLiquidAssets(liquidAssets, remainingShortfall)
 }
 
 function getAvailableLiquidAssets() {
@@ -111,4 +113,43 @@ function sortAssetsIntoLiquidationOrder(accounts: BaseAccount[]) {
   accounts.sort((a, b) => {
     return 0 // todo: implement sorting
   })
+}
+
+function drawFromLiquidAssets(
+  liquidAssets: BaseAccount[],
+  remainingShortfall: number
+) {
+  // Go through each asset. Each time we take money out, we need to re-tax
+  // our incomes to see if our total income for the year is enough to meet
+  // our total expenses. Repeat until the deficit is met.
+  for (const asset of liquidAssets) {
+    if (remainingShortfall === 0) break
+
+    let remainingAccountValue: number =
+      output[asset.section][asset.id].years[yearIndex].current_value ?? 0
+
+    // Make an ad-hoc withdrawal. First, see what can be withdrawn gross from this asset.
+
+    if (asset.section === 'accounts') {
+      const withdrawal = Math.min(remainingShortfall, remainingAccountValue)
+
+      withdrawGrossValueFromAccount(asset as Account, withdrawal, true)
+    } else if (asset.section === 'money_purchases') {
+      // todo: we might want to draw some from uncrystallised/crystallised
+      // portions as FAD or UFPLS, or both.
+      const withdrawal = Math.min(remainingShortfall, remainingAccountValue)
+
+      withdrawGrossValueFromMoneyPurchase(
+        asset as MoneyPurchase,
+        withdrawal,
+        'ufpls',
+        true
+      )
+    }
+
+    // if it's possible to make tax-free withdrawals from this asset,
+    // no problem, however if withdrawals are taxable then we need to
+    // figure out the correct gross amount that would meet the
+    // shortfall after tax.
+  }
 }

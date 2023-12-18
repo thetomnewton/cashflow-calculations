@@ -164,6 +164,15 @@ function initAccounts() {
         source_id: account.id,
       })
     })
+
+    cashflow.incomes.push({
+      id: v4(),
+      people: getAccountOwners(account.owner_id),
+      values: [],
+      type: 'other_non_taxable',
+      source_id: account.id,
+      ad_hoc: true,
+    })
   })
 }
 
@@ -192,6 +201,15 @@ function initMoneyPurchases() {
         type: 'pension',
         source_id: pension.id,
       })
+    })
+
+    cashflow.incomes.push({
+      id: v4(),
+      people: getAccountOwners(pension.owner_id),
+      values: [],
+      type: 'pension',
+      source_id: pension.id,
+      ad_hoc: true,
     })
   })
 }
