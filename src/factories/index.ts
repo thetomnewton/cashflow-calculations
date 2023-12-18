@@ -74,6 +74,8 @@ export function makeExpense(params: FactoryExpense): Expense {
   return {
     id: params.id ?? v4(),
     values: params.values ?? [],
+    type: params.type ?? 'essential',
+    people: params.people ?? [],
   }
 }
 

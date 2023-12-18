@@ -128,7 +128,7 @@ export type OutputIncomeYear = {
   }
 }
 
-type OutputExpenseYear = {
+export type OutputExpenseYear = {
   value: number
 }
 
@@ -163,10 +163,7 @@ export interface Income extends Entity {
     | 'savings'
 }
 
-export interface Expense {
-  id: string
-  values: EntityValue[]
-}
+export interface Expense extends Entity {}
 
 export interface EmploymentIncome extends Income {
   type: 'employment'

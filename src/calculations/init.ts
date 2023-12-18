@@ -130,7 +130,13 @@ function initExpenses() {
   cashflow.expenses.forEach(expense => {
     output.expenses[expense.id] = {
       years: output.years.map(year => {
-        return { value: 0 }
+        const entityValue = findActiveEntityValue(expense, year)
+
+        const value = entityValue
+          ? getValueInYear(entityValue, year, cashflow, output)
+          : 0
+
+        return { value }
       }),
     }
   })
