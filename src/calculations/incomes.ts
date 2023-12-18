@@ -68,12 +68,14 @@ export function getTaxableValue(
     self_employment: baseFn,
     dividend: baseFn,
     pension: (value: OutputIncomeYear) => {
+      if (value.gross_value === 0) return 0
+
       const source = cashflow.money_purchases.find(
         mp => mp.id === income.source_id
       )
       if (!source) throw new Error('Missing source pension')
 
-      // how can we tell which type of withdrawal it is?
+      // todo: how can we tell which type of withdrawal it is?
       const method = source.withdrawals[0].method
       // todo: calculate correct taxable value based on withdrawal type (fad/pcls/ufpls)
 
