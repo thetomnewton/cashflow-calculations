@@ -30,8 +30,6 @@ export function applyPlannedWithdrawals(
 
   const withdrawables = [...cashflow.accounts, ...cashflow.money_purchases]
 
-  // todo: sort accounts into appropriate order
-
   withdrawables.forEach(account => {
     const withdrawals = account.withdrawals ?? []
 

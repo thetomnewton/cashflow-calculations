@@ -434,9 +434,6 @@ describe('planned withdrawals', () => {
     //
   })
 
-  // test PCLS withdrawn and taxed correctly
-  // test FAD withdrawn and taxed correctly
   // test withdrawal from a joint account by 1 person?
   // test withdrawals from other types of accounts e.g. ISA
-  // test nothing happens with gross withdrawal of 0 or less
 })

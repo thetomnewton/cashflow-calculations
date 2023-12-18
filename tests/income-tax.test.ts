@@ -478,6 +478,9 @@ describe('income tax', () => {
       basic_rate_eng: { used: 37700, tax_paid: 7540 },
       higher_rate_eng: { used: 23980, tax_paid: 9592 },
     })
+
+    expect(outputIncomeYear.gross_value).toEqual(99000)
+    expect(outputIncomeYear.net_value).toEqual(81868)
   })
 
   test('savings income taxed correctly', () => {
@@ -511,5 +514,8 @@ describe('income tax', () => {
       basic_rate_eng: { used: 37700, tax_paid: 7540 },
       higher_rate_eng: { used: 48730, tax_paid: 19492 },
     })
+
+    expect(outputIncomeYear.gross_value).toEqual(99000)
+    expect(outputIncomeYear.net_value).toEqual(71968)
   })
 })
