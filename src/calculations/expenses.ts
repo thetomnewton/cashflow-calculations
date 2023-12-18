@@ -1,11 +1,5 @@
-import {
-  Account,
-  BaseAccount,
-  Cashflow,
-  MoneyPurchase,
-  Output,
-  PlanningYear,
-} from '../types'
+import { BaseAccount, Cashflow, Output, PlanningYear } from '../types'
+import { isAccount, isMoneyPurchase } from './accounts'
 import { getYearIndex } from './income-tax'
 import {
   withdrawGrossValueFromAccount,
@@ -136,24 +130,24 @@ function drawFromLiquidAssets(
 
     // Make an ad-hoc withdrawal. First, see what can be withdrawn gross from this asset.
 
-    if (asset.section === 'accounts') {
+    if (isAccount(asset)) {
       const withdrawal = Math.min(remainingShortfall, remainingAccountValue)
 
       const { actualValue } = withdrawGrossValueFromAccount(
-        asset as Account,
+        asset,
         withdrawal,
         true
       )
 
       remainingShortfall -= actualValue
       tracker.push({ id: asset.id, amount: actualValue })
-    } else if (asset.section === 'money_purchases') {
+    } else if (isMoneyPurchase(asset)) {
       // todo: we might want to draw some from uncrystallised/crystallised
       // portions as FAD or UFPLS, or both.
       const withdrawal = Math.min(remainingShortfall, remainingAccountValue)
 
       const { actualWithdrawal } = withdrawGrossValueFromMoneyPurchase(
-        asset as MoneyPurchase,
+        asset,
         withdrawal,
         'ufpls',
         true
