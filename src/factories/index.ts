@@ -4,6 +4,7 @@ import {
   Account,
   Cashflow,
   CashflowAssumptions,
+  Expense,
   ISA,
   Income,
   MoneyPurchase,
@@ -16,6 +17,7 @@ type FactoryCashflow = Partial<Omit<Cashflow, 'assumptions'>> &
     assumptions?: Partial<CashflowAssumptions> | undefined
   }
 type FactoryIncome = Partial<Income> & Pick<Income, 'people'>
+type FactoryExpense = Partial<Expense>
 type FactoryAccount = Partial<Account> &
   Pick<Account, 'category' | 'owner_id' | 'valuations' | 'growth_template'>
 type FactoryMoneyPurchase = Partial<MoneyPurchase> &
@@ -51,6 +53,7 @@ export function makeCashflow(params: FactoryCashflow): Cashflow {
     accounts: params.accounts ?? [],
     money_purchases: params.money_purchases ?? [],
     incomes: params.incomes ?? [],
+    expenses: params.expenses ?? [],
     assumptions: params.assumptions
       ? { ...defaultAssumptions, ...params.assumptions }
       : defaultAssumptions,
@@ -64,6 +67,13 @@ export function makeIncome(params: FactoryIncome): Income {
     values: params.values ?? [],
     type: params.type || 'employment',
     source_id: params.source_id || undefined,
+  }
+}
+
+export function makeExpense(params: FactoryExpense): Expense {
+  return {
+    id: params.id ?? v4(),
+    values: params.values ?? [],
   }
 }
 

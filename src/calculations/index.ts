@@ -5,6 +5,7 @@ import {
   initialiseMoneyPurchases,
 } from './accounts'
 import { applyContributions } from './contributions'
+import { applyExpenses } from './expenses'
 import { calcIncomeTaxLiability } from './income-tax'
 import { addIncomesToSweepAccount, setNetValues } from './incomes'
 import { initialise } from './init'
@@ -32,10 +33,6 @@ function runYearCalculation(year: PlanningYear) {
   calcNICs(year, cashflow, output)
   setNetValues(year, cashflow, output)
   addIncomesToSweepAccount(year, cashflow, output)
-  // apply incomes to sweep acct
-  // apply expenses to accounts
-  // handle income windfall / shortfall
-  // apply charges
+  applyExpenses(year, cashflow, output)
   applyGrowth(cashflow, output)
-  // apply liability interest
 }

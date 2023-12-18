@@ -26,6 +26,7 @@ export function initialise(baseCashflow: Cashflow) {
   initAccounts()
   initMoneyPurchases()
   initIncomes()
+  initExpenses()
 
   return output
 }
@@ -45,6 +46,7 @@ function makeInitOutput(): Output {
     ),
     tax: { bands: {} },
     incomes: {},
+    expenses: {},
     accounts: {},
     money_purchases: {},
   }
@@ -121,6 +123,16 @@ function initIncomes() {
     output.incomes[income.id].years.forEach(year => {
       year.taxable_value = getTaxableValue(income, year, cashflow)
     })
+  })
+}
+
+function initExpenses() {
+  cashflow.expenses.forEach(expense => {
+    output.expenses[expense.id] = {
+      years: output.years.map(year => {
+        return { value: 0 }
+      }),
+    }
   })
 }
 

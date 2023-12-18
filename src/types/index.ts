@@ -5,6 +5,7 @@ export interface Cashflow {
   people: Person[]
   assumptions: CashflowAssumptions
   incomes: Income[]
+  expenses: Expense[]
   accounts: Account[]
   money_purchases: MoneyPurchase[]
 }
@@ -89,6 +90,11 @@ export interface Output {
       years: OutputIncomeYear[]
     }
   }
+  expenses: {
+    [id: Expense['id']]: {
+      years: OutputExpenseYear[]
+    }
+  }
   accounts: {
     [id: Account['id']]: {
       years: OutputAccountYear[]
@@ -122,6 +128,10 @@ export type OutputIncomeYear = {
   }
 }
 
+type OutputExpenseYear = {
+  value: number
+}
+
 export interface EntityValue {
   value: number
   starts_at: string
@@ -151,6 +161,11 @@ export interface Income extends Entity {
     | 'other_non_taxable'
     | 'pension'
     | 'savings'
+}
+
+export interface Expense {
+  id: string
+  values: EntityValue[]
 }
 
 export interface EmploymentIncome extends Income {
