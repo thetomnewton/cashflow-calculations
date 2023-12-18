@@ -1,3 +1,4 @@
+import { round } from 'lodash'
 import { BaseAccount, Cashflow, Output, PlanningYear } from '../types'
 import { isAccount, isMoneyPurchase } from './accounts'
 import { getYearIndex } from './income-tax'
@@ -32,11 +33,11 @@ export function applyExpenses(
   if (totalIncome === totalExpenses) return
 
   if (totalIncome >= totalExpenses) {
-    handleWindfall(totalIncome - totalExpenses)
+    handleWindfall(round(totalIncome - totalExpenses, 2))
     return
   }
 
-  handleShortfall((totalIncome - totalExpenses) * -1)
+  handleShortfall(round(totalIncome - totalExpenses, 2) * -1)
 }
 
 function handleWindfall(initialWindfall: number) {
@@ -76,17 +77,18 @@ function handleWindfall(initialWindfall: number) {
 function handleShortfall(initialShortfall: number) {
   if (initialShortfall < 0) throw new Error('Negative shortfall')
 
-  let remainingShortfall = initialShortfall
-
   // Get the liquid assets and sort them into the correct order
   const liquidAssets = getAvailableLiquidAssets()
   sortAssetsIntoLiquidationOrder(liquidAssets)
 
-  const tracker = drawFromLiquidAssets(liquidAssets, remainingShortfall)
+  const { tracker, remainingShortfall } = drawFromLiquidAssets(
+    liquidAssets,
+    initialShortfall
+  )
 
-  // if we just took tax-free withdrawals from this asset, no problem,
+  // If we just took tax-free withdrawals from this asset, no problem,
   // however if withdrawals are taxable then we need to figure out
-  // the correct gross amount that would meet the shortfall after tax.
+  // the correct gross amount to meet the shortfall after tax.
 }
 
 function getAvailableLiquidAssets() {
@@ -156,7 +158,9 @@ function drawFromLiquidAssets(
       remainingShortfall -= actualWithdrawal
       tracker.push({ id: asset.id, amount: actualWithdrawal })
     }
-
-    return tracker
   }
+
+  // todo: if there is still a shortfall at this point, take the sweep account into an overdraft
+
+  return { tracker, remainingShortfall }
 }
