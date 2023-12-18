@@ -105,10 +105,11 @@ export function addIncomesToSweepAccount(
   const idx = getYearIndex(year.tax_year, output)
   const sweepOutput = output.accounts[sweep.id].years[idx]
 
-  let total = 0
-  cashflow.incomes.forEach(inc => {
-    total += output.incomes[inc.id].years[idx].net_value
-  })
+  const total = cashflow.incomes.reduce(
+    (acc: number, inc: Income) =>
+      acc + output.incomes[inc.id].years[idx].net_value,
+    0
+  )
 
   if (sweepOutput.current_value === undefined) sweepOutput.current_value = total
   else sweepOutput.current_value += total
