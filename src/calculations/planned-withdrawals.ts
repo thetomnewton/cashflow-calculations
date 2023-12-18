@@ -66,9 +66,7 @@ export function withdrawGrossValueFromAccount(
   outputYear.current_value = round(currentAccountValue - actualValue, 2)
 
   if (!adHoc) updateRelatedIncome(account, actualValue)
-  else {
-    // todo: update ad-hoc income
-  }
+  else updateAdhocIncome(account, actualValue)
 
   return { actualValue }
 }
@@ -123,9 +121,7 @@ export function withdrawGrossValueFromMoneyPurchase(
   )
 
   if (!adHoc) updateRelatedIncome(account, actualWithdrawal)
-  else {
-    // todo: update ad-hoc income
-  }
+  else updateAdhocIncome(account, actualWithdrawal)
 
   return { actualWithdrawal, uncrystallisedWithdrawal, crystallisedWithdrawal }
 }
@@ -158,4 +154,28 @@ function updateRelatedIncome(account: BaseAccount, amount: number) {
     outputIncomeYear,
     cashflow
   )
+}
+
+function updateAdhocIncome(account: BaseAccount, value: number) {
+  const adHocIncome = cashflow.incomes.find(
+    inc => inc.source_id === account.id && inc.ad_hoc
+  )
+
+  if (!adHocIncome) throw new Error('Missing ad-hoc income')
+
+  const existingValue = adHocIncome.values.find(
+    value =>
+      value.starts_at === year.starts_at && value.ends_at === year.ends_at
+  )
+
+  if (!existingValue)
+    adHocIncome.values.push({
+      value,
+      escalation: 0,
+      starts_at: year.starts_at,
+      ends_at: year.ends_at,
+    })
+  else existingValue.value += value
+
+  output.incomes[adHocIncome.id].years[yearIndex].gross_value = value
 }
