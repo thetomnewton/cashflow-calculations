@@ -7,7 +7,7 @@ import {
 import { applyContributions } from './contributions'
 import { applyExpenses } from './expenses'
 import { calcIncomeTaxLiability } from './income-tax'
-import { addIncomesToSweepAccount, setNetValues } from './incomes'
+import { setNetValues } from './incomes'
 import { initialise } from './init'
 import { calcNICs } from './national-insurance'
 import { applyPlannedWithdrawals } from './planned-withdrawals'
@@ -32,7 +32,6 @@ function runYearCalculation(year: PlanningYear) {
   calcIncomeTaxLiability(year, cashflow, output)
   calcNICs(year, cashflow, output)
   setNetValues(year, cashflow, output)
-  addIncomesToSweepAccount(year, cashflow, output)
   applyExpenses(year, cashflow, output)
   applyGrowth(cashflow, output)
 }

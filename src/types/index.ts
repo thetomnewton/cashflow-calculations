@@ -15,6 +15,7 @@ export interface CashflowAssumptions {
   cpi: number
   rpi: number
   average_earnings_increase: number
+  windfall_save: 'discard' | 'sweep'
 }
 
 export interface PlanningYear {

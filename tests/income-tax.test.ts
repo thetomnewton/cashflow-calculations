@@ -539,6 +539,7 @@ describe('income tax', () => {
       starts_at: iso('2023-04-06'),
       years: 2,
       incomes: [salary],
+      assumptions: { windfall_save: 'sweep' },
     })
 
     const out = run(cashflow)

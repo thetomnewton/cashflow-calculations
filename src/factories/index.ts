@@ -30,6 +30,7 @@ const defaultAssumptions: Cashflow['assumptions'] = {
   cpi: 0.025,
   rpi: 0.03,
   average_earnings_increase: 0.025,
+  windfall_save: 'discard',
 }
 
 export function makePerson(params: FactoryPerson): Person {

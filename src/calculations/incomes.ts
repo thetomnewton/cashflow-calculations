@@ -93,24 +93,3 @@ function incomeIsTaxable(income: Income) {
   // todo: "pension" income may be taxable depending on the withdrawal type
   return income.type !== 'other_non_taxable'
 }
-
-export function addIncomesToSweepAccount(
-  year: PlanningYear,
-  cashflow: Cashflow,
-  output: Output
-) {
-  const sweep = cashflow.accounts.find(a => a.is_sweep)
-  if (!sweep) throw new Error('Missing sweep account')
-
-  const idx = getYearIndex(year.tax_year, output)
-  const sweepOutput = output.accounts[sweep.id].years[idx]
-
-  const total = cashflow.incomes.reduce(
-    (acc: number, inc: Income) =>
-      acc + output.incomes[inc.id].years[idx].net_value,
-    0
-  )
-
-  if (sweepOutput.current_value === undefined) sweepOutput.current_value = total
-  else sweepOutput.current_value += total
-}
