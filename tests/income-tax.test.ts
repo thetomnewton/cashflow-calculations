@@ -8,7 +8,7 @@ import {
   makePerson,
 } from '../src/factories'
 import { iso } from '../src/lib/date'
-import { Income } from '../src/types'
+import { Account, Income } from '../src/types'
 
 describe('income tax', () => {
   test('basic rate salary is taxed correctly', () => {
@@ -486,7 +486,6 @@ describe('income tax', () => {
   test('savings income taxed correctly', () => {
     const person = makePerson({ sex: 'female', tax_residency: 'eng' })
     const salary = makeIncome({
-      id: v4(),
       people: [person],
       type: 'savings',
       values: [
@@ -517,5 +516,42 @@ describe('income tax', () => {
 
     expect(outputIncomeYear.gross_value).toEqual(99000)
     expect(outputIncomeYear.net_value).toEqual(71968)
+  })
+
+  test('correct net values added to sweep account', () => {
+    const person = makePerson({ date_of_birth: '1970-01-01' })
+
+    const salary = makeIncome({
+      people: [person],
+      type: 'employment',
+      values: [
+        {
+          value: 75000,
+          starts_at: iso('2023-04-06'),
+          ends_at: iso('2025-04-06'),
+          escalation: 'cpi',
+        },
+      ],
+    })
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2023-04-06'),
+      years: 2,
+      incomes: [salary],
+    })
+
+    const out = run(cashflow)
+
+    expect(out.incomes[salary.id].years[0].net_value).toEqual(52549.4)
+
+    const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+    expect(sweep).not.toBeNull()
+    expect(out.accounts[(sweep as Account).id].years[0].current_value).toEqual(
+      52549.4
+    )
+    expect(out.accounts[(sweep as Account).id].years[0].end_value).toEqual(
+      52812.15
+    )
   })
 })
