@@ -522,9 +522,24 @@ describe('planned withdrawals', () => {
 
     /**
      * 20k ad-hoc withdrawal would not be enough to cover the 20k shortfall
-     * due to tax, so need to establish the correct gross withdrawal
-     *
+     * due to tax, so need to establish the correct gross withdrawal.
      * 20571.76 is the correct gross withdrawal
      */
+    const income = cashflow.incomes.find(
+      inc => inc.ad_hoc && inc.source_id === pension.id
+    ) as Income
+
+    expect(out.incomes[income.id].years[0]).toEqual({
+      gross_value: 20571.76,
+      taxable_value: 20571.76 * 0.75, // 15428.82
+      net_value: 20000,
+      tax: {
+        ni_paid: {},
+        bands: {
+          personal_allowance: { used: 12570, tax_paid: 0 },
+          basic_rate_eng: { used: 15428.82 - 12570, tax_paid: 571.764 },
+        },
+      },
+    })
   })
 })
