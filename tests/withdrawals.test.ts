@@ -523,7 +523,7 @@ describe('planned withdrawals', () => {
     /**
      * 20k ad-hoc withdrawal would not be enough to cover the 20k shortfall
      * due to tax, so need to establish the correct gross withdrawal.
-     * 20571.76 is the correct gross withdrawal
+     * By rearranging the equation, 20571.76 is correct withdrawal
      */
     const income = cashflow.incomes.find(
       inc => inc.ad_hoc && inc.source_id === pension.id
