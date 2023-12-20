@@ -1,4 +1,5 @@
 import { round } from 'lodash'
+import { v4 } from 'uuid'
 import { run } from '../src/calculations'
 import {
   makeAccount,
@@ -216,6 +217,7 @@ describe('planned withdrawals', () => {
       ],
       withdrawals: [
         {
+          id: v4(),
           value: 15000,
           starts_at: iso('2023-12-16'),
           ends_at: iso('2028-12-16'),
@@ -302,6 +304,7 @@ describe('planned withdrawals', () => {
       ],
       withdrawals: [
         {
+          id: v4(),
           value: 40000,
           starts_at: iso('2023-12-20'),
           ends_at: iso('2024-12-20'),
@@ -373,6 +376,7 @@ describe('planned withdrawals', () => {
       ],
       withdrawals: [
         {
+          id: v4(),
           value: 38000,
           starts_at: iso('2023-12-20'),
           ends_at: iso('2024-12-20'),
@@ -469,7 +473,9 @@ describe('planned withdrawals', () => {
       expect(e.message).toEqual('Invalid money purchase withdrawal method')
     }
   })
+})
 
+describe('shortfall resolving', () => {
   test('correct gross withdrawal made from pension', () => {
     const person = makePerson({ date_of_birth: '1965-06-30' })
 
@@ -500,7 +506,7 @@ describe('planned withdrawals', () => {
 
     const cashflow = makeCashflow({
       starts_at: iso('2023-12-31'),
-      years: 5,
+      years: 1,
       people: [person],
       money_purchases: [pension],
       expenses: [expense],

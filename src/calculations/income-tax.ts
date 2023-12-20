@@ -375,3 +375,22 @@ function getIncomeTaxCategory(income: Income) {
   if (isDividendIncome(income)) return 'dividend'
   throw new Error('Unknown income tax category')
 }
+
+export function undoIncomeTaxation(
+  year: PlanningYear,
+  cashflow: Cashflow,
+  output: Output
+) {
+  const idx = getYearIndex(year.tax_year, output)
+
+  cashflow.incomes.forEach(income => {
+    const outputYear = output.incomes[income.id].years[idx]
+    outputYear.tax.bands = {}
+  })
+
+  cashflow.people.forEach(person => {
+    output.tax.bands[year.tax_year][person.id].forEach(band => {
+      band.remaining = band.bound_upper
+    })
+  })
+}

@@ -236,8 +236,11 @@ export interface Contribution extends EntityValue {
   type: 'personal' | 'employer'
 }
 
-export interface Withdrawal extends EntityValue {}
+export interface Withdrawal extends EntityValue {
+  ad_hoc?: boolean
+}
 export interface MoneyPurchaseWithdrawal extends EntityValue {
+  id: string
   method: 'ufpls' | 'fad' | 'pcls'
 }
 

@@ -1,7 +1,12 @@
 import { round } from 'lodash'
 import { BaseAccount, Cashflow, Output, PlanningYear } from '../types'
 import { isAccount, isMoneyPurchase } from './accounts'
-import { getYearIndex } from './income-tax'
+import {
+  calcIncomeTaxLiability,
+  getYearIndex,
+  undoIncomeTaxation,
+} from './income-tax'
+import { setNetValues } from './incomes'
 import {
   withdrawGrossValueFromAccount,
   withdrawGrossValueFromMoneyPurchase,
@@ -22,6 +27,19 @@ export function applyExpenses(
   output = baseOutput
   yearIndex = getYearIndex(year.tax_year, output)
 
+  const windfallOrShortfall = determineWindfallOrShortfall()
+
+  if (windfallOrShortfall === 0) return
+
+  if (windfallOrShortfall > 0) {
+    handleWindfall(round(windfallOrShortfall, 2))
+    return
+  }
+
+  handleShortfall(round(windfallOrShortfall, 2) * -1)
+}
+
+function determineWindfallOrShortfall() {
   const totalIncome = cashflow.incomes.reduce((total, income) => {
     return total + output.incomes[income.id].years[yearIndex].net_value
   }, 0)
@@ -30,14 +48,7 @@ export function applyExpenses(
     return total + output.expenses[expense.id].years[yearIndex].value
   }, 0)
 
-  if (totalIncome === totalExpenses) return
-
-  if (totalIncome >= totalExpenses) {
-    handleWindfall(round(totalIncome - totalExpenses, 2))
-    return
-  }
-
-  handleShortfall(round(totalIncome - totalExpenses, 2) * -1)
+  return totalIncome - totalExpenses
 }
 
 function handleWindfall(initialWindfall: number) {
@@ -77,15 +88,31 @@ function handleWindfall(initialWindfall: number) {
 function handleShortfall(initialShortfall: number) {
   if (initialShortfall < 0) throw new Error('Negative shortfall')
 
+  let shortfall = initialShortfall
+
+  console.log(`initial shortfall: ${shortfall}`)
+
   // Get the liquid assets and sort them into the correct order
   const liquidAssets = getAvailableLiquidAssets()
   sortAssetsIntoLiquidationOrder(liquidAssets)
 
-  const tracker = drawFromLiquidAssets(liquidAssets, initialShortfall)
-
+  // Make some ad-hoc withdrawals.
   // If we just made any ad-hoc withdrawals, especially if
   // the withdrawals were taxable, we need to re-tax
   // everything and see if the shortfall was met.
+  const tracker = drawFromLiquidAssets(liquidAssets, initialShortfall)
+
+  undoIncomeTaxation(year, cashflow, output)
+  calcIncomeTaxLiability(year, cashflow, output)
+  setNetValues(year, cashflow, output)
+  shortfall = determineWindfallOrShortfall()
+  console.log(`new shortfall: ${shortfall * -1}`)
+
+  if (shortfall !== 0) {
+    // todo:
+    // remove all ad-hoc incomes
+    // go again with a variation
+  }
 }
 
 function getAvailableLiquidAssets() {

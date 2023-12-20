@@ -1,4 +1,5 @@
 import { round } from 'lodash'
+import { v4 } from 'uuid'
 import {
   Account,
   BaseAccount,
@@ -157,6 +158,20 @@ function updateRelatedIncome(account: BaseAccount, amount: number) {
 }
 
 function updateAdhocIncome(account: BaseAccount, value: number) {
+  const id = v4()
+  const newWithdrawal = {
+    id,
+    value,
+    starts_at: year.starts_at,
+    ends_at: year.ends_at,
+    escalation: 0,
+    ad_hoc: true,
+  }
+
+  if (isMoneyPurchase(account))
+    account.withdrawals.push({ ...newWithdrawal, ...{ method: 'ufpls' } })
+  else account.withdrawals.push(newWithdrawal)
+
   const adHocIncome = cashflow.incomes.find(
     inc => inc.source_id === account.id && inc.ad_hoc
   )
@@ -171,11 +186,17 @@ function updateAdhocIncome(account: BaseAccount, value: number) {
   if (!existingValue)
     adHocIncome.values.push({
       value,
-      escalation: 0,
       starts_at: year.starts_at,
       ends_at: year.ends_at,
+      escalation: 0,
     })
   else existingValue.value += value
 
-  output.incomes[adHocIncome.id].years[yearIndex].gross_value = value
+  const outputIncomeYear = output.incomes[adHocIncome.id].years[yearIndex]
+  outputIncomeYear.gross_value = value
+  outputIncomeYear.taxable_value = getTaxableValue(
+    adHocIncome,
+    outputIncomeYear,
+    cashflow
+  )
 }
