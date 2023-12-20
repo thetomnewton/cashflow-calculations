@@ -81,14 +81,11 @@ function handleShortfall(initialShortfall: number) {
   const liquidAssets = getAvailableLiquidAssets()
   sortAssetsIntoLiquidationOrder(liquidAssets)
 
-  const { tracker, remainingShortfall } = drawFromLiquidAssets(
-    liquidAssets,
-    initialShortfall
-  )
+  const tracker = drawFromLiquidAssets(liquidAssets, initialShortfall)
 
-  // If we just took tax-free withdrawals from this asset, no problem,
-  // however if withdrawals are taxable then we need to figure out
-  // the correct gross amount to meet the shortfall after tax.
+  // If we just made any ad-hoc withdrawals, especially if
+  // the withdrawals were taxable, we need to re-tax
+  // everything and see if the shortfall was met.
 }
 
 function getAvailableLiquidAssets() {
@@ -142,7 +139,7 @@ function drawFromLiquidAssets(
       )
 
       remainingShortfall -= actualValue
-      tracker.push({ id: asset.id, amount: actualValue })
+      tracker.push({ asset_id: asset.id, amount: actualValue })
     } else if (isMoneyPurchase(asset)) {
       // todo: we might want to draw some from uncrystallised/crystallised
       // portions as FAD or UFPLS, or both.
@@ -156,7 +153,7 @@ function drawFromLiquidAssets(
       )
 
       remainingShortfall -= actualWithdrawal
-      tracker.push({ id: asset.id, amount: actualWithdrawal })
+      tracker.push({ asset_id: asset.id, amount: actualWithdrawal })
     }
   }
 
@@ -170,7 +167,11 @@ function drawFromLiquidAssets(
         remainingShortfall,
       2
     )
+
+    tracker.push({ id: sweep.id, amount: remainingShortfall })
+
+    remainingShortfall = 0
   }
 
-  return { tracker, remainingShortfall }
+  return tracker
 }
