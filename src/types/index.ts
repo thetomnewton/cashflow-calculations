@@ -154,6 +154,7 @@ export interface Entity {
 export interface Income extends Entity {
   ad_hoc?: boolean
   source_id?: BaseAccount['id']
+  source_withdrawal_id?: Withdrawal['id']
   type:
     | 'employment'
     | 'self_employment'
@@ -237,6 +238,7 @@ export interface Contribution extends EntityValue {
 }
 
 export interface Withdrawal extends EntityValue {
+  id: string
   ad_hoc?: boolean
 }
 export interface MoneyPurchaseWithdrawal extends EntityValue {

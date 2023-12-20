@@ -75,8 +75,13 @@ export function getTaxableValue(
       )
       if (!source) throw new Error('Missing source pension')
 
+      const withdrawal = source.withdrawals.find(
+        w => w.id === income.source_withdrawal_id
+      )
+
+      if (!withdrawal) throw new Error('Missing source withdrawal')
       // todo: how can we tell which type of withdrawal it is?
-      const method = source.withdrawals[0].method
+      const method = withdrawal.method
 
       if (method === 'pcls') return 0
       if (method === 'fad') return value.gross_value

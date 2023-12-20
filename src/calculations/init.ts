@@ -162,6 +162,7 @@ function initAccounts() {
         values: [],
         type: 'other_non_taxable', // todo: update based on account/withdrawal type
         source_id: account.id,
+        source_withdrawal_id: withdrawal.id,
       })
     })
 

@@ -22,6 +22,7 @@ describe('planned withdrawals', () => {
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       withdrawals: [
         {
+          id: v4(),
           value: 100,
           starts_at: iso(),
           ends_at: iso('2024-04-06'),
@@ -67,6 +68,7 @@ describe('planned withdrawals', () => {
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       withdrawals: [
         {
+          id: v4(),
           value: 18000,
           starts_at: iso(),
           ends_at: iso('2024-12-01'),
@@ -102,6 +104,7 @@ describe('planned withdrawals', () => {
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       withdrawals: [
         {
+          id: v4(),
           value: 12121,
           starts_at: iso(),
           ends_at: iso('2028-12-31'),
@@ -145,12 +148,14 @@ describe('planned withdrawals', () => {
       growth_template: { type: 'flat', rate: { gross_rate: 0.03, charges: 0 } },
       withdrawals: [
         {
+          id: v4(),
           value: 5000,
           starts_at: iso(),
           ends_at: iso('2030-04-06'),
           escalation: 0.07,
         },
         {
+          id: v4(),
           value: 12000,
           starts_at: iso('2025-04-06'),
           ends_at: iso('2030-04-06'),
