@@ -5,6 +5,7 @@ import {
   Account,
   Cashflow,
   Income,
+  MoneyPurchase,
   Output,
   OutputIncomeYear,
   Person,
@@ -82,7 +83,7 @@ function initBands() {
  * not yet be calculated at this stage of the calculation
  * lifecycle.
  */
-function makeOutputIncomeObj(
+export function makeOutputIncomeObj(
   income: Income,
   cashflow: Cashflow,
   output: Output
@@ -142,18 +143,42 @@ function initExpenses() {
   })
 }
 
+export function makeAccountOutputObject(account: Account, output: Output) {
+  output.accounts[account.id] = {
+    years: output.years.map(_ => ({
+      start_value: undefined,
+      current_value: undefined,
+      end_value: undefined,
+      net_growth: undefined,
+    })),
+  }
+}
+
+export function makeMoneyPurchaseOutputObject(
+  pension: MoneyPurchase,
+  output: Output
+) {
+  output.money_purchases[pension.id] = {
+    years: output.years.map(_ => ({
+      start_value: undefined,
+      start_value_crystallised: undefined,
+      start_value_uncrystallised: undefined,
+      current_value: undefined,
+      current_value_crystallised: undefined,
+      current_value_uncrystallised: undefined,
+      end_value: undefined,
+      end_value_crystallised: undefined,
+      end_value_uncrystallised: undefined,
+      net_growth: undefined,
+    })),
+  }
+}
+
 function initAccounts() {
   ensureSweepAccountExists()
 
   cashflow.accounts.forEach(account => {
-    output.accounts[account.id] = {
-      years: output.years.map(_ => ({
-        start_value: undefined,
-        current_value: undefined,
-        end_value: undefined,
-        net_growth: undefined,
-      })),
-    }
+    makeAccountOutputObject(account, output)
 
     account.withdrawals.forEach(withdrawal => {
       cashflow.incomes.push({
@@ -165,34 +190,12 @@ function initAccounts() {
         source_withdrawal_id: withdrawal.id,
       })
     })
-
-    cashflow.incomes.push({
-      id: v4(),
-      people: getAccountOwners(account.owner_id),
-      values: [],
-      type: 'other_non_taxable',
-      source_id: account.id,
-      ad_hoc: true,
-    })
   })
 }
 
 function initMoneyPurchases() {
   cashflow.money_purchases.forEach(pension => {
-    output.money_purchases[pension.id] = {
-      years: output.years.map(_ => ({
-        start_value: undefined,
-        start_value_crystallised: undefined,
-        start_value_uncrystallised: undefined,
-        current_value: undefined,
-        current_value_crystallised: undefined,
-        current_value_uncrystallised: undefined,
-        end_value: undefined,
-        end_value_crystallised: undefined,
-        end_value_uncrystallised: undefined,
-        net_growth: undefined,
-      })),
-    }
+    makeMoneyPurchaseOutputObject(pension, output)
 
     pension.withdrawals.forEach(withdrawal => {
       cashflow.incomes.push({
@@ -201,6 +204,8 @@ function initMoneyPurchases() {
         values: [],
         type: 'pension',
         source_id: pension.id,
+        source_withdrawal_id: withdrawal.id,
+        ad_hoc: false,
       })
     })
 

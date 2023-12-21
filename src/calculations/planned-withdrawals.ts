@@ -4,6 +4,7 @@ import {
   Account,
   BaseAccount,
   Cashflow,
+  Income,
   MoneyPurchase,
   MoneyPurchaseWithdrawal,
   Output,
@@ -13,6 +14,7 @@ import { isAccount, isMoneyPurchase } from './accounts'
 import { entityValueActive, getValueInYear } from './entity'
 import { getYearIndex } from './income-tax'
 import { getTaxableValue } from './incomes'
+import { makeOutputIncomeObj } from './init'
 
 let cashflow: Cashflow
 let output: Output
@@ -67,7 +69,7 @@ export function withdrawGrossValueFromAccount(
   outputYear.current_value = round(currentAccountValue - actualValue, 2)
 
   if (!adHoc) updateRelatedIncome(account, actualValue)
-  else updateAdhocIncome(account, actualValue)
+  else createAdhocIncome(account, actualValue)
 
   return { actualValue }
 }
@@ -122,7 +124,7 @@ export function withdrawGrossValueFromMoneyPurchase(
   )
 
   if (!adHoc) updateRelatedIncome(account, actualWithdrawal)
-  else updateAdhocIncome(account, actualWithdrawal)
+  else createAdhocIncome(account, actualWithdrawal)
 
   return { actualWithdrawal, uncrystallisedWithdrawal, crystallisedWithdrawal }
 }
@@ -157,7 +159,13 @@ function updateRelatedIncome(account: BaseAccount, amount: number) {
   )
 }
 
-function updateAdhocIncome(account: BaseAccount, value: number) {
+function createAdhocIncome(account: BaseAccount, value: number) {
+  /**
+   * Add an ad-hoc withdrawal object to the account itself, then
+   * create an ad-hoc income, then add the income to the output
+   * object and set it's gross and taxable values for this year.
+   */
+
   const id = v4()
   const newWithdrawal = {
     id,
@@ -172,25 +180,28 @@ function updateAdhocIncome(account: BaseAccount, value: number) {
     account.withdrawals.push({ ...newWithdrawal, ...{ method: 'ufpls' } })
   else account.withdrawals.push(newWithdrawal)
 
-  const adHocIncome = cashflow.incomes.find(
-    inc => inc.source_id === account.id && inc.ad_hoc
+  const adHocIncome: Income = {
+    id: v4(),
+    type: isMoneyPurchase(account) ? 'pension' : 'other_non_taxable',
+    ad_hoc: true,
+    people: [],
+    source_id: account.id,
+    source_withdrawal_id: id,
+    values: [
+      {
+        value,
+        starts_at: year.starts_at,
+        ends_at: year.ends_at,
+        escalation: 0,
+      },
+    ],
+  }
+
+  output.incomes[adHocIncome.id] = makeOutputIncomeObj(
+    adHocIncome,
+    cashflow,
+    output
   )
-
-  if (!adHocIncome) throw new Error('Missing ad-hoc income')
-
-  const existingValue = adHocIncome.values.find(
-    value =>
-      value.starts_at === year.starts_at && value.ends_at === year.ends_at
-  )
-
-  if (!existingValue)
-    adHocIncome.values.push({
-      value,
-      starts_at: year.starts_at,
-      ends_at: year.ends_at,
-      escalation: 0,
-    })
-  else existingValue.value += value
 
   const outputIncomeYear = output.incomes[adHocIncome.id].years[yearIndex]
   outputIncomeYear.gross_value = value

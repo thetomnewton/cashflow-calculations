@@ -310,7 +310,7 @@ describe('planned withdrawals', () => {
       withdrawals: [
         {
           id: v4(),
-          value: 40000,
+          value: 40000, // only 37500 PCLS should be possible
           starts_at: iso('2023-12-20'),
           ends_at: iso('2024-12-20'),
           escalation: 'cpi',
