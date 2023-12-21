@@ -155,27 +155,22 @@ function drawFromLiquidAssets(
       output[asset.section][asset.id].years[yearIndex].current_value ?? 0
 
     // Make an ad-hoc withdrawal. First, see what can be withdrawn gross from this asset.
+    const withdrawal = Math.min(remainingShortfall, remainingAccountValue)
 
     if (isAccount(asset)) {
-      const withdrawal = Math.min(remainingShortfall, remainingAccountValue)
-
-      const { actualValue } = withdrawGrossValueFromAccount(
+      const { actualWithdrawal } = withdrawGrossValueFromAccount(
         asset,
         withdrawal,
         true
       )
 
-      remainingShortfall -= actualValue
-      tracker.push({ asset_id: asset.id, amount: actualValue })
+      remainingShortfall -= actualWithdrawal
+      tracker.push({ asset_id: asset.id, amount: actualWithdrawal })
     } else if (isMoneyPurchase(asset)) {
-      // todo: we might want to draw some from uncrystallised/crystallised
-      // portions as FAD or UFPLS, or both.
-      const withdrawal = Math.min(remainingShortfall, remainingAccountValue)
-
       const { actualWithdrawal } = withdrawGrossValueFromMoneyPurchase(
         asset,
         withdrawal,
-        'ufpls',
+        'ufpls', // todo: might want to take some as UFPLS and some as FAD
         true
       )
 

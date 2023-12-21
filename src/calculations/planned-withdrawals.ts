@@ -8,6 +8,7 @@ import {
   MoneyPurchase,
   MoneyPurchaseWithdrawal,
   Output,
+  Person,
   PlanningYear,
 } from '../types'
 import { isAccount, isMoneyPurchase } from './accounts'
@@ -64,14 +65,17 @@ export function withdrawGrossValueFromAccount(
 ) {
   const outputYear = output.accounts[account.id].years[yearIndex]
   const currentAccountValue = outputYear.current_value ?? 0
-  const actualValue = Math.max(0, Math.min(currentAccountValue, intendedValue))
+  const actualWithdrawal = Math.max(
+    0,
+    Math.min(currentAccountValue, intendedValue)
+  )
 
-  outputYear.current_value = round(currentAccountValue - actualValue, 2)
+  outputYear.current_value = round(currentAccountValue - actualWithdrawal, 2)
 
-  if (!adHoc) updateRelatedIncome(account, actualValue)
-  else createAdhocIncome(account, actualValue)
+  if (!adHoc) updateRelatedIncome(account, actualWithdrawal)
+  else createAdhocIncome(account, actualWithdrawal)
 
-  return { actualValue }
+  return { actualWithdrawal }
 }
 
 export function withdrawGrossValueFromMoneyPurchase(
@@ -180,11 +184,19 @@ function createAdhocIncome(account: BaseAccount, value: number) {
     account.withdrawals.push({ ...newWithdrawal, ...{ method: 'ufpls' } })
   else account.withdrawals.push(newWithdrawal)
 
+  const personIds = Array.isArray(account.owner_id)
+    ? account.owner_id
+    : [account.owner_id]
+
+  const people = personIds.map(id =>
+    cashflow.people.find(p => p.id === id)
+  ) as Person[]
+
   const adHocIncome: Income = {
     id: v4(),
     type: isMoneyPurchase(account) ? 'pension' : 'other_non_taxable',
     ad_hoc: true,
-    people: [],
+    people,
     source_id: account.id,
     source_withdrawal_id: id,
     values: [
@@ -196,6 +208,8 @@ function createAdhocIncome(account: BaseAccount, value: number) {
       },
     ],
   }
+
+  cashflow.incomes.push(adHocIncome)
 
   output.incomes[adHocIncome.id] = makeOutputIncomeObj(
     adHocIncome,

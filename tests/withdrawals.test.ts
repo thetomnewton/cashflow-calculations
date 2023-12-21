@@ -530,6 +530,12 @@ describe('shortfall resolving', () => {
     expect(out.expenses[expense.id].years[0].value).toEqual(20000)
 
     expect(out.money_purchases[pension.id].years[0].start_value).toEqual(50000)
+    expect(out.money_purchases[pension.id].years[0].current_value).toEqual(
+      50000 - 20571.76
+    )
+    expect(out.money_purchases[pension.id].years[0].end_value).toEqual(
+      (50000 - 20571.76) * 1.05
+    )
 
     /**
      * 20k ad-hoc withdrawal would not be enough to cover the 20k shortfall
