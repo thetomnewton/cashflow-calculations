@@ -197,12 +197,11 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
     withdrawGrossValueFromAccount(account, accountValue, true)
   else if (isMoneyPurchase(account))
     withdrawGrossValueFromMoneyPurchase(account, accountValue, 'ufpls', true)
-
   undoIncomeTaxation(year, cashflow, output)
   calcIncomeTaxLiability(year, cashflow, output)
   setNetValues(year, cashflow, output)
 
-  const newNetIncomeNeed = determineWindfallOrShortfall() * -1
+  let newNetIncomeNeed = determineWindfallOrShortfall() * -1
   if (newNetIncomeNeed >= 0) return
 
   console.log(`we withdrew too much, undo everything we just did`)
@@ -210,10 +209,36 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
   undoIncomeTaxation(year, cashflow, output)
   calcIncomeTaxLiability(year, cashflow, output)
   setNetValues(year, cashflow, output)
+  newNetIncomeNeed = determineWindfallOrShortfall() * -1
 
-  console.log(`net income need is now: ${determineWindfallOrShortfall() * -1}`)
+  console.log(`net income need is now: ${newNetIncomeNeed}`)
+  console.log(
+    `we know the correct gross withdrawal is somewhere between ${newNetIncomeNeed} and ${accountValue}`
+  )
+
+  let attempts = 0
+  let amountToTry = newNetIncomeNeed + (accountValue - newNetIncomeNeed) / 2
+
+  while (attempts < 10) {
+    console.log(`attempting ${amountToTry} gross withdrawal`)
+    // if (isAccount(account))
+    //   withdrawGrossValueFromAccount(account, amountToTry, true)
+    // else if (isMoneyPurchase(account))
+    //   withdrawGrossValueFromMoneyPurchase(account, amountToTry, 'ufpls', true)
+    // undoIncomeTaxation(year, cashflow, output)
+    // calcIncomeTaxLiability(year, cashflow, output)
+    // setNetValues(year, cashflow, output)
+    // newNetIncomeNeed = determineWindfallOrShortfall() * -1
+    // console.log(`newNetIncomeNeed: ${newNetIncomeNeed}`)
+    attempts++
+  }
 
   // todo: finish
+  // try half way between newNetIncomeNeed and accountValue e.g. 35k
+  // if too much, try half way between 20k and 35k e.g. 27.5k
+  // if too much, try half way between 20k and 27.5k e.g. 23.75k
+  // if too much, try half way between 20k and 23.75k e.g. 21.875k
+  // and so on until we get there
 }
 
 function removeAdHocWithdrawalsFromAccountThisYear(account: BaseAccount) {
