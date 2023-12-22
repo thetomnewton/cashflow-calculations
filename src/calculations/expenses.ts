@@ -1,12 +1,7 @@
 import { round } from 'lodash'
 import { BaseAccount, Cashflow, Output, PlanningYear } from '../types'
 import { isAccount, isMoneyPurchase } from './accounts'
-import {
-  calcIncomeTaxLiability,
-  getYearIndex,
-  undoIncomeTaxation,
-} from './income-tax'
-import { setNetValues } from './incomes'
+import { getYearIndex } from './income-tax'
 import {
   withdrawGrossValueFromAccount,
   withdrawGrossValueFromMoneyPurchase,
@@ -31,12 +26,8 @@ export function applyExpenses(
 
   if (windfallOrShortfall === 0) return
 
-  if (windfallOrShortfall > 0) {
-    handleWindfall(round(windfallOrShortfall, 2))
-    return
-  }
-
-  handleShortfall(round(windfallOrShortfall, 2) * -1)
+  if (windfallOrShortfall > 0) handleWindfall(round(windfallOrShortfall, 2))
+  else handleShortfall()
 }
 
 function determineWindfallOrShortfall() {
@@ -85,13 +76,7 @@ function handleWindfall(initialWindfall: number) {
 }
 
 // Liquidate some accounts in order to cover the deficit.
-function handleShortfall(initialShortfall: number) {
-  if (initialShortfall < 0) throw new Error('Negative shortfall')
-
-  let shortfall = initialShortfall
-
-  console.log(`initial shortfall: ${shortfall}`)
-
+function handleShortfall() {
   // Get the liquid assets and sort them into the correct order
   const liquidAssets = getAvailableLiquidAssets()
   sortAssetsIntoLiquidationOrder(liquidAssets)
@@ -100,19 +85,10 @@ function handleShortfall(initialShortfall: number) {
   // If we just made any ad-hoc withdrawals, especially if
   // the withdrawals were taxable, we need to re-tax
   // everything and see if the shortfall was met.
-  const tracker = drawFromLiquidAssets(liquidAssets, initialShortfall)
+  drawFromLiquidAssets(liquidAssets)
 
-  undoIncomeTaxation(year, cashflow, output)
-  calcIncomeTaxLiability(year, cashflow, output)
-  setNetValues(year, cashflow, output)
-  shortfall = determineWindfallOrShortfall()
-  console.log(`new shortfall: ${shortfall * -1}`)
-
-  if (shortfall !== 0) {
-    // todo:
-    // remove all ad-hoc incomes
-    // go again with a variation
-  }
+  if (round(determineWindfallOrShortfall(), 2) !== 0)
+    throw new Error('Failed to meet shortfall')
 }
 
 function getAvailableLiquidAssets() {
@@ -139,23 +115,25 @@ function sortAssetsIntoLiquidationOrder(accounts: BaseAccount[]) {
   })
 }
 
-function drawFromLiquidAssets(
-  liquidAssets: BaseAccount[],
-  remainingShortfall: number
-) {
-  const tracker = []
+function drawFromLiquidAssets(liquidAssets: BaseAccount[]) {
+  /**
+   * recalculate income tax:
+  undoIncomeTaxation(year, cashflow, output)
+  calcIncomeTaxLiability(year, cashflow, output)
+  setNetValues(year, cashflow, output)
+   */
 
-  // Go through each asset. Each time we take money out, we need to re-tax
-  // our incomes to see if our total income for the year is enough to meet
-  // our total expenses. Repeat until the deficit is met.
+  let netIncomeNeeded = determineWindfallOrShortfall() * -1
+  console.log(`netIncomeNeeded: ${netIncomeNeeded}`)
+
   for (const asset of liquidAssets) {
-    if (remainingShortfall === 0) break
+    if (netIncomeNeeded === 0) break
 
     let remainingAccountValue: number =
       output[asset.section][asset.id].years[yearIndex].current_value ?? 0
 
     // Make an ad-hoc withdrawal. First, see what can be withdrawn gross from this asset.
-    const withdrawal = Math.min(remainingShortfall, remainingAccountValue)
+    const withdrawal = Math.min(netIncomeNeeded, remainingAccountValue)
 
     if (isAccount(asset)) {
       const { actualWithdrawal } = withdrawGrossValueFromAccount(
@@ -164,8 +142,7 @@ function drawFromLiquidAssets(
         true
       )
 
-      remainingShortfall -= actualWithdrawal
-      tracker.push({ asset_id: asset.id, amount: actualWithdrawal })
+      netIncomeNeeded -= actualWithdrawal
     } else if (isMoneyPurchase(asset)) {
       const { actualWithdrawal } = withdrawGrossValueFromMoneyPurchase(
         asset,
@@ -174,26 +151,40 @@ function drawFromLiquidAssets(
         true
       )
 
-      remainingShortfall -= actualWithdrawal
-      tracker.push({ asset_id: asset.id, amount: actualWithdrawal })
+      netIncomeNeeded -= actualWithdrawal
     }
   }
 
   // If there is still a shortfall at this point, take the sweep account into an overdraft
-  if (remainingShortfall > 0) {
+  if (netIncomeNeeded > 0) {
     const sweep = cashflow.accounts.find(acc => acc.is_sweep)
     if (!sweep) throw new Error('Missing sweep account')
 
     output.accounts[sweep.id].years[yearIndex].current_value = round(
       (output.accounts[sweep.id].years[yearIndex].current_value ?? 0) -
-        remainingShortfall,
+        netIncomeNeeded,
       2
     )
 
-    tracker.push({ id: sweep.id, amount: remainingShortfall })
-
-    remainingShortfall = 0
+    netIncomeNeeded = 0
   }
+}
 
-  return tracker
+function removeAllAdHocWithdrawals() {
+  // Remove all ad-hoc withdrawals
+  const sections = ['accounts', 'money_purchases'] as const
+  sections.forEach(section => {
+    cashflow[section].forEach(asset => {
+      asset.withdrawals = asset.withdrawals.filter(w => !w.ad_hoc)
+    })
+  })
+
+  // Undo all ad-hoc withdrawals drawing from the liquid assets
+  cashflow.incomes = cashflow.incomes.filter(inc => {
+    if (inc.ad_hoc) {
+      delete output.incomes[inc.id]
+      return false
+    }
+    return true
+  })
 }
