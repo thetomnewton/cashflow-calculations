@@ -1,7 +1,16 @@
 import { round } from 'lodash'
-import { BaseAccount, Cashflow, Output, PlanningYear } from '../types'
-import { isAccount, isMoneyPurchase } from './accounts'
-import { getYearIndex } from './income-tax'
+import { Account, BaseAccount, Cashflow, Output, PlanningYear } from '../types'
+import {
+  areAdHocWithdrawalsTaxable,
+  isAccount,
+  isMoneyPurchase,
+} from './accounts'
+import {
+  calcIncomeTaxLiability,
+  getYearIndex,
+  undoIncomeTaxation,
+} from './income-tax'
+import { setNetValues } from './incomes'
 import {
   withdrawGrossValueFromAccount,
   withdrawGrossValueFromMoneyPurchase,
@@ -123,51 +132,114 @@ function drawFromLiquidAssets(liquidAssets: BaseAccount[]) {
   setNetValues(year, cashflow, output)
    */
 
-  let netIncomeNeeded = determineWindfallOrShortfall() * -1
-  console.log(`netIncomeNeeded: ${netIncomeNeeded}`)
-
   for (const asset of liquidAssets) {
+    const netIncomeNeeded = determineWindfallOrShortfall() * -1
     if (netIncomeNeeded === 0) break
 
-    let remainingAccountValue: number =
-      output[asset.section][asset.id].years[yearIndex].current_value ?? 0
+    const taxable = areAdHocWithdrawalsTaxable(asset)
 
-    // Make an ad-hoc withdrawal. First, see what can be withdrawn gross from this asset.
-    const withdrawal = Math.min(netIncomeNeeded, remainingAccountValue)
-
-    if (isAccount(asset)) {
-      const { actualWithdrawal } = withdrawGrossValueFromAccount(
-        asset,
-        withdrawal,
-        true
-      )
-
-      netIncomeNeeded -= actualWithdrawal
-    } else if (isMoneyPurchase(asset)) {
-      const { actualWithdrawal } = withdrawGrossValueFromMoneyPurchase(
-        asset,
-        withdrawal,
-        'ufpls', // todo: might want to take some as UFPLS and some as FAD
-        true
-      )
-
-      netIncomeNeeded -= actualWithdrawal
+    if (!taxable) {
+      const accountValue: number =
+        output[asset.section][asset.id].years[yearIndex].current_value ?? 0
+      const withdrawal = Math.min(netIncomeNeeded, accountValue)
+      withdrawGrossValueFromAccount(asset as Account, withdrawal, true)
+      undoIncomeTaxation(year, cashflow, output)
+      calcIncomeTaxLiability(year, cashflow, output)
+      setNetValues(year, cashflow, output)
+      continue
     }
+
+    attemptToResolveShortfallFromTaxableSource(asset)
   }
 
-  // If there is still a shortfall at this point, take the sweep account into an overdraft
-  if (netIncomeNeeded > 0) {
-    const sweep = cashflow.accounts.find(acc => acc.is_sweep)
-    if (!sweep) throw new Error('Missing sweep account')
+  // let netIncomeNeeded = determineWindfallOrShortfall() * -1
+  // // If there is still a shortfall at this point, take the sweep account into an overdraft
+  // if (netIncomeNeeded > 0) {
+  //   const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+  //   if (!sweep) throw new Error('Missing sweep account')
+  //   output.accounts[sweep.id].years[yearIndex].current_value = round(
+  //     (output.accounts[sweep.id].years[yearIndex].current_value ?? 0) -
+  //       netIncomeNeeded,
+  //     2
+  //   )
+  //   netIncomeNeeded = 0
+}
 
-    output.accounts[sweep.id].years[yearIndex].current_value = round(
-      (output.accounts[sweep.id].years[yearIndex].current_value ?? 0) -
-        netIncomeNeeded,
-      2
+function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
+  console.log('withdrawing from taxable source')
+  const accountValue: number =
+    output[account.section][account.id].years[yearIndex].current_value ?? 0
+  console.log(`accountValue: ${accountValue}`)
+
+  const netIncomeNeeded = determineWindfallOrShortfall() * -1
+  console.log(
+    `we need ${netIncomeNeeded} net at the moment, but this may change if e.g. we have dividend incomes`
+  )
+
+  // If the account value is less than the net income need, withdraw the whole pot
+  if (accountValue <= netIncomeNeeded) {
+    if (isAccount(account))
+      withdrawGrossValueFromAccount(account, accountValue, true)
+    else if (isMoneyPurchase(account))
+      withdrawGrossValueFromMoneyPurchase(account, accountValue, 'ufpls', true)
+
+    undoIncomeTaxation(year, cashflow, output)
+    calcIncomeTaxLiability(year, cashflow, output)
+    setNetValues(year, cashflow, output)
+    return
+  }
+
+  console.log(`we know the account value is more than the net income need`)
+
+  // Withdraw the whole pot. If there is still a shortfall, do that and move on,
+  // otherwise if we withdrew too much, undo what we just did
+  if (isAccount(account))
+    withdrawGrossValueFromAccount(account, accountValue, true)
+  else if (isMoneyPurchase(account))
+    withdrawGrossValueFromMoneyPurchase(account, accountValue, 'ufpls', true)
+
+  undoIncomeTaxation(year, cashflow, output)
+  calcIncomeTaxLiability(year, cashflow, output)
+  setNetValues(year, cashflow, output)
+
+  const newNetIncomeNeed = determineWindfallOrShortfall() * -1
+  if (newNetIncomeNeed >= 0) return
+
+  console.log(`we withdrew too much, undo everything we just did`)
+  removeAdHocWithdrawalsFromAccountThisYear(account)
+  undoIncomeTaxation(year, cashflow, output)
+  calcIncomeTaxLiability(year, cashflow, output)
+  setNetValues(year, cashflow, output)
+
+  console.log(`net income need is now: ${determineWindfallOrShortfall() * -1}`)
+
+  // todo: finish
+}
+
+function removeAdHocWithdrawalsFromAccountThisYear(account: BaseAccount) {
+  account.withdrawals = account.withdrawals.filter(w => {
+    if (
+      w.ad_hoc &&
+      w.starts_at === year.starts_at &&
+      w.ends_at === year.ends_at
     )
+      return false
+    return true
+  })
 
-    netIncomeNeeded = 0
-  }
+  cashflow.incomes = cashflow.incomes.filter(inc => {
+    if (
+      inc.ad_hoc &&
+      inc.source_id === account.id &&
+      inc.values.length &&
+      inc.values[0].starts_at === year.starts_at &&
+      inc.values[0].ends_at === year.ends_at
+    ) {
+      delete output.incomes[inc.id]
+      return false
+    }
+    return true
+  })
 }
 
 function removeAllAdHocWithdrawals() {

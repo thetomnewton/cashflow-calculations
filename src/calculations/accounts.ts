@@ -139,3 +139,10 @@ export function isMoneyPurchase(
 ): account is MoneyPurchase {
   return account.section === 'money_purchases'
 }
+
+export function areAdHocWithdrawalsTaxable(account: BaseAccount) {
+  if (isMoneyPurchase(account)) return true
+  if (account.category === 'gia') return true
+  if (account.category === 'isa' || account.category === 'cash') return false
+  return false
+}
