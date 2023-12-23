@@ -99,13 +99,11 @@ function handleShortfall() {
   sortAssetsIntoLiquidationOrder(liquidAssets)
 
   // Make some ad-hoc withdrawals.
-  // If we just made any ad-hoc withdrawals, especially if
-  // the withdrawals were taxable, we need to re-tax
-  // everything and see if the shortfall was met.
   drawFromLiquidAssets(liquidAssets)
 
-  if (round(determineWindfallOrShortfall()) !== 0)
+  if (round(determineWindfallOrShortfall(), 1) !== 0) {
     throw new Error('Failed to meet shortfall')
+  }
 }
 
 function getAvailableLiquidAssets() {
@@ -133,6 +131,10 @@ function sortAssetsIntoLiquidationOrder(accounts: BaseAccount[]) {
 }
 
 function drawFromLiquidAssets(liquidAssets: BaseAccount[]) {
+  // If we just made any ad-hoc withdrawals, especially if
+  // the withdrawals were taxable, we need to re-tax
+  // everything and see if the shortfall was met.
+
   for (const asset of liquidAssets) {
     const netIncomeNeeded = determineWindfallOrShortfall() * -1
     if (netIncomeNeeded === 0) break
@@ -159,11 +161,14 @@ function drawFromLiquidAssets(liquidAssets: BaseAccount[]) {
   if (netIncomeNeeded > 0) {
     const sweep = cashflow.accounts.find(acc => acc.is_sweep)
     if (!sweep) throw new Error('Missing sweep account')
+
     output.accounts[sweep.id].years[yearIndex].current_value = round(
       (output.accounts[sweep.id].years[yearIndex].current_value ?? 0) -
         netIncomeNeeded,
       2
     )
+
+    // todo: finish
   }
 }
 
