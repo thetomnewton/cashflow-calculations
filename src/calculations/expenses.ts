@@ -100,10 +100,6 @@ function handleShortfall() {
 
   // Make some ad-hoc withdrawals.
   drawFromLiquidAssets(liquidAssets)
-
-  if (round(determineWindfallOrShortfall(), 1) !== 0) {
-    throw new Error('Failed to meet shortfall')
-  }
 }
 
 function getAvailableLiquidAssets() {
@@ -167,8 +163,6 @@ function drawFromLiquidAssets(liquidAssets: BaseAccount[]) {
         netIncomeNeeded,
       2
     )
-
-    // todo: finish
   }
 }
 

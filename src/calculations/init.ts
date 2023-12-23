@@ -4,6 +4,7 @@ import { date, iso } from '../lib/date'
 import {
   Account,
   Cashflow,
+  Expense,
   Income,
   MoneyPurchase,
   Output,
@@ -128,19 +129,21 @@ function initIncomes() {
 }
 
 function initExpenses() {
-  cashflow.expenses.forEach(expense => {
-    output.expenses[expense.id] = {
-      years: output.years.map(year => {
-        const entityValue = findActiveEntityValue(expense, year)
+  cashflow.expenses.forEach(initExpenseOutput)
+}
 
-        const value = entityValue
-          ? getValueInYear(entityValue, year, cashflow, output)
-          : 0
+export function initExpenseOutput(expense: Expense) {
+  output.expenses[expense.id] = {
+    years: output.years.map(year => {
+      const entityValue = findActiveEntityValue(expense, year)
 
-        return { value }
-      }),
-    }
-  })
+      const value = entityValue
+        ? getValueInYear(entityValue, year, cashflow, output)
+        : 0
+
+      return { value }
+    }),
+  }
 }
 
 export function makeAccountOutputObject(account: Account, output: Output) {
