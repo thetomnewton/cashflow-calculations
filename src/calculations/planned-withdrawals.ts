@@ -84,6 +84,7 @@ export function withdrawGrossValueFromMoneyPurchase(
   method: MoneyPurchaseWithdrawal['method'],
   adHoc?: boolean
 ) {
+  console.log(`intendedValue: ${intendedValue}, method: ${method}`)
   const outputYear = output.money_purchases[account.id].years[yearIndex]
 
   const currentValue = outputYear.current_value ?? 0
@@ -99,6 +100,7 @@ export function withdrawGrossValueFromMoneyPurchase(
       Math.min(currentUncrystallised, intendedValue)
     )
     actualWithdrawal = uncrystallisedWithdrawal
+    console.log(outputYear)
   } else if (method === 'pcls') {
     actualWithdrawal = Math.max(
       0,

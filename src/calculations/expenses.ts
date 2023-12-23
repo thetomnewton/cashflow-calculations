@@ -1,5 +1,12 @@
 import { round } from 'lodash'
-import { Account, BaseAccount, Cashflow, Output, PlanningYear } from '../types'
+import {
+  Account,
+  BaseAccount,
+  Cashflow,
+  MoneyPurchaseWithdrawal,
+  Output,
+  PlanningYear,
+} from '../types'
 import {
   areAdHocWithdrawalsTaxable,
   isAccount,
@@ -178,28 +185,16 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
 
   // If the account value is less than the net income need, withdraw the whole pot
   if (accountValue <= netIncomeNeeded) {
-    if (isAccount(account))
-      withdrawGrossValueFromAccount(account, accountValue, true)
-    else if (isMoneyPurchase(account))
-      withdrawGrossValueFromMoneyPurchase(account, accountValue, 'ufpls', true)
-
-    undoIncomeTaxation(year, cashflow, output)
-    calcIncomeTaxLiability(year, cashflow, output)
-    setNetValues(year, cashflow, output)
+    console.log(`drawing the entire account value of ${accountValue}`)
+    withdrawGrossAmountAndRetaxIncomes(account, accountValue)
     return
   }
 
   console.log(`we know the account value is more than the net income need`)
 
   // Withdraw the whole pot. If there is still a shortfall, do that and move on,
-  // otherwise if we withdrew too much, undo what we just did
-  if (isAccount(account))
-    withdrawGrossValueFromAccount(account, accountValue, true)
-  else if (isMoneyPurchase(account))
-    withdrawGrossValueFromMoneyPurchase(account, accountValue, 'ufpls', true)
-  undoIncomeTaxation(year, cashflow, output)
-  calcIncomeTaxLiability(year, cashflow, output)
-  setNetValues(year, cashflow, output)
+  // otherwise, if we withdrew too much then undo what we just did
+  withdrawGrossAmountAndRetaxIncomes(account, accountValue)
 
   let newNetIncomeNeed = determineWindfallOrShortfall() * -1
   if (newNetIncomeNeed >= 0) return
@@ -219,17 +214,11 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
   let attempts = 0
   let amountToTry = newNetIncomeNeed + (accountValue - newNetIncomeNeed) / 2
 
-  while (attempts < 10) {
+  while (attempts < 1) {
     console.log(`attempting ${amountToTry} gross withdrawal`)
-    // if (isAccount(account))
-    //   withdrawGrossValueFromAccount(account, amountToTry, true)
-    // else if (isMoneyPurchase(account))
-    //   withdrawGrossValueFromMoneyPurchase(account, amountToTry, 'ufpls', true)
-    // undoIncomeTaxation(year, cashflow, output)
-    // calcIncomeTaxLiability(year, cashflow, output)
-    // setNetValues(year, cashflow, output)
-    // newNetIncomeNeed = determineWindfallOrShortfall() * -1
-    // console.log(`newNetIncomeNeed: ${newNetIncomeNeed}`)
+    withdrawGrossAmountAndRetaxIncomes(account, amountToTry)
+    newNetIncomeNeed = determineWindfallOrShortfall() * -1
+    console.log(`newNetIncomeNeed: ${newNetIncomeNeed}`)
     attempts++
   }
 
@@ -241,14 +230,35 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
   // and so on until we get there
 }
 
+function withdrawGrossAmountAndRetaxIncomes(
+  account: BaseAccount,
+  amount: number
+) {
+  if (isAccount(account)) withdrawGrossValueFromAccount(account, amount, true)
+  else if (isMoneyPurchase(account))
+    withdrawGrossValueFromMoneyPurchase(account, amount, 'ufpls', true)
+  undoIncomeTaxation(year, cashflow, output)
+  calcIncomeTaxLiability(year, cashflow, output)
+  setNetValues(year, cashflow, output)
+}
+
 function removeAdHocWithdrawalsFromAccountThisYear(account: BaseAccount) {
+  const tracker: { value: number; method: string | undefined }[] = []
+
   account.withdrawals = account.withdrawals.filter(w => {
     if (
       w.ad_hoc &&
       w.starts_at === year.starts_at &&
       w.ends_at === year.ends_at
-    )
+    ) {
+      tracker.push({
+        value: w.value,
+        method: isMoneyPurchase(account)
+          ? (w as MoneyPurchaseWithdrawal).method
+          : undefined,
+      })
       return false
+    }
     return true
   })
 
@@ -265,23 +275,8 @@ function removeAdHocWithdrawalsFromAccountThisYear(account: BaseAccount) {
     }
     return true
   })
-}
 
-function removeAllAdHocWithdrawals() {
-  // Remove all ad-hoc withdrawals
-  const sections = ['accounts', 'money_purchases'] as const
-  sections.forEach(section => {
-    cashflow[section].forEach(asset => {
-      asset.withdrawals = asset.withdrawals.filter(w => !w.ad_hoc)
-    })
-  })
-
-  // Undo all ad-hoc withdrawals drawing from the liquid assets
-  cashflow.incomes = cashflow.incomes.filter(inc => {
-    if (inc.ad_hoc) {
-      delete output.incomes[inc.id]
-      return false
-    }
-    return true
+  tracker.forEach(withdrawal => {
+    // todo: update the current value of the account to restore the money that was taken
   })
 }
