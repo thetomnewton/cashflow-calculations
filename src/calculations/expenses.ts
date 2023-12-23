@@ -203,7 +203,7 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
   while (attempts < 25) {
     withdrawGrossAmountAndRetaxIncomes(account, amountToTry)
     const windfall = determineWindfallOrShortfall() * -1
-    if (round(windfall) === 0) break
+    if (round(windfall, 1) === 0) break
 
     removeAdHocWithdrawalsFromAccountThisYear(account)
     undoIncomeTaxation(year, cashflow, output)

@@ -147,7 +147,7 @@ function updateRelatedIncome(account: BaseAccount, amount: number) {
 
   if (!existingValue)
     relatedIncome.values.push({
-      value: amount,
+      value: round(amount, 2),
       escalation: 0,
       starts_at: year.starts_at,
       ends_at: year.ends_at,
@@ -155,7 +155,7 @@ function updateRelatedIncome(account: BaseAccount, amount: number) {
   else existingValue.value += amount
 
   const outputIncomeYear = output.incomes[relatedIncome.id].years[yearIndex]
-  outputIncomeYear.gross_value += amount
+  outputIncomeYear.gross_value = round(amount + outputIncomeYear.gross_value, 2)
   outputIncomeYear.taxable_value = getTaxableValue(
     relatedIncome,
     outputIncomeYear,
@@ -173,7 +173,7 @@ function createAdhocIncome(account: BaseAccount, value: number) {
   const id = v4()
   const newWithdrawal = {
     id,
-    value,
+    value: round(value, 2),
     starts_at: year.starts_at,
     ends_at: year.ends_at,
     escalation: 0,
@@ -201,7 +201,7 @@ function createAdhocIncome(account: BaseAccount, value: number) {
     source_withdrawal_id: id,
     values: [
       {
-        value,
+        value: round(value, 2),
         starts_at: year.starts_at,
         ends_at: year.ends_at,
         escalation: 0,
@@ -218,10 +218,9 @@ function createAdhocIncome(account: BaseAccount, value: number) {
   )
 
   const outputIncomeYear = output.incomes[adHocIncome.id].years[yearIndex]
-  outputIncomeYear.gross_value = value
-  outputIncomeYear.taxable_value = getTaxableValue(
-    adHocIncome,
-    outputIncomeYear,
-    cashflow
+  outputIncomeYear.gross_value = round(value, 2)
+  outputIncomeYear.taxable_value = round(
+    getTaxableValue(adHocIncome, outputIncomeYear, cashflow),
+    2
   )
 }

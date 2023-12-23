@@ -533,7 +533,7 @@ describe('shortfall resolving', () => {
 
     expect(
       round(out.money_purchases[pension.id].years[0].current_value ?? 0)
-    ).toEqual(50000 - 20571)
+    ).toEqual(50000 - 20572)
 
     expect(
       round(out.money_purchases[pension.id].years[0].end_value ?? 0)
