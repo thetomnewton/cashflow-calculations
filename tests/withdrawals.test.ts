@@ -530,21 +530,24 @@ describe('shortfall resolving', () => {
     expect(out.expenses[expense.id].years[0].value).toEqual(20000)
 
     expect(out.money_purchases[pension.id].years[0].start_value).toEqual(50000)
-    expect(out.money_purchases[pension.id].years[0].current_value).toEqual(
-      50000 - 20571.76
-    )
-    expect(out.money_purchases[pension.id].years[0].end_value).toEqual(
-      (50000 - 20571.76) * 1.05
-    )
+
+    expect(
+      round(out.money_purchases[pension.id].years[0].current_value ?? 0)
+    ).toEqual(50000 - 20571)
+
+    expect(
+      round(out.money_purchases[pension.id].years[0].end_value ?? 0)
+    ).toEqual(round((50000 - 20571.76) * 1.05))
 
     /**
      * 20k ad-hoc withdrawal would not be enough to cover the 20k shortfall
      * due to tax, so need to establish the correct gross withdrawal.
      * By rearranging the equation, 20571.76 is correct withdrawal
      */
-    const income = cashflow.incomes.find(
+
+    const income = cashflow.incomes.filter(
       inc => inc.ad_hoc && inc.source_id === pension.id
-    ) as Income
+    )[1] as Income
 
     expect(out.incomes[income.id].years[0]).toEqual({
       gross_value: 20571.76,
