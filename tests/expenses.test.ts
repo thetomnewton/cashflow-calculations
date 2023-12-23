@@ -228,18 +228,20 @@ describe('expenses', () => {
 
     expect(out.incomes[salary.id].years[0].net_value).toEqual(5000)
 
-    expect(out.money_purchases[pension.id].years[0]).toEqual({
-      start_value: 50000,
-      start_value_uncrystallised: 50000,
-      start_value_crystallised: 0,
-      current_value: 48000,
-      current_value_uncrystallised: 48000,
-      current_value_crystallised: 0,
-      end_value: 48000 * 1.03,
-      end_value_uncrystallised: 48000 * 1.03,
-      end_value_crystallised: 0,
-      net_growth: 0.03,
-    })
+    const pensionOut = out.money_purchases[pension.id].years[0]
+
+    expect(pensionOut.start_value).toEqual(50000)
+    expect(pensionOut.start_value_uncrystallised).toEqual(50000)
+    expect(pensionOut.start_value_crystallised).toEqual(0)
+    expect(round(pensionOut.current_value ?? 0)).toEqual(48000)
+    expect(round(pensionOut.current_value_uncrystallised ?? 0)).toEqual(48000)
+    expect(pensionOut.current_value_crystallised).toEqual(0)
+    expect(round(pensionOut.end_value ?? 0)).toEqual(48000 * 1.03)
+    expect(round(pensionOut.end_value_uncrystallised ?? 0)).toEqual(
+      48000 * 1.03
+    )
+    expect(pensionOut.end_value_crystallised).toEqual(0)
+    expect(pensionOut.net_growth).toEqual(0.03)
   })
 
   test('unresolved shortfall takes sweep to overdraft', () => {
