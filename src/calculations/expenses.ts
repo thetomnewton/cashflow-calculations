@@ -133,13 +133,6 @@ function sortAssetsIntoLiquidationOrder(accounts: BaseAccount[]) {
 }
 
 function drawFromLiquidAssets(liquidAssets: BaseAccount[]) {
-  /**
-   * recalculate income tax:
-  undoIncomeTaxation(year, cashflow, output)
-  calcIncomeTaxLiability(year, cashflow, output)
-  setNetValues(year, cashflow, output)
-   */
-
   for (const asset of liquidAssets) {
     const netIncomeNeeded = determineWindfallOrShortfall() * -1
     if (netIncomeNeeded === 0) break
@@ -160,17 +153,19 @@ function drawFromLiquidAssets(liquidAssets: BaseAccount[]) {
     attemptToResolveShortfallFromTaxableSource(asset)
   }
 
-  // let netIncomeNeeded = determineWindfallOrShortfall() * -1
-  // // If there is still a shortfall at this point, take the sweep account into an overdraft
-  // if (netIncomeNeeded > 0) {
-  //   const sweep = cashflow.accounts.find(acc => acc.is_sweep)
-  //   if (!sweep) throw new Error('Missing sweep account')
-  //   output.accounts[sweep.id].years[yearIndex].current_value = round(
-  //     (output.accounts[sweep.id].years[yearIndex].current_value ?? 0) -
-  //       netIncomeNeeded,
-  //     2
-  //   )
-  //   netIncomeNeeded = 0
+  const netIncomeNeeded = round(determineWindfallOrShortfall() * -1)
+  // If there is still a shortfall at this point, take the sweep account into an overdraft
+
+  if (netIncomeNeeded > 0) {
+    console.log(`remaining: ${netIncomeNeeded}`)
+    const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+    if (!sweep) throw new Error('Missing sweep account')
+    output.accounts[sweep.id].years[yearIndex].current_value = round(
+      (output.accounts[sweep.id].years[yearIndex].current_value ?? 0) -
+        netIncomeNeeded,
+      2
+    )
+  }
 }
 
 function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
@@ -207,28 +202,40 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
   setNetValues(year, cashflow, output)
   newNetIncomeNeed = determineWindfallOrShortfall() * -1
 
+  let [min, max] = [newNetIncomeNeed, accountValue]
+
   console.log(`net income need is now: ${newNetIncomeNeed}`)
   console.log(
-    `we know the correct gross withdrawal is somewhere between ${newNetIncomeNeed} and ${accountValue}`
+    `we know the correct gross withdrawal is somewhere between ${min} and ${max}`
   )
 
   let attempts = 0
-  let amountToTry = newNetIncomeNeed + (accountValue - newNetIncomeNeed) / 2
+  let amountToTry = min + (max - min) / 2
 
-  while (attempts < 5) {
+  while (attempts < 20) {
+    console.log(`attempt number ${attempts}`)
     console.log(`attempting ${amountToTry} gross withdrawal`)
     withdrawGrossAmountAndRetaxIncomes(account, amountToTry)
-    newNetIncomeNeed = determineWindfallOrShortfall() * -1
-    console.log(`newNetIncomeNeed: ${newNetIncomeNeed}`)
+    const windfall = determineWindfallOrShortfall() * -1
+    console.log(`windfall: ${windfall}`)
+    if (round(windfall) === 0) break
+
+    removeAdHocWithdrawalsFromAccountThisYear(account)
+    undoIncomeTaxation(year, cashflow, output)
+    calcIncomeTaxLiability(year, cashflow, output)
+    setNetValues(year, cashflow, output)
+
+    if (windfall < 0) {
+      console.log(`we withdrew too much`)
+      max = amountToTry
+    } else {
+      min = amountToTry
+      console.log(`we didn't draw enough`)
+    }
+    amountToTry = min + (max - min) / 2
+
     attempts++
   }
-
-  // todo: finish
-  // try half way between newNetIncomeNeed and accountValue e.g. 35k
-  // if too much, try half way between 20k and 35k e.g. 27.5k
-  // if too much, try half way between 20k and 27.5k e.g. 23.75k
-  // if too much, try half way between 20k and 23.75k e.g. 21.875k
-  // and so on until we get there
 }
 
 function withdrawGrossAmountAndRetaxIncomes(
