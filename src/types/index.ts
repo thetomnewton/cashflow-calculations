@@ -264,7 +264,7 @@ interface OutputAccountYear {
   net_growth: number | undefined
 }
 
-interface OutputMoneyPurchaseYear extends OutputAccountYear {
+export interface OutputMoneyPurchaseYear extends OutputAccountYear {
   start_value_crystallised: number | undefined
   start_value_uncrystallised: number | undefined
   current_value_crystallised: number | undefined

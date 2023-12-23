@@ -5,6 +5,7 @@ import {
   Cashflow,
   MoneyPurchaseWithdrawal,
   Output,
+  OutputMoneyPurchaseYear,
   PlanningYear,
 } from '../types'
 import {
@@ -214,7 +215,7 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
   let attempts = 0
   let amountToTry = newNetIncomeNeed + (accountValue - newNetIncomeNeed) / 2
 
-  while (attempts < 1) {
+  while (attempts < 5) {
     console.log(`attempting ${amountToTry} gross withdrawal`)
     withdrawGrossAmountAndRetaxIncomes(account, amountToTry)
     newNetIncomeNeed = determineWindfallOrShortfall() * -1
@@ -277,6 +278,33 @@ function removeAdHocWithdrawalsFromAccountThisYear(account: BaseAccount) {
   })
 
   tracker.forEach(withdrawal => {
+    const outputYear = output[account.section][account.id].years[yearIndex]
+
     // todo: update the current value of the account to restore the money that was taken
+    outputYear.current_value = outputYear.current_value
+      ? outputYear.current_value + withdrawal.value
+      : withdrawal.value
+
+    if (isMoneyPurchase(account)) {
+      const out = outputYear as OutputMoneyPurchaseYear
+
+      if (withdrawal.method === 'ufpls') {
+        out.current_value_uncrystallised = out.current_value_uncrystallised
+          ? out.current_value_uncrystallised + withdrawal.value
+          : withdrawal.value
+      } else if (withdrawal.method === 'pcls') {
+        out.current_value_uncrystallised = out.current_value_uncrystallised
+          ? out.current_value_uncrystallised + withdrawal.value * 4
+          : withdrawal.value * 4
+
+        out.current_value_crystallised = out.current_value_crystallised
+          ? out.current_value_crystallised + withdrawal.value * -3
+          : withdrawal.value * -3
+      } else if (withdrawal.method === 'fad') {
+        out.current_value_crystallised = out.current_value_crystallised
+          ? out.current_value_crystallised + withdrawal.value
+          : withdrawal.value
+      }
+    }
   })
 }

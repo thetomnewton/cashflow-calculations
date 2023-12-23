@@ -100,7 +100,6 @@ export function withdrawGrossValueFromMoneyPurchase(
       Math.min(currentUncrystallised, intendedValue)
     )
     actualWithdrawal = uncrystallisedWithdrawal
-    console.log(outputYear)
   } else if (method === 'pcls') {
     actualWithdrawal = Math.max(
       0,
