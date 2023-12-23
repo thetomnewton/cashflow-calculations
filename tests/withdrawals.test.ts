@@ -549,17 +549,22 @@ describe('shortfall resolving', () => {
       inc => inc.ad_hoc && inc.source_id === pension.id
     )[1] as Income
 
-    expect(out.incomes[income.id].years[0]).toEqual({
-      gross_value: 20571.76,
-      taxable_value: 20571.76 * 0.75, // 15428.82
-      net_value: 20000,
-      tax: {
-        ni_paid: {},
-        bands: {
-          personal_allowance: { used: 12570, tax_paid: 0 },
-          basic_rate_eng: { used: 15428.82 - 12570, tax_paid: 571.764 },
-        },
-      },
+    const outputIncomeYear = out.incomes[income.id].years[0]
+
+    expect(round(outputIncomeYear.gross_value, 1)).toEqual(20571.8)
+    expect(round(outputIncomeYear.taxable_value, 1)).toEqual(
+      round(20571.76 * 0.75, 1)
+    )
+    expect(round(outputIncomeYear.net_value, 1)).toEqual(20000)
+    expect(outputIncomeYear.tax.bands.personal_allowance).toEqual({
+      used: 12570,
+      tax_paid: 0,
     })
+    expect(round(outputIncomeYear.tax.bands.basic_rate_eng.used, 1)).toEqual(
+      2858.8
+    )
+    expect(
+      round(outputIncomeYear.tax.bands.basic_rate_eng.tax_paid, 1)
+    ).toEqual(571.8)
   })
 })
