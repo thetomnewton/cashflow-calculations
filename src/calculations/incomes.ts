@@ -107,7 +107,6 @@ function getTaxableValueForMoneyPurchase(
   )
 
   if (!withdrawal) throw new Error('Missing source withdrawal')
-  // todo: how can we tell which type of withdrawal it is?
   const method = withdrawal.method
 
   if (method === 'pcls') return 0
@@ -122,7 +121,8 @@ function getTaxableValueForDefinedBenefit(
   income: Income,
   value: OutputIncomeYear
 ) {
-  return 10000
+  // All pension income from a DB is taxable
+  return value.gross_value
 }
 
 function incomeIsTaxable(income: Income) {
