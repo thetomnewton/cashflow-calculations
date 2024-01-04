@@ -1,8 +1,10 @@
 import { round, sum, sumBy } from 'lodash'
 import {
   Cashflow,
+  DefinedBenefitPension,
   EmploymentIncome,
   Income,
+  MoneyPurchase,
   OtherTaxableIncome,
   Output,
   OutputIncomeYear,
@@ -70,29 +72,57 @@ export function getTaxableValue(
     pension: (value: OutputIncomeYear) => {
       if (value.gross_value === 0) return 0
 
-      const source = cashflow.money_purchases.find(
-        mp => mp.id === income.source_id
-      )
+      const dc: [MoneyPurchase, 'money_purchase'][] =
+        cashflow.money_purchases.map(dc => [dc, 'money_purchase'])
+
+      const db: [DefinedBenefitPension, 'defined_benefit'][] =
+        cashflow.defined_benefits.map(db => [db, 'defined_benefit'])
+
+      const pensions = [...dc, ...db]
+
+      const source = pensions.find(source => source[0].id === income.source_id)
       if (!source) throw new Error('Missing source pension')
 
-      const withdrawal = source.withdrawals.find(
-        w => w.id === income.source_withdrawal_id
-      )
+      if (source[1] === 'money_purchase') {
+        return getTaxableValueForMoneyPurchase(source[0], income, value)
+      } else if (source[1] === 'defined_benefit') {
+        return getTaxableValueForDefinedBenefit(source[0], income, value)
+      }
 
-      if (!withdrawal) throw new Error('Missing source withdrawal')
-      // todo: how can we tell which type of withdrawal it is?
-      const method = withdrawal.method
-
-      if (method === 'pcls') return 0
-      if (method === 'fad') return value.gross_value
-      if (method === 'ufpls') return value.gross_value * 0.75
-
-      throw new Error('Invalid method')
+      throw new Error('Invalid pension type')
     },
     savings: baseFn,
     other_taxable: baseFn,
     other_non_taxable: () => 0,
   }[income.type](value)
+}
+
+function getTaxableValueForMoneyPurchase(
+  pension: MoneyPurchase,
+  income: Income,
+  value: OutputIncomeYear
+) {
+  const withdrawal = pension.withdrawals.find(
+    w => w.id === income.source_withdrawal_id
+  )
+
+  if (!withdrawal) throw new Error('Missing source withdrawal')
+  // todo: how can we tell which type of withdrawal it is?
+  const method = withdrawal.method
+
+  if (method === 'pcls') return 0
+  if (method === 'fad') return value.gross_value
+  if (method === 'ufpls') return value.gross_value * 0.75
+
+  throw new Error('Invalid method')
+}
+
+function getTaxableValueForDefinedBenefit(
+  pension: DefinedBenefitPension,
+  income: Income,
+  value: OutputIncomeYear
+) {
+  return 10000
 }
 
 function incomeIsTaxable(income: Income) {

@@ -4,6 +4,7 @@ import { date, iso } from '../lib/date'
 import {
   Account,
   Cashflow,
+  EntityValue,
   Expense,
   Income,
   MoneyPurchase,
@@ -227,12 +228,23 @@ function initMoneyPurchases() {
 
 function initDefinedBenefits() {
   cashflow.defined_benefits.forEach(db => {
+    const values: EntityValue[] = []
+
+    if (db.status === 'deferred') {
+      values.push({
+        value: 10000,
+        escalation: db.active_escalation_rate,
+        starts_at: db.starts_at,
+        ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
+      })
+    }
+
     cashflow.incomes.push({
       id: v4(),
       people: getAccountOwners(db.owner_id),
       type: 'pension',
       source_id: db.id,
-      values: [],
+      values,
     })
   })
 }
