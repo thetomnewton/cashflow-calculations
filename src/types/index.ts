@@ -276,6 +276,7 @@ export interface OutputMoneyPurchaseYear extends OutputAccountYear {
 
 export interface DefinedBenefitPension {
   id: string
+  owner_id: Person['id']
   status: 'active' | 'deferred' | 'in_payment'
   active_escalation_rate: number | 'cpi' | 'rpi'
   starts_at: string

@@ -27,6 +27,7 @@ export function initialise(baseCashflow: Cashflow) {
   initBands()
   initAccounts()
   initMoneyPurchases()
+  initDefinedBenefits()
   initIncomes()
   initExpenses()
 
@@ -126,6 +127,7 @@ function initIncomes() {
       year.taxable_value = getTaxableValue(income, year, cashflow)
     })
   })
+  console.log(output.incomes)
 }
 
 function initExpenses() {
@@ -219,6 +221,18 @@ function initMoneyPurchases() {
       type: 'pension',
       source_id: pension.id,
       ad_hoc: true,
+    })
+  })
+}
+
+function initDefinedBenefits() {
+  cashflow.defined_benefits.forEach(db => {
+    cashflow.incomes.push({
+      id: v4(),
+      people: getAccountOwners(db.owner_id),
+      type: 'pension',
+      source_id: db.id,
+      values: [],
     })
   })
 }
