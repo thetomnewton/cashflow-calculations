@@ -294,3 +294,7 @@ export interface DeferredDBPension extends DefinedBenefitPension {
   deferment_escalation_rate: number | 'cpi' | 'rpi'
   normal_retirement_age: number
 }
+
+export interface InPaymentDBPension extends DefinedBenefitPension {
+  //
+}

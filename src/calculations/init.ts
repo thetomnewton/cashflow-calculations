@@ -16,6 +16,11 @@ import { isAccount } from './accounts'
 import { findActiveEntityValue, getValueInYear } from './entity'
 import { generateBandsFor, getTaxYearFromDate } from './income-tax'
 import { getTaxableValue, isEmployment } from './incomes'
+import {
+  isActiveDBPension,
+  isDeferredDBPension,
+  isInPaymentDBPension,
+} from './pensions'
 
 let cashflow: Cashflow
 let output: Output
@@ -229,13 +234,18 @@ function initDefinedBenefits() {
   cashflow.defined_benefits.forEach(db => {
     const values: EntityValue[] = []
 
-    if (db.status === 'deferred') {
+    if (isDeferredDBPension(db)) {
+      console.log(db)
       values.push({
-        value: 10000,
+        value: db.annual_amount,
         escalation: db.active_escalation_rate,
         starts_at: db.starts_at,
         ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
       })
+    } else if (isActiveDBPension(db)) {
+      //
+    } else if (isInPaymentDBPension(db)) {
+      //
     }
 
     cashflow.incomes.push({
