@@ -53,6 +53,7 @@ export function makeCashflow(params: FactoryCashflow): Cashflow {
     people: params.people,
     accounts: params.accounts ?? [],
     money_purchases: params.money_purchases ?? [],
+    defined_benefits: params.defined_benefits ?? [],
     incomes: params.incomes ?? [],
     expenses: params.expenses ?? [],
     assumptions: params.assumptions

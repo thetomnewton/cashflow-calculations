@@ -8,6 +8,7 @@ export interface Cashflow {
   expenses: Expense[]
   accounts: Account[]
   money_purchases: MoneyPurchase[]
+  defined_benefits: DefinedBenefitPension[]
 }
 
 export interface CashflowAssumptions {
@@ -271,4 +272,24 @@ export interface OutputMoneyPurchaseYear extends OutputAccountYear {
   current_value_uncrystallised: number | undefined
   end_value_crystallised: number | undefined
   end_value_uncrystallised: number | undefined
+}
+
+export interface DefinedBenefitPension {
+  id: string
+  status: 'active' | 'deferred' | 'in_payment'
+  active_escalation_rate: number | 'cpi' | 'rpi'
+  starts_at: string
+}
+
+export interface ActiveDBPension extends DefinedBenefitPension {
+  linked_salary_id: Income['id']
+  accrual_rate: string // 1/60, 1/80 etc.
+  deferment_escalation_rate: number | 'cpi' | 'rpi'
+}
+
+export interface DeferredDBPension extends DefinedBenefitPension {
+  status: 'deferred'
+  annual_amount: number
+  deferment_escalation_rate: number | 'cpi' | 'rpi'
+  normal_retirement_age: number
 }
