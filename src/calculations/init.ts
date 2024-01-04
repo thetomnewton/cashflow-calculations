@@ -128,7 +128,6 @@ function initIncomes() {
       year.taxable_value = getTaxableValue(income, year, cashflow)
     })
   })
-  console.log(output.incomes)
 }
 
 function initExpenses() {

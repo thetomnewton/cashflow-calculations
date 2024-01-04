@@ -23,7 +23,7 @@ describe('defined benefit pensions', () => {
       people: [person],
       defined_benefits: [db],
       starts_at: iso('2023-06-01'),
-      years: 7,
+      years: 8,
     })
 
     const out = run(cashflow)
@@ -31,8 +31,8 @@ describe('defined benefit pensions', () => {
     const inc = cashflow.incomes.find(inc => inc.source_id === db.id)
     if (!inc) throw new Error('missing income')
 
-    // Expect income to be created in year 5
+    // Expect income to be created in year 6
     const netValues = out.incomes[inc.id].years.map(year => year.net_value)
-    expect(netValues).toEqual([0, 0, 0, 0, 0, 10000, 10000])
+    expect(netValues).toEqual([0, 0, 0, 0, 0, 0, 10000, 10000])
   })
 })
