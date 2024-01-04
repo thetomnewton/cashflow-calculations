@@ -14,6 +14,7 @@ import {
 } from '../types'
 import { isAccount } from './accounts'
 import { findActiveEntityValue, getValueInYear } from './entity'
+import { applyGrowth } from './growth'
 import { generateBandsFor, getTaxYearFromDate } from './income-tax'
 import { getTaxableValue, isEmployment } from './incomes'
 import {
@@ -235,17 +236,30 @@ function initDefinedBenefits() {
     const values: EntityValue[] = []
 
     if (isDeferredDBPension(db)) {
-      console.log(db)
+      const defermentEscalation =
+        typeof db.deferment_escalation_rate === 'string'
+          ? cashflow.assumptions[db.deferment_escalation_rate]
+          : db.deferment_escalation_rate
+
+      const taxYear = getTaxYearFromDate(date(db.starts_at))
+
+      const yearsSinceCashflowStart = Math.max(
+        0,
+        output.years.findIndex(py => py.tax_year === taxYear)
+      )
+
       values.push({
-        value: db.annual_amount,
+        value:
+          db.annual_amount *
+          applyGrowth(defermentEscalation, 0) ** yearsSinceCashflowStart,
         escalation: db.active_escalation_rate,
         starts_at: db.starts_at,
         ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
       })
     } else if (isActiveDBPension(db)) {
-      //
+      // todo: finish
     } else if (isInPaymentDBPension(db)) {
-      //
+      // todo: finish
     }
 
     cashflow.incomes.push({
