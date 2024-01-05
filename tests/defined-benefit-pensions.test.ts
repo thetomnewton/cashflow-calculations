@@ -63,10 +63,10 @@ describe('defined benefit pensions', () => {
     const inc = cashflow.incomes.find(inc => inc.source_id === db.id)
     if (!inc) throw new Error('missing income')
 
-    // Expect income to be created in year 6
     const netValues = out.incomes[inc.id].years.map(year => year.net_value)
     const year6value = 10000 * 1.03 ** 6
     const year7value = year6value * 1.05
+
     expect(netValues).toEqual([
       0,
       0,
