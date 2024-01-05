@@ -41,9 +41,10 @@ export function getValueInYear(
     output.years.findIndex(py => py.tax_year === year.tax_year)
   )
 
-  const startDateTaxYear = +getTaxYearFromDate(
-    date(entityValue.starts_at)
-  ).substring(0, 2)
+  const startDateTaxYear = +getTaxYearFromDate(entityValue.starts_at).substring(
+    0,
+    2
+  )
 
   const thisTaxYear = +year.tax_year.substring(0, 2)
 

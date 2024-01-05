@@ -34,8 +34,8 @@ export function initialise(baseCashflow: Cashflow) {
   initBands()
   initAccounts()
   initMoneyPurchases()
-  initDefinedBenefits()
   initIncomes()
+  initDefinedBenefits()
   initExpenses()
 
   return output
@@ -125,14 +125,16 @@ export function makeOutputIncomeObj(
 }
 
 function initIncomes() {
-  cashflow.incomes.forEach(income => {
-    // Make an initial output income object
-    output.incomes[income.id] = makeOutputIncomeObj(income, cashflow, output)
+  cashflow.incomes.forEach(initIncome)
+}
 
-    // Set the income's taxable value
-    output.incomes[income.id].years.forEach(year => {
-      year.taxable_value = getTaxableValue(income, year, cashflow)
-    })
+function initIncome(income: Income) {
+  // Make an initial output income object
+  output.incomes[income.id] = makeOutputIncomeObj(income, cashflow, output)
+
+  // Set the income's taxable value
+  output.incomes[income.id].years.forEach(year => {
+    year.taxable_value = getTaxableValue(income, year, cashflow)
   })
 }
 
@@ -232,16 +234,15 @@ function initMoneyPurchases() {
 }
 
 function initDefinedBenefits() {
+  const values: EntityValue[] = []
   cashflow.defined_benefits.forEach(db => {
-    const values: EntityValue[] = []
-
     if (isDeferredDBPension(db)) {
       const defermentEscalation =
         typeof db.deferment_escalation_rate === 'string'
           ? cashflow.assumptions[db.deferment_escalation_rate]
           : db.deferment_escalation_rate
 
-      const taxYear = getTaxYearFromDate(date(db.starts_at))
+      const taxYear = getTaxYearFromDate(db.starts_at)
 
       const yearsSinceCashflowStart = Math.max(
         0,
@@ -257,18 +258,32 @@ function initDefinedBenefits() {
         ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
       })
     } else if (isActiveDBPension(db)) {
-      // todo: finish
+      const linkedIncome = cashflow.incomes.find(
+        inc => inc.id === db.linked_salary_id
+      )
+      if (!linkedIncome) throw new Error('Missing linked income for DB')
+
+      console.log(linkedIncome)
+
+      values.push({
+        value: 10000, // todo: finish
+        starts_at: db.starts_at,
+        ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
+        escalation: db.active_escalation_rate,
+      })
     } else if (isInPaymentDBPension(db)) {
       // todo: finish
     }
 
-    cashflow.incomes.push({
+    const income: Income = {
       id: v4(),
       people: getAccountOwners(db.owner_id),
       type: 'pension',
       source_id: db.id,
       values,
-    })
+    }
+    cashflow.incomes.push(income)
+    initIncome(income)
   })
 }
 

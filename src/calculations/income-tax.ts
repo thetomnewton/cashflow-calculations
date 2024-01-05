@@ -2,6 +2,7 @@ import { Dayjs } from 'dayjs'
 import { round, sumBy } from 'lodash'
 import { v4 } from 'uuid'
 import { bands, knownRates } from '../config/income-tax'
+import { date } from '../lib/date'
 import {
   Band,
   Cashflow,
@@ -17,11 +18,14 @@ import {
 
 let taxYear: string
 
-export function getTaxYearFromDate(date: Dayjs) {
-  const year = date.year()
+export function getTaxYearFromDate(initialDate: Dayjs | string) {
+  const dateObj =
+    typeof initialDate === 'string' ? date(initialDate) : initialDate
+
+  const year = dateObj.year()
   const yearString = year.toString().substring(2)
 
-  if (date.month() > 3 || (date.month() === 3 && date.date() >= 6))
+  if (dateObj.month() > 3 || (dateObj.month() === 3 && dateObj.date() >= 6))
     return `${yearString}${(year + 1).toString().substring(2)}`
   else return `${(year - 1).toString().substring(2)}${yearString}`
 }
