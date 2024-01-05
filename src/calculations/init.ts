@@ -267,10 +267,12 @@ function initDefinedBenefits() {
         const incomeEnd = date(incomeValue.ends_at)
         const dbStart = date(db.starts_at)
 
+        // The income should not go beyond the start of the DB
         const incomeActualEnd = incomeEnd.isAfter(dbStart)
           ? db.starts_at
           : incomeValue.ends_at
 
+        // Find the gross value during the final year of the income
         const endTaxYear = getTaxYearFromDate(incomeActualEnd)
         const outputYear = output.years.findIndex(
           py => py.tax_year === endTaxYear
@@ -279,18 +281,23 @@ function initDefinedBenefits() {
           output.incomes[linkedIncome.id].years[Math.max(0, outputYear - 1)]
 
         let value = finalIncomeYear.gross_value
+
+        // Determine the number of deferment years of the DB
         const totalDefermentYears = incomeEnd.isAfter(dbStart)
           ? 0
           : dbStart.diff(incomeEnd, 'years')
 
+        // Determint the deferment escalation rate
         const defermentEscalation =
           typeof db.deferment_escalation_rate === 'string'
             ? cashflow.assumptions[db.deferment_escalation_rate]
             : db.deferment_escalation_rate
 
+        // Find the income's final value, after deferment growth
         value =
           value * applyGrowth(defermentEscalation, 0) ** totalDefermentYears
 
+        // Multiply the value above by (years of service / accrual rate)
         const yearsOfService = db.years_service + getTotalDuration(linkedIncome)
         value = round(value * yearsOfService * db.accrual_rate, 2)
 

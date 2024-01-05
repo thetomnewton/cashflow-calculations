@@ -123,7 +123,7 @@ describe('defined benefit pensions', () => {
     const inc = cashflow.incomes.find(inc => inc.source_id === db.id)
     if (!inc) throw new Error('missing income')
 
-    const netValues = out.incomes[inc.id].years.map(year => year.net_value)
+    const grossValues = out.incomes[inc.id].years.map(year => year.gross_value)
 
     // 50k salary, 2 years of escalation at 3%, multiplied by 13 years
     // of service, divided by 60 because it's a 1/60th scheme.
@@ -131,7 +131,7 @@ describe('defined benefit pensions', () => {
     // Add 3 years of deferment growth at 2.5%
     const initialIncome = finalSalary * 1.025 ** 3
 
-    expect(netValues).toEqual([
+    expect(grossValues).toEqual([
       0,
       0,
       0,
@@ -139,7 +139,7 @@ describe('defined benefit pensions', () => {
       0,
       0,
       round(initialIncome, 2),
-      round(initialIncome * 1.03, 2),
+      round(round(initialIncome, 2) * 1.03, 2),
     ])
   })
 })
