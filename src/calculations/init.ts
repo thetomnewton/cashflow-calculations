@@ -278,8 +278,6 @@ function initDefinedBenefits() {
         const finalIncomeYear =
           output.incomes[linkedIncome.id].years[Math.max(0, outputYear - 1)]
 
-        console.log(`final income year value: ${finalIncomeYear.gross_value}`)
-
         let value = finalIncomeYear.gross_value
         const totalDefermentYears = incomeEnd.isAfter(dbStart)
           ? 0
@@ -297,7 +295,7 @@ function initDefinedBenefits() {
         value = round(value * yearsOfService * db.accrual_rate, 2)
 
         values.push({
-          value, // todo: finish
+          value,
           starts_at: db.starts_at,
           ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
           escalation: db.active_escalation_rate,
