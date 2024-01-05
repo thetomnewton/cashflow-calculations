@@ -1,4 +1,4 @@
-import { clone } from 'lodash'
+import { clone, round } from 'lodash'
 import { v4 } from 'uuid'
 import { date, iso } from '../lib/date'
 import {
@@ -16,7 +16,7 @@ import { isAccount } from './accounts'
 import { findActiveEntityValue, getValueInYear } from './entity'
 import { applyGrowth } from './growth'
 import { generateBandsFor, getTaxYearFromDate } from './income-tax'
-import { getTaxableValue, isEmployment } from './incomes'
+import { getTaxableValue, getTotalDuration, isEmployment } from './incomes'
 import {
   isActiveDBPension,
   isDeferredDBPension,
@@ -263,13 +263,45 @@ function initDefinedBenefits() {
       )
       if (!linkedIncome) throw new Error('Missing linked income for DB')
 
-      console.log(linkedIncome)
+      linkedIncome.values.forEach(incomeValue => {
+        const incomeEnd = date(incomeValue.ends_at)
+        const dbStart = date(db.starts_at)
 
-      values.push({
-        value: 10000, // todo: finish
-        starts_at: db.starts_at,
-        ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
-        escalation: db.active_escalation_rate,
+        const incomeActualEnd = incomeEnd.isAfter(dbStart)
+          ? db.starts_at
+          : incomeValue.ends_at
+
+        const endTaxYear = getTaxYearFromDate(incomeActualEnd)
+        const outputYear = output.years.findIndex(
+          py => py.tax_year === endTaxYear
+        )
+        const finalIncomeYear =
+          output.incomes[linkedIncome.id].years[Math.max(0, outputYear - 1)]
+
+        console.log(`final income year value: ${finalIncomeYear.gross_value}`)
+
+        let value = finalIncomeYear.gross_value
+        const totalDefermentYears = incomeEnd.isAfter(dbStart)
+          ? 0
+          : dbStart.diff(incomeEnd, 'years')
+
+        const defermentEscalation =
+          typeof db.deferment_escalation_rate === 'string'
+            ? cashflow.assumptions[db.deferment_escalation_rate]
+            : db.deferment_escalation_rate
+
+        value =
+          value * applyGrowth(defermentEscalation, 0) ** totalDefermentYears
+
+        const yearsOfService = db.years_service + getTotalDuration(linkedIncome)
+        value = round(value * yearsOfService * db.accrual_rate, 2)
+
+        values.push({
+          value, // todo: finish
+          starts_at: db.starts_at,
+          ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
+          escalation: db.active_escalation_rate,
+        })
       })
     } else if (isInPaymentDBPension(db)) {
       // todo: finish

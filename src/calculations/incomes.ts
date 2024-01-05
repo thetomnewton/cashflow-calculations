@@ -1,4 +1,5 @@
 import { round, sum, sumBy } from 'lodash'
+import { date } from '../lib/date'
 import {
   Cashflow,
   DefinedBenefitPension,
@@ -128,4 +129,12 @@ function getTaxableValueForDefinedBenefit(
 function incomeIsTaxable(income: Income) {
   // todo: "pension" income may be taxable depending on the withdrawal type
   return income.type !== 'other_non_taxable'
+}
+
+export function getTotalDuration(income: Income) {
+  return income.values.reduce(
+    (acc, value) =>
+      acc + date(value.ends_at).diff(date(value.starts_at), 'years'),
+    0
+  )
 }

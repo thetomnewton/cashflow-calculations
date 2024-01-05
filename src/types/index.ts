@@ -285,7 +285,7 @@ export interface DefinedBenefitPension {
 export interface ActiveDBPension extends DefinedBenefitPension {
   status: 'active'
   linked_salary_id: Income['id']
-  accrual_rate: string // 1/60, 1/80 etc.
+  accrual_rate: number // 1/60, 1/80 etc.
   deferment_escalation_rate: number | 'cpi' | 'rpi'
   normal_retirement_age: number
   actuarial_reduction_rate?: number

@@ -103,7 +103,7 @@ describe('defined benefit pensions', () => {
       linked_salary_id: salary.id,
       deferment_escalation_rate: 0.025,
       active_escalation_rate: 0.03,
-      accrual_rate: '1/60',
+      accrual_rate: 1 / 60,
       starts_at: iso('2029-06-01'), // 65th birthday
       normal_retirement_age: 65,
       years_service: 10,
@@ -125,9 +125,10 @@ describe('defined benefit pensions', () => {
 
     const netValues = out.incomes[inc.id].years.map(year => year.net_value)
 
-    // 50k salary, 3 years of escalation at 3%, multiplied by 13 years
+    // 50k salary, 2 years of escalation at 3%, multiplied by 13 years
     // of service, divided by 60 because it's a 1/60th scheme.
-    const finalSalary = 50000 * 1.03 ** 3 * (13 / 60)
+    const finalSalary = 50000 * 1.03 ** 2 * (13 / 60)
+    // Add 3 years of deferment growth at 2.5%
     const initialIncome = finalSalary * 1.025 ** 3
 
     expect(netValues).toEqual([
