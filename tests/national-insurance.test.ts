@@ -122,9 +122,9 @@ describe('national insurance', () => {
 
     const out = run(cashflow)
 
-    expect(out.incomes[salaryId].years[0].tax.ni_paid.class1).toEqual(2743)
-    expect(out.incomes[salaryId].years[1].tax.ni_paid.class1).toEqual(2811.58)
-    expect(out.incomes[salaryId].years[2].tax.ni_paid.class1).toEqual(2881.86)
+    expect(out.incomes[salaryId].years[0].tax.ni_paid.class1).toEqual(3291.6)
+    expect(out.incomes[salaryId].years[1].tax.ni_paid.class1).toEqual(3373.89)
+    expect(out.incomes[salaryId].years[2].tax.ni_paid.class1).toEqual(3458.24)
   })
 
   test('salary above UPL taxed appropriately with class1', () => {
@@ -154,9 +154,9 @@ describe('national insurance', () => {
 
     const out = run(cashflow)
 
-    expect(out.incomes[salaryId].years[0].tax.ni_paid.class1).toEqual(3964.6)
-    expect(out.incomes[salaryId].years[1].tax.ni_paid.class1).toEqual(4063.72)
-    expect(out.incomes[salaryId].years[2].tax.ni_paid.class1).toEqual(4165.31)
+    expect(out.incomes[salaryId].years[0].tax.ni_paid.class1).toEqual(4718.6)
+    expect(out.incomes[salaryId].years[1].tax.ni_paid.class1).toEqual(4836.57)
+    expect(out.incomes[salaryId].years[2].tax.ni_paid.class1).toEqual(4957.48)
   })
 
   test('self-employed pays correct class2 and class4 NICs', () => {
@@ -284,8 +284,8 @@ describe('national insurance', () => {
 
     // salary 1 should use up much of the thresholds, salary 2 uses the remainder
     // salary 2: 4818.6 - 2091.6 = 2727 NICs
-    expect(out.incomes[salary.id].years[0].tax.ni_paid.class1).toEqual(1743)
-    expect(out.incomes[salary2.id].years[1].tax.ni_paid.class1).toEqual(2321.6)
+    expect(out.incomes[salary.id].years[0].tax.ni_paid.class1).toEqual(2091.6)
+    expect(out.incomes[salary2.id].years[1].tax.ni_paid.class1).toEqual(2727)
   })
 
   test('2 incomes, NICs calculate correctly', () => {
@@ -330,7 +330,7 @@ describe('national insurance', () => {
 
     const out = run(cashflow)
 
-    expect(out.incomes[salary.id].years[0].tax.ni_paid.class1).toEqual(1743)
+    expect(out.incomes[salary.id].years[0].tax.ni_paid.class1).toEqual(2091.6)
     expect(out.incomes[income2.id].years[0].tax.ni_paid.class2).toEqual(163.8)
     // (50270 - 30000 =) 20270 * .09 = 1824.3
     // (40000 - 20270 =) 19730 * .02 = 394.6

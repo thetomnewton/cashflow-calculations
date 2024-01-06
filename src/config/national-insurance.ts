@@ -10,7 +10,7 @@ export const taxableIncomeLimits = {
 
 export const class1Rates = {
   below_lpl: 0,
-  below_upl: 0.1,
+  below_upl: 0.12,
   above_upl: 0.02,
 }
 
