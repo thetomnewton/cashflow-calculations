@@ -3,7 +3,11 @@ import { v4 } from 'uuid'
 import { run } from '../src/calculations'
 import { makeCashflow, makeIncome, makePerson } from '../src/factories'
 import { iso } from '../src/lib/date'
-import { ActiveDBPension, DeferredDBPension } from '../src/types'
+import {
+  ActiveDBPension,
+  DeferredDBPension,
+  InPaymentDBPension,
+} from '../src/types'
 
 describe('defined benefit pensions', () => {
   test('deferred DB produces income at correct time', () => {
@@ -141,5 +145,36 @@ describe('defined benefit pensions', () => {
       round(initialIncome, 2),
       round(round(initialIncome, 2) * 1.03, 2),
     ])
+  })
+
+  test('in payment DB has correct values', () => {
+    const person = makePerson({ date_of_birth: '1950-02-01' })
+
+    const db: InPaymentDBPension = {
+      id: v4(),
+      owner_id: person.id,
+      status: 'in_payment',
+      starts_at: iso('2024-02-01'),
+      annual_amount: 15000,
+      active_escalation_rate: 'rpi',
+    }
+
+    const cashflow = makeCashflow({
+      people: [person],
+      defined_benefits: [db],
+      starts_at: iso('2024-02-01'),
+      years: 5,
+    })
+
+    const out = run(cashflow)
+
+    const income = cashflow.incomes.find(inc => inc.source_id === db.id)
+
+    expect(income).not.toBeUndefined()
+
+    console.log(income)
+    expect(1).toEqual(2)
+
+    // todo: finish
   })
 })

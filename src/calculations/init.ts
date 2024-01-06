@@ -13,7 +13,11 @@ import {
   Person,
 } from '../types'
 import { isAccount } from './accounts'
-import { findActiveEntityValue, getValueInYear } from './entity'
+import {
+  findActiveEntityValue,
+  getValueInYear,
+  getYearIndexFromDate,
+} from './entity'
 import { applyGrowth } from './growth'
 import { generateBandsFor, getTaxYearFromDate } from './income-tax'
 import { getTaxableValue, getTotalDuration, isEmployment } from './incomes'
@@ -237,17 +241,12 @@ function initDefinedBenefits() {
   const values: EntityValue[] = []
   cashflow.defined_benefits.forEach(db => {
     if (isDeferredDBPension(db)) {
+      const yearsSinceCashflowStart = getYearIndexFromDate(db.starts_at, output)
+
       const defermentEscalation =
         typeof db.deferment_escalation_rate === 'string'
           ? cashflow.assumptions[db.deferment_escalation_rate]
           : db.deferment_escalation_rate
-
-      const taxYear = getTaxYearFromDate(db.starts_at)
-
-      const yearsSinceCashflowStart = Math.max(
-        0,
-        output.years.findIndex(py => py.tax_year === taxYear)
-      )
 
       values.push({
         value:
@@ -273,10 +272,7 @@ function initDefinedBenefits() {
           : incomeValue.ends_at
 
         // Find the gross value during the final year of the income
-        const endTaxYear = getTaxYearFromDate(incomeActualEnd)
-        const outputYear = output.years.findIndex(
-          py => py.tax_year === endTaxYear
-        )
+        const outputYear = getYearIndexFromDate(incomeActualEnd, output)
         const finalIncomeYear =
           output.incomes[linkedIncome.id].years[Math.max(0, outputYear - 1)]
 
