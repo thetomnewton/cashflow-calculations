@@ -242,6 +242,7 @@ export interface Withdrawal extends EntityValue {
   id: string
   ad_hoc?: boolean
 }
+
 export interface MoneyPurchaseWithdrawal extends Withdrawal {
   method: 'ufpls' | 'fad' | 'pcls'
 }
