@@ -241,31 +241,29 @@ function initMoneyPurchases() {
 }
 
 function initDefinedBenefits() {
-  const values: EntityValue[] = []
-
   cashflow.defined_benefits.forEach(db => {
-    if (isDeferredDBPension(db)) {
-      values.push(...getDeferredDBIncomeValues(db))
-    } else if (isActiveDBPension(db)) {
-      values.push(...getActiveDBIncomeValues(db))
-    } else if (isInPaymentDBPension(db)) {
-      values.push(...getInPaymentDBIncomeValues(db))
-    }
-
     const income: Income = {
       id: v4(),
       people: getAccountOwners(db.owner_id),
       type: 'pension',
       source_id: db.id,
-      values,
+      values: isDeferredDBPension(db)
+        ? getDeferredDBIncomeValues(db)
+        : isActiveDBPension(db)
+        ? getActiveDBIncomeValues(db)
+        : isInPaymentDBPension(db)
+        ? getInPaymentDBIncomeValues(db)
+        : [],
     }
 
     cashflow.incomes.push(income)
+    // Other income outputs may have already been initialised,
+    // so we initialise them here after creation.
     initIncome(income)
   })
 }
 
-function getDeferredDBIncomeValues(db: DeferredDBPension) {
+function getDeferredDBIncomeValues(db: DeferredDBPension): EntityValue[] {
   const yearsSinceCashflowStart = getYearIndexFromDate(db.starts_at, output)
 
   const defermentEscalation =
@@ -285,7 +283,7 @@ function getDeferredDBIncomeValues(db: DeferredDBPension) {
   ]
 }
 
-function getActiveDBIncomeValues(db: ActiveDBPension) {
+function getActiveDBIncomeValues(db: ActiveDBPension): EntityValue[] {
   const linkedIncome = cashflow.incomes.find(
     inc => inc.id === db.linked_salary_id
   )
@@ -334,7 +332,7 @@ function getActiveDBIncomeValues(db: ActiveDBPension) {
   })
 }
 
-function getInPaymentDBIncomeValues(db: InPaymentDBPension) {
+function getInPaymentDBIncomeValues(db: InPaymentDBPension): EntityValue[] {
   return [
     {
       value: db.annual_amount,
