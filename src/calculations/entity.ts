@@ -41,9 +41,10 @@ export function getValueInYear(
     output.years.findIndex(py => py.tax_year === year.tax_year)
   )
 
-  const startDateTaxYear = +getTaxYearFromDate(
-    date(entityValue.starts_at)
-  ).substring(0, 2)
+  const startDateTaxYear = +getTaxYearFromDate(entityValue.starts_at).substring(
+    0,
+    2
+  )
 
   const thisTaxYear = +year.tax_year.substring(0, 2)
 
@@ -92,5 +93,13 @@ function runValueProjection({
     startingValue *
       applyGrowth(escalationRate, inflation) ** yearsSinceEntityStart,
     2
+  )
+}
+
+export function getYearIndexFromDate(date: string, output: Output) {
+  const taxYear = getTaxYearFromDate(date)
+  return Math.max(
+    0,
+    output.years.findIndex(py => py.tax_year === taxYear)
   )
 }
