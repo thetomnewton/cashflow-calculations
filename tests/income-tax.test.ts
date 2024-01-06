@@ -447,6 +447,7 @@ describe('income tax', () => {
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       withdrawals: [
         {
+          id: v4(),
           value: 99000,
           method: 'ufpls',
           starts_at: iso('2023-04-06'),
