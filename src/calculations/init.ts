@@ -239,6 +239,7 @@ function initMoneyPurchases() {
 
 function initDefinedBenefits() {
   const values: EntityValue[] = []
+
   cashflow.defined_benefits.forEach(db => {
     if (isDeferredDBPension(db)) {
       const yearsSinceCashflowStart = getYearIndexFromDate(db.starts_at, output)
@@ -305,7 +306,12 @@ function initDefinedBenefits() {
         })
       })
     } else if (isInPaymentDBPension(db)) {
-      // todo: finish
+      values.push({
+        value: db.annual_amount,
+        starts_at: db.starts_at,
+        ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
+        escalation: db.active_escalation_rate,
+      })
     }
 
     const income: Income = {

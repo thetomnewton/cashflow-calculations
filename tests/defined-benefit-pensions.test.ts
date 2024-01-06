@@ -164,6 +164,7 @@ describe('defined benefit pensions', () => {
       defined_benefits: [db],
       starts_at: iso('2024-02-01'),
       years: 5,
+      assumptions: { rpi: 0.03 },
     })
 
     const out = run(cashflow)
@@ -171,10 +172,15 @@ describe('defined benefit pensions', () => {
     const income = cashflow.incomes.find(inc => inc.source_id === db.id)
 
     expect(income).not.toBeUndefined()
+    if (!income) throw new Error('Missing income')
 
-    console.log(income)
-    expect(1).toEqual(2)
-
-    // todo: finish
+    expect(out.incomes[income.id].years[0].gross_value).toEqual(15000)
+    expect(out.incomes[income.id].years[1].gross_value).toEqual(15000 * 1.03)
+    expect(out.incomes[income.id].years[2].gross_value).toEqual(
+      round(15000 * 1.03 ** 2, 2)
+    )
+    expect(out.incomes[income.id].years[3].gross_value).toEqual(
+      round(15000 * 1.03 ** 3, 2)
+    )
   })
 })
