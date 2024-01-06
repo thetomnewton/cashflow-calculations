@@ -3,9 +3,12 @@ import { v4 } from 'uuid'
 import { date, iso } from '../lib/date'
 import {
   Account,
+  ActiveDBPension,
   Cashflow,
+  DeferredDBPension,
   EntityValue,
   Expense,
+  InPaymentDBPension,
   Income,
   MoneyPurchase,
   Output,
@@ -242,76 +245,11 @@ function initDefinedBenefits() {
 
   cashflow.defined_benefits.forEach(db => {
     if (isDeferredDBPension(db)) {
-      const yearsSinceCashflowStart = getYearIndexFromDate(db.starts_at, output)
-
-      const defermentEscalation =
-        typeof db.deferment_escalation_rate === 'string'
-          ? cashflow.assumptions[db.deferment_escalation_rate]
-          : db.deferment_escalation_rate
-
-      values.push({
-        value:
-          db.annual_amount *
-          applyGrowth(defermentEscalation, 0) ** yearsSinceCashflowStart,
-        escalation: db.active_escalation_rate,
-        starts_at: db.starts_at,
-        ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
-      })
+      values.push(...getDeferredDBIncomeValues(db))
     } else if (isActiveDBPension(db)) {
-      const linkedIncome = cashflow.incomes.find(
-        inc => inc.id === db.linked_salary_id
-      )
-      if (!linkedIncome) throw new Error('Missing linked income for DB')
-
-      linkedIncome.values.forEach(incomeValue => {
-        const incomeEnd = date(incomeValue.ends_at)
-        const dbStart = date(db.starts_at)
-
-        // The income should not go beyond the start of the DB
-        const incomeActualEnd = incomeEnd.isAfter(dbStart)
-          ? db.starts_at
-          : incomeValue.ends_at
-
-        // Find the gross value during the final year of the income
-        const outputYear = getYearIndexFromDate(incomeActualEnd, output)
-        const finalIncomeYear =
-          output.incomes[linkedIncome.id].years[Math.max(0, outputYear - 1)]
-
-        let value = finalIncomeYear.gross_value
-
-        // Determine the number of deferment years of the DB
-        const totalDefermentYears = incomeEnd.isAfter(dbStart)
-          ? 0
-          : dbStart.diff(incomeEnd, 'years')
-
-        // Determint the deferment escalation rate
-        const defermentEscalation =
-          typeof db.deferment_escalation_rate === 'string'
-            ? cashflow.assumptions[db.deferment_escalation_rate]
-            : db.deferment_escalation_rate
-
-        // Find the income's final value, after deferment growth
-        value =
-          value * applyGrowth(defermentEscalation, 0) ** totalDefermentYears
-
-        // Multiply the value above by (years of service / accrual rate)
-        const yearsOfService = db.years_service + getTotalDuration(linkedIncome)
-        value = round(value * yearsOfService * db.accrual_rate, 2)
-
-        values.push({
-          value,
-          starts_at: db.starts_at,
-          ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
-          escalation: db.active_escalation_rate,
-        })
-      })
+      values.push(...getActiveDBIncomeValues(db))
     } else if (isInPaymentDBPension(db)) {
-      values.push({
-        value: db.annual_amount,
-        starts_at: db.starts_at,
-        ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
-        escalation: db.active_escalation_rate,
-      })
+      values.push(...getInPaymentDBIncomeValues(db))
     }
 
     const income: Income = {
@@ -321,9 +259,90 @@ function initDefinedBenefits() {
       source_id: db.id,
       values,
     }
+
     cashflow.incomes.push(income)
     initIncome(income)
   })
+}
+
+function getDeferredDBIncomeValues(db: DeferredDBPension) {
+  const yearsSinceCashflowStart = getYearIndexFromDate(db.starts_at, output)
+
+  const defermentEscalation =
+    typeof db.deferment_escalation_rate === 'string'
+      ? cashflow.assumptions[db.deferment_escalation_rate]
+      : db.deferment_escalation_rate
+
+  return [
+    {
+      value:
+        db.annual_amount *
+        applyGrowth(defermentEscalation, 0) ** yearsSinceCashflowStart,
+      escalation: db.active_escalation_rate,
+      starts_at: db.starts_at,
+      ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
+    },
+  ]
+}
+
+function getActiveDBIncomeValues(db: ActiveDBPension) {
+  const linkedIncome = cashflow.incomes.find(
+    inc => inc.id === db.linked_salary_id
+  )
+  if (!linkedIncome) throw new Error('Missing linked income for DB')
+
+  return linkedIncome.values.map(incomeValue => {
+    const incomeEnd = date(incomeValue.ends_at)
+    const dbStart = date(db.starts_at)
+
+    // The income should not go beyond the start of the DB
+    const incomeActualEnd = incomeEnd.isAfter(dbStart)
+      ? db.starts_at
+      : incomeValue.ends_at
+
+    // Find the gross value during the final year of the income
+    const outputYear = getYearIndexFromDate(incomeActualEnd, output)
+    const finalIncomeYear =
+      output.incomes[linkedIncome.id].years[Math.max(0, outputYear - 1)]
+
+    let value = finalIncomeYear.gross_value
+
+    // Determine the number of deferment years of the DB
+    const totalDefermentYears = incomeEnd.isAfter(dbStart)
+      ? 0
+      : dbStart.diff(incomeEnd, 'years')
+
+    // Determint the deferment escalation rate
+    const defermentEscalation =
+      typeof db.deferment_escalation_rate === 'string'
+        ? cashflow.assumptions[db.deferment_escalation_rate]
+        : db.deferment_escalation_rate
+
+    // Find the income's final value, after deferment growth
+    value = value * applyGrowth(defermentEscalation, 0) ** totalDefermentYears
+
+    // Multiply the value above by (years of service / accrual rate)
+    const yearsOfService = db.years_service + getTotalDuration(linkedIncome)
+    value = round(value * yearsOfService * db.accrual_rate, 2)
+
+    return {
+      value,
+      starts_at: db.starts_at,
+      ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
+      escalation: db.active_escalation_rate,
+    }
+  })
+}
+
+function getInPaymentDBIncomeValues(db: InPaymentDBPension) {
+  return [
+    {
+      value: db.annual_amount,
+      starts_at: db.starts_at,
+      ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
+      escalation: db.active_escalation_rate,
+    },
+  ]
 }
 
 function ensureSweepAccountExists() {
