@@ -41,9 +41,9 @@ describe('income tax', () => {
     expect(outputIncomeYear.tax.bands.basic_rate_eng.used).toEqual(27430)
     expect(outputIncomeYear.tax.bands.basic_rate_eng.tax_paid).toEqual(5486)
 
-    expect(outputIncomeYear.tax.ni_paid.class1).toEqual(3291.6)
+    expect(outputIncomeYear.tax.ni_paid.class1).toEqual(2743)
 
-    expect(outputIncomeYear.net_value).toEqual(31222.4)
+    expect(outputIncomeYear.net_value).toEqual(31771)
   })
 
   test('personal allowance tapers correctly', () => {
@@ -545,15 +545,15 @@ describe('income tax', () => {
 
     const out = run(cashflow)
 
-    expect(out.incomes[salary.id].years[0].net_value).toEqual(52549.4)
+    expect(out.incomes[salary.id].years[0].net_value).toEqual(53303.4)
 
     const sweep = cashflow.accounts.find(acc => acc.is_sweep)
     expect(sweep).not.toBeNull()
     expect(out.accounts[(sweep as Account).id].years[0].current_value).toEqual(
-      52549.4
+      53303.4
     )
     expect(out.accounts[(sweep as Account).id].years[0].end_value).toEqual(
-      52812.15
+      53569.92
     )
   })
 })

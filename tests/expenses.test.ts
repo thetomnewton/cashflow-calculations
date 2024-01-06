@@ -48,12 +48,12 @@ describe('expenses', () => {
 
     const out = run(cashflow)
 
-    expect(out.incomes[salary.id].years[0].net_value).toBe(24422.4)
+    expect(out.incomes[salary.id].years[0].net_value).toBe(24771)
     expect(out.expenses[costs.id].years[0].value).toEqual(15000)
 
     const sweep = cashflow.accounts.find(acc => acc.is_sweep)
     expect(out.accounts[(sweep as Account).id].years[0].current_value).toBe(
-      round(24422.4 - 15000, 2)
+      round(24771 - 15000, 2)
     )
   })
 
@@ -93,7 +93,7 @@ describe('expenses', () => {
 
     const out = run(cashflow)
 
-    expect(out.incomes[salary.id].years[0].net_value).toBe(24422.4)
+    expect(out.incomes[salary.id].years[0].net_value).toBe(24771)
     expect(out.expenses[costs.id].years[0].value).toEqual(15000)
 
     const sweep = cashflow.accounts.find(acc => acc.is_sweep)
@@ -155,13 +155,13 @@ describe('expenses', () => {
       net_growth: 0.005,
     })
 
-    expect(out.incomes[salary.id].years[0].net_value).toEqual(40949.4)
+    expect(out.incomes[salary.id].years[0].net_value).toEqual(41703.4)
 
     expect(out.accounts[isa.id].years[0]).toEqual({
       start_value: 100000,
       net_growth: 0.03,
-      current_value: round(100000 - (75000 - 40949.4), 2),
-      end_value: 67927.88,
+      current_value: round(100000 - (75000 - 41703.4), 2),
+      end_value: 68704.5,
     })
   })
 
