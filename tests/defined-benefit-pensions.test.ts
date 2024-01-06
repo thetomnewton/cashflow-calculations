@@ -174,13 +174,10 @@ describe('defined benefit pensions', () => {
     expect(income).not.toBeUndefined()
     if (!income) throw new Error('Missing income')
 
-    expect(out.incomes[income.id].years[0].gross_value).toEqual(15000)
-    expect(out.incomes[income.id].years[1].gross_value).toEqual(15000 * 1.03)
-    expect(out.incomes[income.id].years[2].gross_value).toEqual(
-      round(15000 * 1.03 ** 2, 2)
-    )
-    expect(out.incomes[income.id].years[3].gross_value).toEqual(
-      round(15000 * 1.03 ** 3, 2)
-    )
+    const gross = out.incomes[income.id].years.map(y => y.gross_value)
+    expect(gross[0]).toEqual(15000)
+    expect(gross[1]).toEqual(15000 * 1.03)
+    expect(gross[2]).toEqual(round(15000 * 1.03 ** 2, 2))
+    expect(gross[3]).toEqual(round(15000 * 1.03 ** 3, 2))
   })
 })
