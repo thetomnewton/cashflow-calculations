@@ -1,6 +1,6 @@
 {
   "name": "@oxideadvice/cashflow-calculations",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Cashflow calculations",
   "main": "src/calculations/index.ts",
   "scripts": {
