@@ -1,10 +1,14 @@
-import { clone } from 'lodash'
+import { clone, round } from 'lodash'
 import { v4 } from 'uuid'
 import { date, iso } from '../lib/date'
 import {
   Account,
+  ActiveDBPension,
   Cashflow,
+  DeferredDBPension,
+  EntityValue,
   Expense,
+  InPaymentDBPension,
   Income,
   MoneyPurchase,
   Output,
@@ -12,9 +16,19 @@ import {
   Person,
 } from '../types'
 import { isAccount } from './accounts'
-import { findActiveEntityValue, getValueInYear } from './entity'
+import {
+  findActiveEntityValue,
+  getValueInYear,
+  getYearIndexFromDate,
+} from './entity'
+import { applyGrowth } from './growth'
 import { generateBandsFor, getTaxYearFromDate } from './income-tax'
-import { getTaxableValue, isEmployment } from './incomes'
+import { getTaxableValue, getTotalDuration, isEmployment } from './incomes'
+import {
+  isActiveDBPension,
+  isDeferredDBPension,
+  isInPaymentDBPension,
+} from './pensions'
 
 let cashflow: Cashflow
 let output: Output
@@ -28,6 +42,7 @@ export function initialise(baseCashflow: Cashflow) {
   initAccounts()
   initMoneyPurchases()
   initIncomes()
+  initDefinedBenefits()
   initExpenses()
 
   return output
@@ -117,14 +132,16 @@ export function makeOutputIncomeObj(
 }
 
 function initIncomes() {
-  cashflow.incomes.forEach(income => {
-    // Make an initial output income object
-    output.incomes[income.id] = makeOutputIncomeObj(income, cashflow, output)
+  cashflow.incomes.forEach(initIncome)
+}
 
-    // Set the income's taxable value
-    output.incomes[income.id].years.forEach(year => {
-      year.taxable_value = getTaxableValue(income, year, cashflow)
-    })
+function initIncome(income: Income) {
+  // Make an initial output income object
+  output.incomes[income.id] = makeOutputIncomeObj(income, cashflow, output)
+
+  // Set the income's taxable value
+  output.incomes[income.id].years.forEach(year => {
+    year.taxable_value = getTaxableValue(income, year, cashflow)
   })
 }
 
@@ -221,6 +238,109 @@ function initMoneyPurchases() {
       ad_hoc: true,
     })
   })
+}
+
+function initDefinedBenefits() {
+  cashflow.defined_benefits.forEach(db => {
+    const income: Income = {
+      id: v4(),
+      people: getAccountOwners(db.owner_id),
+      type: 'pension',
+      source_id: db.id,
+      values: isDeferredDBPension(db)
+        ? getDeferredDBIncomeValues(db)
+        : isActiveDBPension(db)
+        ? getActiveDBIncomeValues(db)
+        : isInPaymentDBPension(db)
+        ? getInPaymentDBIncomeValues(db)
+        : [],
+    }
+
+    cashflow.incomes.push(income)
+    // Other income outputs may have already been initialised,
+    // so we initialise them here after creation.
+    initIncome(income)
+  })
+}
+
+function getDeferredDBIncomeValues(db: DeferredDBPension): EntityValue[] {
+  const yearsSinceCashflowStart = getYearIndexFromDate(db.starts_at, output)
+
+  const defermentEscalation =
+    typeof db.deferment_escalation_rate === 'string'
+      ? cashflow.assumptions[db.deferment_escalation_rate]
+      : db.deferment_escalation_rate
+
+  return [
+    {
+      value:
+        db.annual_amount *
+        applyGrowth(defermentEscalation, 0) ** yearsSinceCashflowStart,
+      escalation: db.active_escalation_rate,
+      starts_at: db.starts_at,
+      ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
+    },
+  ]
+}
+
+function getActiveDBIncomeValues(db: ActiveDBPension): EntityValue[] {
+  const linkedIncome = cashflow.incomes.find(
+    inc => inc.id === db.linked_salary_id
+  )
+  if (!linkedIncome) throw new Error('Missing linked income for DB')
+
+  return linkedIncome.values.map(incomeValue => {
+    const incomeEnd = date(incomeValue.ends_at)
+    const dbStart = date(db.starts_at)
+
+    // The income should not go beyond the start of the DB
+    const incomeActualEnd = incomeEnd.isAfter(dbStart)
+      ? db.starts_at
+      : incomeValue.ends_at
+
+    // Find the gross value during the final year of the income
+    const outputYear = getYearIndexFromDate(incomeActualEnd, output)
+    const finalIncomeYear =
+      output.incomes[linkedIncome.id].years[Math.max(0, outputYear - 1)]
+
+    let value = finalIncomeYear.gross_value
+
+    // Determine the number of deferment years of the DB
+    const totalDefermentYears = incomeEnd.isAfter(dbStart)
+      ? 0
+      : dbStart.diff(incomeEnd, 'years')
+
+    // Determint the deferment escalation rate
+    const defermentEscalation =
+      typeof db.deferment_escalation_rate === 'string'
+        ? cashflow.assumptions[db.deferment_escalation_rate]
+        : db.deferment_escalation_rate
+
+    // Find the income's final value, after deferment growth
+    value = value * applyGrowth(defermentEscalation, 0) ** totalDefermentYears
+
+    // Multiply the value above by (years of service / accrual rate)
+    const yearsOfService = db.years_service + getTotalDuration(linkedIncome)
+    value = round(value * yearsOfService * db.accrual_rate, 2)
+
+    return {
+      value,
+      starts_at: db.starts_at,
+      ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
+      escalation: db.active_escalation_rate,
+    }
+  })
+}
+
+function getInPaymentDBIncomeValues(db: InPaymentDBPension): EntityValue[] {
+  return [
+    {
+      value: db.annual_amount,
+      starts_at: db.starts_at,
+      ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
+      escalation: db.active_escalation_rate,
+    },
+  ]
 }
 
 function ensureSweepAccountExists() {
