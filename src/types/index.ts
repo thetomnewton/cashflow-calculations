@@ -98,9 +98,24 @@ export const ValuationSchema = z.object({
 
 export type Valuation = z.infer<typeof ValuationSchema>
 
-export const GrowthTemplateSchema = z.object({
-  // todo: finish
+const GrowthRateEntrySchema = z.object({
+  gross_rate: z.number().min(-1).max(1),
+  charges: z.optional(z.number().min(-1).max(1)),
 })
+
+export const GrowthTemplateSchema = z
+  .object({
+    type: z.literal('flat'),
+    rate: GrowthRateEntrySchema,
+  })
+  .or(
+    z.object({
+      type: z.literal('array'),
+      rate: z.array(GrowthRateEntrySchema),
+    })
+  )
+
+export type GrowthTemplate = z.infer<typeof GrowthTemplateSchema>
 
 export const AccountSchema = z.object({
   id: z.string(),
@@ -308,23 +323,6 @@ export interface OtherNonTaxableIncome extends Income {
 }
 
 export type IncomeTaxTypes = 'earned' | 'savings' | 'dividend'
-
-export type GrowthTemplate = FlatGrowthTemplate | ArrayGrowthTemplate
-
-export interface FlatGrowthTemplate {
-  type: 'flat'
-  rate: GrowthRateEntry
-}
-
-export interface ArrayGrowthTemplate {
-  type: 'array'
-  rate: GrowthRateEntry[]
-}
-
-type GrowthRateEntry = {
-  gross_rate: number
-  charges?: number
-}
 
 export interface BaseAccount {
   id: string
