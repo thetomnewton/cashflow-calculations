@@ -7,6 +7,7 @@ import {
   Contribution,
   Income,
   Output,
+  OutputMoneyPurchaseYear,
   Person,
   PlanningYear,
 } from '../types'
@@ -35,18 +36,26 @@ export function applyContributions(
 
   totalGrossPersonalContributions = 0
 
-  cashflow.accounts.forEach(account => {
-    const contributions = account.contributions ?? []
+  const categories = ['accounts', 'money_purchases'] as const
 
-    contributions.forEach(contribution => {
-      const value = getValueInYear(contribution, year, cashflow, output)
+  categories.forEach(category => {
+    cashflow[category].forEach(account => {
+      const contributions = account.contributions ?? []
 
-      const grossValue = addContributionToAccount(account, contribution, value)
+      contributions.forEach(contribution => {
+        const value = getValueInYear(contribution, year, cashflow, output)
 
-      totalGrossPersonalContributions += grossValue
+        const grossValue = addContributionToAccount(
+          account,
+          contribution,
+          value
+        )
 
-      if (contribution.type === 'personal')
-        deductContributionFromSweepAccount(value)
+        totalGrossPersonalContributions += grossValue
+
+        if (contribution.type === 'personal')
+          deductContributionFromSweepAccount(value)
+      })
     })
   })
 }
@@ -56,7 +65,7 @@ function addContributionToAccount(
   contribution: Contribution,
   value: number
 ) {
-  const outputYear = output.accounts[account.id].years[yearIndex]
+  const outputYear = output[account.section][account.id].years[yearIndex]
 
   const grossValue = calculateGrossContribution(account, contribution, value)
 
@@ -64,6 +73,18 @@ function addContributionToAccount(
     outputYear.current_value = grossValue
   else
     outputYear.current_value = round(grossValue + outputYear.current_value, 2)
+
+  if (account.section === 'money_purchases') {
+    const pensionOutputYear = outputYear as OutputMoneyPurchaseYear
+
+    if (typeof pensionOutputYear.current_value_uncrystallised === 'undefined')
+      pensionOutputYear.current_value_uncrystallised = grossValue
+    else
+      pensionOutputYear.current_value_uncrystallised = round(
+        grossValue + pensionOutputYear.current_value_uncrystallised,
+        2
+      )
+  }
 
   // todo: Track that the contribution happened
   return grossValue

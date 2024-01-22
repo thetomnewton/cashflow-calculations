@@ -100,6 +100,13 @@ describe('contributions', () => {
       current_value: 12500, // 2000 contribution grossed-up to 2500
       end_value: 13125,
       net_growth: 0.05,
+
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 12500,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 13125,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 10000,
     })
 
     expect(year1).toEqual({
@@ -107,6 +114,13 @@ describe('contributions', () => {
       current_value: 15625,
       net_growth: 0.05,
       end_value: 16406.25,
+
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 15625,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 16406.25,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 13125,
     })
   })
 
@@ -164,6 +178,13 @@ describe('contributions', () => {
       current_value: 12500, // 2000 contribution grossed-up to 2500
       end_value: 13125,
       net_growth: 0.05,
+
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 12500,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 13125,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 10000,
     })
 
     expect(year1).toEqual({
@@ -171,6 +192,13 @@ describe('contributions', () => {
       current_value: 15625,
       net_growth: 0.05,
       end_value: 16406.25,
+
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 15625,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 16406.25,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 13125,
     })
   })
 
@@ -228,6 +256,13 @@ describe('contributions', () => {
       current_value: 12500, // 2000 contribution grossed-up to 2500
       end_value: 13125,
       net_growth: 0.05,
+
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 12500,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 13125,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 10000,
     })
 
     expect(year1).toEqual({
@@ -235,6 +270,13 @@ describe('contributions', () => {
       current_value: 15625,
       net_growth: 0.05,
       end_value: 16406.25,
+
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 15625,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 16406.25,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 13125,
     })
   })
 
@@ -295,6 +337,13 @@ describe('contributions', () => {
       current_value: 12500, // 2000 contribution grossed-up to 2500
       end_value: 13125,
       net_growth: 0.05,
+
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 12500,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 13125,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 10000,
     })
 
     expect(year1).toEqual({
@@ -302,6 +351,13 @@ describe('contributions', () => {
       current_value: 15625,
       net_growth: 0.05,
       end_value: 16406.25,
+
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 15625,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 16406.25,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 13125,
     })
   })
 
@@ -347,6 +403,13 @@ describe('contributions', () => {
       current_value: 12000, // 2000 contribution not grossed-up
       end_value: 12600,
       net_growth: 0.05,
+
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 12000,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 12600,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 10000,
     })
 
     expect(year1).toEqual({
@@ -354,6 +417,13 @@ describe('contributions', () => {
       current_value: 14600,
       net_growth: 0.05,
       end_value: 15330,
+
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 14600,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 15330,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 12600,
     })
   })
 
@@ -407,8 +477,14 @@ describe('contributions', () => {
 
     expect(year0).toEqual({
       start_value: 10000,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 10000,
       current_value: 12000, // 2000 contribution grossed-up to 2500
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 12000,
       end_value: 12600,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 12600,
       net_growth: 0.05,
     })
 
@@ -417,6 +493,13 @@ describe('contributions', () => {
       current_value: 14600,
       net_growth: 0.05,
       end_value: 15330,
+
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 14600,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 15330,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 12600,
     })
   })
 
@@ -472,7 +555,11 @@ describe('contributions', () => {
       start_value_crystallised: 0,
       start_value_uncrystallised: 10000,
       current_value: 10000 + 4720,
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 10000 + 4720,
       end_value: round((10000 + 4720) * applyGrowth(growthRate, cpi), 2),
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 15079.02,
       net_growth: growthRate,
     })
 
@@ -486,8 +573,14 @@ describe('contributions', () => {
 
     expect(years[1]).toEqual({
       start_value: 15079.02,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 15079.02,
       current_value: 15079.02 + 4604.88,
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 19683.9,
       end_value: round((15079.02 + 4604.88) * applyGrowth(growthRate, cpi), 2),
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 20164,
       net_growth: growthRate,
     })
   })
