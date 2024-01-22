@@ -1,23 +1,167 @@
-export interface Cashflow {
-  id: string
-  starts_at: string
-  years: number
-  people: Person[]
-  assumptions: CashflowAssumptions
-  incomes: Income[]
-  expenses: Expense[]
-  accounts: Account[]
-  money_purchases: MoneyPurchase[]
-  defined_benefits: DefinedBenefitPension[]
-}
+import { z } from 'zod'
 
-export interface CashflowAssumptions {
-  terms: 'real' | 'nominal'
-  cpi: number
-  rpi: number
-  average_earnings_increase: number
-  windfall_save: 'discard' | 'sweep'
-}
+export const PersonSchema = z.object({
+  id: z.string(),
+  date_of_birth: z.string().ulid(),
+  tax_residency: z.enum(['eng', 'wal', 'sco', 'ni']),
+  sex: z.enum(['male', 'female']),
+  in_drawdown: z.boolean(),
+  registered_blind: z.boolean(),
+})
+
+export type Person = z.infer<typeof PersonSchema>
+
+export const CashflowAssumptionsSchema = z.object({
+  terms: z.enum(['real', 'nominal']),
+  cpi: z.number().min(0).max(1),
+  rpi: z.number().min(0).max(1),
+  average_earnings_increase: z.number().min(0).max(1),
+  windfall_save: z.enum(['discard', 'sweep']),
+})
+
+export type CashflowAssumptions = z.infer<typeof CashflowAssumptionsSchema>
+
+export const IncomeSchema = z.object({
+  id: z.string(),
+  type: z.enum([
+    'employment',
+    'self_employment',
+    'dividend',
+    'other_taxable',
+    'other_non_taxable',
+    'pension',
+    'savings',
+  ]),
+  people: z.array(PersonSchema),
+  values: z.array(
+    z.object({
+      value: z.number(),
+      bonus: z.optional(z.number().min(0)),
+      benefits: z.optional(z.number().min(0)),
+      adjusted: z.optional(z.boolean()),
+      starts_at: z.string().datetime(),
+      ends_at: z.string().datetime(),
+      escalation: z.enum(['cpi', 'rpi']).or(z.number().min(-1).max(1)),
+    })
+  ),
+  ad_hoc: z.optional(z.boolean()),
+  source_id: z.optional(z.string()),
+  source_withdrawal_id: z.optional(z.string()),
+})
+
+export type Income = z.infer<typeof IncomeSchema>
+
+export const ExpenseSchema = z.object({
+  type: z.string(),
+  id: z.string(),
+  people: z.array(PersonSchema),
+  values: z.array(
+    z.object({
+      value: z.number(),
+      starts_at: z.string().datetime(),
+      ends_at: z.string().datetime(),
+      escalation: z.enum(['cpi', 'rpi']).or(z.number().min(-1).max(1)),
+      adjusted: z.optional(z.boolean()),
+    })
+  ),
+})
+
+export type Expense = z.infer<typeof ExpenseSchema>
+
+export const ContributionSchema = z.object({
+  value: z.number().min(0),
+  starts_at: z.string().datetime(),
+  ends_at: z.string().datetime(),
+  escalation: z.enum(['cpi', 'rpi']).or(z.number().min(-1).max(1)),
+  adjusted: z.boolean(),
+  type: z.enum(['personal', 'employer']),
+})
+
+export type Contribution = z.infer<typeof ContributionSchema>
+
+export const WithdrawalSchema = z.object({
+  id: z.string(),
+  value: z.number().min(0),
+  starts_at: z.string().datetime(),
+  ends_at: z.string().datetime(),
+  escalation: z.enum(['cpi', 'rpi']).or(z.number().min(-1).max(1)),
+  adjusted: z.boolean(),
+  ad_hoc: z.optional(z.boolean()),
+})
+
+export type Withdrawal = z.infer<typeof WithdrawalSchema>
+
+export const ValuationSchema = z.object({
+  date: z.string().datetime(),
+  value: z.number(),
+})
+
+export type Valuation = z.infer<typeof ValuationSchema>
+
+export const GrowthTemplateSchema = z.object({
+  // todo: finish
+})
+
+export const AccountSchema = z.object({
+  id: z.string(),
+  category: z.string(),
+  sub_category: z.optional(z.string()),
+  owner_id: z.string().or(z.array(z.string())),
+  section: z.literal('accounts'),
+  is_sweep: z.optional(z.boolean()),
+  contributions: z.array(ContributionSchema),
+  withdrawals: z.array(WithdrawalSchema),
+  valuations: z.array(ValuationSchema),
+  growth_template: GrowthTemplateSchema,
+})
+
+export type Account = z.infer<typeof AccountSchema>
+
+const MoneyPurchaseValuationSchema = z.object({
+  date: z.string().datetime(),
+  value: z.number().min(0),
+  uncrystallised_value: z.number(),
+  crystallised_value: z.number(),
+})
+
+export type MoneyPurchaseValuation = z.infer<
+  typeof MoneyPurchaseValuationSchema
+>
+
+export const MoneyPurchaseSchema = z.object({
+  id: z.string(),
+  category: z.literal('money_purchase'),
+  sub_category: z.optional(z.string()),
+  owner_id: z.string().or(z.array(z.string())),
+  section: z.literal('money_purchases'),
+  contributions: z.array(ContributionSchema),
+  growth_template: GrowthTemplateSchema,
+  valuations: z.array(MoneyPurchaseValuationSchema),
+  withdrawals: WithdrawalSchema.extend({
+    method: z.enum(['ufpls', 'fad', 'pcls']),
+  }),
+})
+
+export type MoneyPurchase = z.infer<typeof MoneyPurchaseSchema>
+
+export const DefinedBenefitSchema = z.object({
+  // todo: finish
+})
+
+export const CashflowSchema = z.object({
+  id: z.number(),
+  starts_at: z.string().datetime(),
+  years: z.number().min(1).max(100),
+  people: z.array(PersonSchema),
+  assumptions: CashflowAssumptionsSchema,
+  incomes: z.array(IncomeSchema),
+  expenses: z.array(ExpenseSchema),
+  accounts: z.array(AccountSchema),
+  money_purchases: z.array(MoneyPurchaseSchema),
+  defined_benefits: z.array(DefinedBenefitSchema),
+})
+
+export type Cashflow = z.infer<typeof CashflowSchema>
 
 export interface PlanningYear {
   starts_at: string
@@ -26,15 +170,6 @@ export interface PlanningYear {
 }
 
 type PossibleCountries = 'eng' | 'sco' | 'ni' | 'wal'
-
-export interface Person {
-  id: string
-  date_of_birth: string
-  tax_residency: PossibleCountries
-  sex: 'male' | 'female'
-  in_drawdown: boolean
-  registered_blind: boolean
-}
 
 export interface Band {
   key: string
@@ -152,22 +287,6 @@ export interface Entity {
   values: EntityValue[]
 }
 
-export interface Income extends Entity {
-  ad_hoc?: boolean
-  source_id?: BaseAccount['id']
-  source_withdrawal_id?: Withdrawal['id']
-  type:
-    | 'employment'
-    | 'self_employment'
-    | 'dividend'
-    | 'other_taxable'
-    | 'other_non_taxable'
-    | 'pension'
-    | 'savings'
-}
-
-export interface Expense extends Entity {}
-
 export interface EmploymentIncome extends Income {
   type: 'employment'
 }
@@ -189,16 +308,6 @@ export interface OtherNonTaxableIncome extends Income {
 }
 
 export type IncomeTaxTypes = 'earned' | 'savings' | 'dividend'
-
-export interface Valuation {
-  date: string
-  value: number
-}
-
-export interface MoneyPurchaseValuation extends Valuation {
-  uncrystallised_value: number
-  crystallised_value: number
-}
 
 export type GrowthTemplate = FlatGrowthTemplate | ArrayGrowthTemplate
 
@@ -228,30 +337,8 @@ export interface BaseAccount {
   withdrawals: Withdrawal[]
 }
 
-export interface Account extends BaseAccount {
-  section: 'accounts'
-  valuations: Valuation[]
-  is_sweep?: boolean
-}
-
-export interface Contribution extends EntityValue {
-  type: 'personal' | 'employer'
-}
-
-export interface Withdrawal extends EntityValue {
-  id: string
-  ad_hoc?: boolean
-}
-
 export interface MoneyPurchaseWithdrawal extends Withdrawal {
   method: 'ufpls' | 'fad' | 'pcls'
-}
-
-export interface MoneyPurchase extends BaseAccount {
-  section: 'money_purchases'
-  category: 'money_purchase'
-  valuations: MoneyPurchaseValuation[]
-  withdrawals: MoneyPurchaseWithdrawal[]
 }
 
 export interface ISA extends Account {
