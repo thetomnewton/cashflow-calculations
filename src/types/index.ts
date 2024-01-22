@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const PersonSchema = z.object({
   id: z.string(),
-  date_of_birth: z.string().ulid(),
+  date_of_birth: z.string().datetime(),
   tax_residency: z.enum(['eng', 'wal', 'sco', 'ni']),
   sex: z.enum(['male', 'female']),
   in_drawdown: z.boolean(),
