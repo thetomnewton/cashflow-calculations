@@ -73,7 +73,7 @@ export const ContributionSchema = z.object({
   starts_at: z.string().datetime(),
   ends_at: z.string().datetime(),
   escalation: z.enum(['cpi', 'rpi']).or(z.number().min(-1).max(1)),
-  adjusted: z.boolean(),
+  adjusted: z.optional(z.boolean()),
   type: z.enum(['personal', 'employer']),
 })
 
@@ -85,7 +85,7 @@ export const WithdrawalSchema = z.object({
   starts_at: z.string().datetime(),
   ends_at: z.string().datetime(),
   escalation: z.enum(['cpi', 'rpi']).or(z.number().min(-1).max(1)),
-  adjusted: z.boolean(),
+  adjusted: z.optional(z.boolean()),
   ad_hoc: z.optional(z.boolean()),
 })
 
@@ -152,9 +152,11 @@ export const MoneyPurchaseSchema = z.object({
   contributions: z.array(ContributionSchema),
   growth_template: GrowthTemplateSchema,
   valuations: z.array(MoneyPurchaseValuationSchema),
-  withdrawals: WithdrawalSchema.extend({
-    method: z.enum(['ufpls', 'fad', 'pcls']),
-  }),
+  withdrawals: z.array(
+    WithdrawalSchema.extend({
+      method: z.enum(['ufpls', 'fad', 'pcls']),
+    })
+  ),
 })
 
 export type MoneyPurchase = z.infer<typeof MoneyPurchaseSchema>
@@ -164,10 +166,13 @@ export const DefinedBenefitSchema = z.object({
   owner_id: z.string(),
   status: z.enum(['active', 'deferred', 'in_payment']),
   active_escalation_rate: z.enum(['cpi', 'rpi']).or(z.number().min(-1).max(1)),
+  starts_at: z.string().datetime(),
 })
 
+export type DefinedBenefitPension = z.infer<typeof DefinedBenefitSchema>
+
 export const CashflowSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   starts_at: z.string().datetime(),
   years: z.number().min(1).max(100),
   people: z.array(PersonSchema),
@@ -352,14 +357,6 @@ export interface OutputMoneyPurchaseYear extends OutputAccountYear {
   current_value_uncrystallised: number | undefined
   end_value_crystallised: number | undefined
   end_value_uncrystallised: number | undefined
-}
-
-export interface DefinedBenefitPension {
-  id: string
-  owner_id: Person['id']
-  status: 'active' | 'deferred' | 'in_payment'
-  active_escalation_rate: number | 'cpi' | 'rpi'
-  starts_at: string
 }
 
 export interface ActiveDBPension extends DefinedBenefitPension {
