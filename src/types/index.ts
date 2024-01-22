@@ -160,7 +160,10 @@ export const MoneyPurchaseSchema = z.object({
 export type MoneyPurchase = z.infer<typeof MoneyPurchaseSchema>
 
 export const DefinedBenefitSchema = z.object({
-  // todo: finish
+  id: z.string(),
+  owner_id: z.string(),
+  status: z.enum(['active', 'deferred', 'in_payment']),
+  active_escalation_rate: z.enum(['cpi', 'rpi']).or(z.number().min(-1).max(1)),
 })
 
 export const CashflowSchema = z.object({
@@ -324,16 +327,7 @@ export interface OtherNonTaxableIncome extends Income {
 
 export type IncomeTaxTypes = 'earned' | 'savings' | 'dividend'
 
-export interface BaseAccount {
-  id: string
-  section: 'accounts' | 'money_purchases'
-  category: string
-  sub_category?: string
-  owner_id: Person['id'] | Person['id'][]
-  growth_template: GrowthTemplate
-  contributions: Contribution[]
-  withdrawals: Withdrawal[]
-}
+export type BaseAccount = Account | MoneyPurchase
 
 export interface MoneyPurchaseWithdrawal extends Withdrawal {
   method: 'ufpls' | 'fad' | 'pcls'
