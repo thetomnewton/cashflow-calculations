@@ -91,6 +91,10 @@ export const WithdrawalSchema = z.object({
 
 export type Withdrawal = z.infer<typeof WithdrawalSchema>
 
+export const MoneyPurchaseWithdrawalSchema = WithdrawalSchema.extend({
+  method: z.enum(['ufpls', 'fad', 'pcls']),
+})
+
 export const ValuationSchema = z.object({
   date: z.string().datetime(),
   value: z.number(),
@@ -152,11 +156,7 @@ export const MoneyPurchaseSchema = z.object({
   contributions: z.array(ContributionSchema),
   growth_template: GrowthTemplateSchema,
   valuations: z.array(MoneyPurchaseValuationSchema),
-  withdrawals: z.array(
-    WithdrawalSchema.extend({
-      method: z.enum(['ufpls', 'fad', 'pcls']),
-    })
-  ),
+  withdrawals: z.array(MoneyPurchaseWithdrawalSchema),
 })
 
 export type MoneyPurchase = z.infer<typeof MoneyPurchaseSchema>

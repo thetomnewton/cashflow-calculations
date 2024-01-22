@@ -250,10 +250,10 @@ function initDefinedBenefits() {
       values: isDeferredDBPension(db)
         ? getDeferredDBIncomeValues(db)
         : isActiveDBPension(db)
-        ? getActiveDBIncomeValues(db)
-        : isInPaymentDBPension(db)
-        ? getInPaymentDBIncomeValues(db)
-        : [],
+          ? getActiveDBIncomeValues(db)
+          : isInPaymentDBPension(db)
+            ? getInPaymentDBIncomeValues(db)
+            : [],
     }
 
     cashflow.incomes.push(income)

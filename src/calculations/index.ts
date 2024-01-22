@@ -1,4 +1,4 @@
-import { Cashflow, Output, PlanningYear } from '../types'
+import { Cashflow, CashflowSchema, Output, PlanningYear } from '../types'
 import {
   applyGrowth,
   initialiseAccounts,
@@ -16,8 +16,8 @@ let output: Output
 let cashflow: Cashflow
 
 export function run(base: Cashflow): Output {
+  CashflowSchema.parse(base)
   cashflow = base
-
   output = initialise(cashflow)
   output.years.forEach(runYearCalculation)
 
