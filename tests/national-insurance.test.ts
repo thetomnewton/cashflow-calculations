@@ -1,6 +1,7 @@
 import { v4 } from 'uuid'
 import { run } from '../src/calculations'
 import { makeCashflow, makeIncome, makePerson } from '../src/factories'
+import { iso } from '../src/lib/date'
 
 describe('national insurance', () => {
   test('salary below threshold has no NICs to pay', () => {
@@ -12,15 +13,15 @@ describe('national insurance', () => {
       values: [
         {
           value: 10000,
-          starts_at: '2023-08-13',
-          ends_at: '2026-08-13',
+          starts_at: iso('2023-08-13'),
+          ends_at: iso('2026-08-13'),
           adjusted: true,
           escalation: 'cpi',
         },
       ],
     })
     const cashflow = makeCashflow({
-      starts_at: '2023-08-13',
+      starts_at: iso('2023-08-13'),
       years: 3,
       people: [person],
       incomes: [salary],
@@ -42,15 +43,15 @@ describe('national insurance', () => {
       values: [
         {
           value: 20000,
-          starts_at: '2023-08-13',
-          ends_at: '2026-08-13',
+          starts_at: iso('2023-08-13'),
+          ends_at: iso('2026-08-13'),
           adjusted: true,
           escalation: 'cpi',
         },
       ],
     })
     const cashflow = makeCashflow({
-      starts_at: '2023-08-13',
+      starts_at: iso('2023-08-13'),
       years: 3,
       people: [person],
       incomes: [salary],
@@ -67,7 +68,7 @@ describe('national insurance', () => {
     const person = makePerson({ date_of_birth: '1933-01-01', sex: 'male' })
     const salaryId = v4()
     const cashflow = makeCashflow({
-      starts_at: '2023-08-13',
+      starts_at: iso('2023-08-13'),
       years: 3,
       people: [person],
       incomes: [
@@ -78,8 +79,8 @@ describe('national insurance', () => {
           values: [
             {
               value: 50000,
-              starts_at: '2023-08-13',
-              ends_at: '2026-08-13',
+              starts_at: iso('2023-08-13'),
+              ends_at: iso('2026-08-13'),
               adjusted: true,
               escalation: 'cpi',
             },
@@ -99,7 +100,7 @@ describe('national insurance', () => {
     const person = makePerson({ date_of_birth: '1980-07-30', sex: 'female' })
     const salaryId = v4()
     const cashflow = makeCashflow({
-      starts_at: '2023-08-13',
+      starts_at: iso('2023-08-13'),
       years: 3,
       people: [person],
       incomes: [
@@ -110,8 +111,8 @@ describe('national insurance', () => {
           values: [
             {
               value: 40000,
-              starts_at: '2023-08-13',
-              ends_at: '2026-08-13',
+              starts_at: iso('2023-08-13'),
+              ends_at: iso('2026-08-13'),
               adjusted: true,
               escalation: 'cpi',
             },
@@ -131,7 +132,7 @@ describe('national insurance', () => {
     const person = makePerson({ date_of_birth: '1965-10-10', sex: 'male' })
     const salaryId = v4()
     const cashflow = makeCashflow({
-      starts_at: '2023-08-13',
+      starts_at: iso('2023-08-13'),
       years: 3,
       people: [person],
       incomes: [
@@ -142,8 +143,8 @@ describe('national insurance', () => {
           values: [
             {
               value: 60000,
-              starts_at: '2023-08-13',
-              ends_at: '2026-08-13',
+              starts_at: iso('2023-08-13'),
+              ends_at: iso('2026-08-13'),
               adjusted: true,
               escalation: 'cpi',
             },
@@ -168,15 +169,15 @@ describe('national insurance', () => {
       values: [
         {
           value: 75000,
-          starts_at: '2023-08-13',
-          ends_at: '2026-08-13',
+          starts_at: iso('2023-08-13'),
+          ends_at: iso('2026-08-13'),
           escalation: 0,
         },
       ],
     })
 
     const cashflow = makeCashflow({
-      starts_at: '2023-08-13',
+      starts_at: iso('2023-08-13'),
       years: 3,
       people: [person],
       incomes: [income],
@@ -208,15 +209,15 @@ describe('national insurance', () => {
       values: [
         {
           value: 75000,
-          starts_at: '2023-08-13',
-          ends_at: '2026-08-13',
+          starts_at: iso('2023-08-13'),
+          ends_at: iso('2026-08-13'),
           escalation: 0,
         },
       ],
     })
 
     const cashflow = makeCashflow({
-      starts_at: '2023-08-13',
+      starts_at: iso('2023-08-13'),
       years: 3,
       people: [person],
       incomes: [income],
@@ -249,8 +250,8 @@ describe('national insurance', () => {
       values: [
         {
           value: 30000,
-          starts_at: '2023-08-13',
-          ends_at: '2026-08-13',
+          starts_at: iso('2023-08-13'),
+          ends_at: iso('2026-08-13'),
           adjusted: true,
           escalation: 'cpi',
         },
@@ -264,8 +265,8 @@ describe('national insurance', () => {
       values: [
         {
           value: 35000,
-          starts_at: '2023-08-13',
-          ends_at: '2026-08-13',
+          starts_at: iso('2023-08-13'),
+          ends_at: iso('2026-08-13'),
           adjusted: true,
           escalation: 'cpi',
         },
@@ -273,7 +274,7 @@ describe('national insurance', () => {
     })
 
     const cashflow = makeCashflow({
-      starts_at: '2023-08-13',
+      starts_at: iso('2023-08-13'),
       years: 3,
       people: [person],
       incomes: [salary, salary2],
@@ -298,8 +299,8 @@ describe('national insurance', () => {
       values: [
         {
           value: 30000,
-          starts_at: '2023-08-13',
-          ends_at: '2026-08-13',
+          starts_at: iso('2023-08-13'),
+          ends_at: iso('2026-08-13'),
           adjusted: true,
           escalation: 'cpi',
         },
@@ -313,15 +314,15 @@ describe('national insurance', () => {
       values: [
         {
           value: 40000,
-          starts_at: '2023-08-13',
-          ends_at: '2026-08-13',
+          starts_at: iso('2023-08-13'),
+          ends_at: iso('2026-08-13'),
           escalation: 0,
         },
       ],
     })
 
     const cashflow = makeCashflow({
-      starts_at: '2023-08-13',
+      starts_at: iso('2023-08-13'),
       years: 3,
       people: [person],
       incomes: [salary, income2],

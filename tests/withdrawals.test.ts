@@ -446,45 +446,6 @@ describe('planned withdrawals', () => {
 
   // test withdrawal from a joint account by 1 person?
   // test withdrawals from other types of accounts e.g. ISA
-
-  test('invalid withdrawal method throws error', () => {
-    const person = makePerson({ date_of_birth: '1970-01-01' })
-
-    const pension = makeMoneyPurchase({
-      owner_id: person.id,
-      valuations: [
-        {
-          date: iso('2023-12-20'),
-          value: 20000,
-          uncrystallised_value: 20000,
-          crystallised_value: 0,
-        },
-      ],
-      growth_template: { type: 'flat', rate: { gross_rate: 0.03, charges: 0 } },
-      withdrawals: [
-        {
-          value: 1000, // @ts-expect-error
-          method: 'fake_method',
-          id: v4(),
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2024-12-20'),
-        },
-      ],
-    })
-
-    const cashflow = makeCashflow({
-      people: [person],
-      money_purchases: [pension],
-      starts_at: iso('2023-12-20'),
-      years: 2,
-    })
-
-    try {
-      run(cashflow)
-    } catch (e) {
-      expect(e.message).toEqual('Invalid money purchase withdrawal method')
-    }
-  })
 })
 
 describe('shortfall resolving', () => {

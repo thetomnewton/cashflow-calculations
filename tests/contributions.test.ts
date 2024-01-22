@@ -88,12 +88,12 @@ describe('contributions', () => {
       people: [person],
       starts_at: iso('2023-09-30'),
       years: 2,
-      accounts: [pension],
+      money_purchases: [pension],
       incomes: [salary],
     })
 
     const output = run(cashflow)
-    const [year0, year1] = output.accounts[pension.id].years
+    const [year0, year1] = output.money_purchases[pension.id].years
 
     expect(year0).toEqual({
       start_value: 10000,
@@ -152,12 +152,12 @@ describe('contributions', () => {
       people: [person],
       starts_at: iso('2023-09-30'),
       years: 2,
-      accounts: [pension],
+      money_purchases: [pension],
       incomes: [salary],
     })
 
     const output = run(cashflow)
-    const [year0, year1] = output.accounts[pension.id].years
+    const [year0, year1] = output.money_purchases[pension.id].years
 
     expect(year0).toEqual({
       start_value: 10000,
@@ -216,12 +216,12 @@ describe('contributions', () => {
       people: [person],
       starts_at: iso('2023-09-30'),
       years: 2,
-      accounts: [pension],
+      money_purchases: [pension],
       incomes: [salary],
     })
 
     const output = run(cashflow)
-    const [year0, year1] = output.accounts[pension.id].years
+    const [year0, year1] = output.money_purchases[pension.id].years
 
     expect(year0).toEqual({
       start_value: 10000,
@@ -283,12 +283,12 @@ describe('contributions', () => {
       people: [person],
       starts_at: iso('2023-09-30'),
       years: 2,
-      accounts: [pension],
+      money_purchases: [pension],
       incomes: [salary],
     })
 
     const output = run(cashflow)
-    const [year0, year1] = output.accounts[pension.id].years
+    const [year0, year1] = output.money_purchases[pension.id].years
 
     expect(year0).toEqual({
       start_value: 10000,
@@ -335,12 +335,12 @@ describe('contributions', () => {
       people: [person],
       starts_at: iso('2023-09-30'),
       years: 2,
-      accounts: [pension],
+      money_purchases: [pension],
       incomes: [],
     })
 
     const output = run(cashflow)
-    const [year0, year1] = output.accounts[pension.id].years
+    const [year0, year1] = output.money_purchases[pension.id].years
 
     expect(year0).toEqual({
       start_value: 10000,
@@ -398,12 +398,12 @@ describe('contributions', () => {
       people: [person],
       starts_at: iso('2023-09-30'),
       years: 2,
-      accounts: [pension],
+      money_purchases: [pension],
       incomes: [salary],
     })
 
     const output = run(cashflow)
-    const [year0, year1] = output.accounts[pension.id].years
+    const [year0, year1] = output.money_purchases[pension.id].years
 
     expect(year0).toEqual({
       start_value: 10000,
@@ -455,12 +455,12 @@ describe('contributions', () => {
       people: [person],
       starts_at: iso('2023-09-30'),
       years: 2,
-      accounts: [pension],
+      money_purchases: [pension],
       assumptions: { terms: 'real', cpi },
     })
 
     const output = run(cashflow)
-    const years = output.accounts[pension.id].years
+    const years = output.money_purchases[pension.id].years
 
     /**
      * 2880 out of 4000 gets grossed up, 1120 doesn't
@@ -469,8 +469,9 @@ describe('contributions', () => {
 
     expect(years[0]).toEqual({
       start_value: 10000,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 10000,
       current_value: 10000 + 4720,
-      // end_value: 15079.02,
       end_value: round((10000 + 4720) * applyGrowth(growthRate, cpi), 2),
       net_growth: growthRate,
     })

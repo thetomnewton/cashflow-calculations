@@ -38,7 +38,7 @@ describe('accounts', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: '2023-04-06',
+          date: iso('2023-04-06'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -51,24 +51,36 @@ describe('accounts', () => {
       people: [person],
       starts_at: iso('2023-04-06'),
       years: 2,
-      accounts: [account],
+      money_purchases: [account],
     })
     const out = run(cashflow)
 
-    const [year1, year2] = out.accounts[account.id].years
+    const [year1, year2] = out.money_purchases[account.id].years
 
     expect(year1).toEqual({
-      start_value: 10000,
       current_value: 10000,
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 10000,
       end_value: 10250,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 10250,
       net_growth: 0.025,
+      start_value: 10000,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 10000,
     })
 
     expect(year2).toEqual({
-      start_value: 10250,
       current_value: 10250,
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 10250,
       end_value: 10506.25,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 10506.25,
       net_growth: 0.025,
+      start_value: 10250,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 10250,
     })
   })
 
@@ -79,7 +91,7 @@ describe('accounts', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: '2023-04-06',
+          date: iso('2023-04-06'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -92,18 +104,24 @@ describe('accounts', () => {
       people: [person],
       starts_at: iso('2023-04-06'),
       years: 1,
-      accounts: [account],
+      money_purchases: [account],
       assumptions: { terms: 'real', cpi: 0.025 },
     })
     const out = run(cashflow)
 
-    const outputAccountYear = out.accounts[account.id].years[0]
+    const outputAccountYear = out.money_purchases[account.id].years[0]
 
     expect(outputAccountYear).toEqual({
-      start_value: 10000,
       current_value: 10000,
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 10000,
       end_value: 10000,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 10000,
       net_growth: 0.025,
+      start_value: 10000,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 10000,
     })
   })
 
@@ -114,7 +132,7 @@ describe('accounts', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: '2023-04-06',
+          date: iso('2023-04-06'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -127,18 +145,24 @@ describe('accounts', () => {
       people: [person],
       starts_at: iso('2023-04-06'),
       years: 1,
-      accounts: [account],
+      money_purchases: [account],
       assumptions: { terms: 'real', cpi: 0.04 },
     })
     const out = run(cashflow)
 
-    const outputAccountYear = out.accounts[account.id].years[0]
+    const outputAccountYear = out.money_purchases[account.id].years[0]
 
     expect(outputAccountYear).toEqual({
-      start_value: 10000,
       current_value: 10000,
+      current_value_crystallised: 0,
+      current_value_uncrystallised: 10000,
       end_value: 9855.77,
+      end_value_crystallised: 0,
+      end_value_uncrystallised: 9855.77,
       net_growth: 0.025,
+      start_value: 10000,
+      start_value_crystallised: 0,
+      start_value_uncrystallised: 10000,
     })
   })
 
@@ -149,7 +173,7 @@ describe('accounts', () => {
       is_sweep: true,
       category: 'cash',
       owner_id: person.id,
-      valuations: [{ date: '2023-04-06', value: 0 }],
+      valuations: [{ date: iso('2023-04-06'), value: 0 }],
       growth_template: {
         type: 'flat',
         rate: { gross_rate: 0.005, charges: 0 },
@@ -173,7 +197,7 @@ describe('accounts', () => {
     const account1 = makeAccount({
       category: 'cash',
       owner_id: person.id,
-      valuations: [{ date: '2023-04-06', value: 1000 }],
+      valuations: [{ date: iso('2023-04-06'), value: 1000 }],
       growth_template: {
         type: 'flat',
         rate: { gross_rate: 0.01, charges: 0 },
@@ -183,7 +207,7 @@ describe('accounts', () => {
     const account2 = makeAccount({
       category: 'cash',
       owner_id: person.id,
-      valuations: [{ date: '2023-04-06', value: 2000 }],
+      valuations: [{ date: iso('2023-04-06'), value: 2000 }],
       growth_template: {
         type: 'flat',
         rate: { gross_rate: 0.015, charges: 0 },
