@@ -1,4 +1,4 @@
-import { Band, PersonalAllowance, PlanningYear } from '../types'
+import { Band, PersonalAllowance, PlanningYear } from '../types';
 
 export const bands: (Band | PersonalAllowance)[] = [
   {
@@ -145,15 +145,15 @@ export const bands: (Band | PersonalAllowance)[] = [
       dividend: 0,
     },
   },
-]
+];
 
 type KnownRatesType = {
   [key: PlanningYear['tax_year']]: {
-    key: Band['key']
-    bound_lower: number
-    bound_upper: number
-  }[]
-}
+    key: Band['key'];
+    bound_lower: number;
+    bound_upper: number;
+  }[];
+};
 
 export const knownRates: KnownRatesType = {
   2324: [
@@ -168,4 +168,4 @@ export const knownRates: KnownRatesType = {
     { key: 'higher_rate_sco', bound_lower: 43662, bound_upper: 125140 },
     { key: 'top_rate_sco', bound_lower: 125140, bound_upper: Infinity },
   ],
-}
+};

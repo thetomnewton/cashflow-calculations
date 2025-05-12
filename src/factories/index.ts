@@ -1,5 +1,5 @@
-import { v4 } from 'uuid'
-import { date } from '../lib/date'
+import { v4 } from 'uuid';
+import { date } from '../lib/date';
 import {
   Account,
   Cashflow,
@@ -9,21 +9,21 @@ import {
   Income,
   MoneyPurchase,
   Person,
-} from '../types'
+} from '../types';
 
-type FactoryPerson = Partial<Person>
+type FactoryPerson = Partial<Person>;
 type FactoryCashflow = Partial<Omit<Cashflow, 'assumptions'>> &
   Pick<Cashflow, 'people'> & {
-    assumptions?: Partial<CashflowAssumptions> | undefined
-  }
-type FactoryIncome = Partial<Income> & Pick<Income, 'people'>
-type FactoryExpense = Partial<Expense>
+    assumptions?: Partial<CashflowAssumptions> | undefined;
+  };
+type FactoryIncome = Partial<Income> & Pick<Income, 'people'>;
+type FactoryExpense = Partial<Expense>;
 type FactoryAccount = Partial<Account> &
-  Pick<Account, 'category' | 'owner_id' | 'valuations' | 'growth_template'>
+  Pick<Account, 'category' | 'owner_id' | 'valuations' | 'growth_template'>;
 type FactoryMoneyPurchase = Partial<MoneyPurchase> &
-  Pick<MoneyPurchase, 'owner_id' | 'valuations' | 'growth_template'>
+  Pick<MoneyPurchase, 'owner_id' | 'valuations' | 'growth_template'>;
 type FactoryISA = Partial<ISA> &
-  Pick<ISA, 'owner_id' | 'valuations' | 'growth_template'>
+  Pick<ISA, 'owner_id' | 'valuations' | 'growth_template'>;
 
 const defaultAssumptions: Cashflow['assumptions'] = {
   terms: 'nominal',
@@ -31,7 +31,7 @@ const defaultAssumptions: Cashflow['assumptions'] = {
   rpi: 0.03,
   average_earnings_increase: 0.025,
   windfall_save: 'discard',
-}
+};
 
 export function makePerson(params: FactoryPerson): Person {
   return {
@@ -42,7 +42,7 @@ export function makePerson(params: FactoryPerson): Person {
     sex: (params.sex ?? Math.random() < 0.5) ? 'male' : 'female',
     in_drawdown: params.in_drawdown ?? false,
     registered_blind: params.registered_blind ?? false,
-  }
+  };
 }
 
 export function makeCashflow(params: FactoryCashflow): Cashflow {
@@ -59,7 +59,7 @@ export function makeCashflow(params: FactoryCashflow): Cashflow {
     assumptions: params.assumptions
       ? { ...defaultAssumptions, ...params.assumptions }
       : defaultAssumptions,
-  }
+  };
 }
 
 export function makeIncome(params: FactoryIncome): Income {
@@ -69,7 +69,7 @@ export function makeIncome(params: FactoryIncome): Income {
     values: params.values ?? [],
     type: params.type || 'employment',
     source_id: params.source_id || undefined,
-  }
+  };
 }
 
 export function makeExpense(params: FactoryExpense): Expense {
@@ -78,7 +78,7 @@ export function makeExpense(params: FactoryExpense): Expense {
     values: params.values ?? [],
     type: params.type ?? 'essential',
     people: params.people ?? [],
-  }
+  };
 }
 
 export function makeAccount(params: FactoryAccount) {
@@ -93,7 +93,7 @@ export function makeAccount(params: FactoryAccount) {
     growth_template: params.growth_template,
     contributions: params.contributions ?? [],
     withdrawals: params.withdrawals ?? [],
-  }
+  };
 }
 
 export function makeMoneyPurchase(params: FactoryMoneyPurchase): MoneyPurchase {
@@ -107,12 +107,12 @@ export function makeMoneyPurchase(params: FactoryMoneyPurchase): MoneyPurchase {
     growth_template: params.growth_template,
     contributions: params.contributions ?? [],
     withdrawals: params.withdrawals ?? [],
-  }
+  };
 }
 
 export function makeISA(params: FactoryISA) {
   return makeAccount({
     ...params,
     ...{ category: 'isa' },
-  }) as ISA
+  }) as ISA;
 }

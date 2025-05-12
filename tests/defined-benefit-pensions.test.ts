@@ -1,17 +1,17 @@
-import { round } from 'lodash'
-import { v4 } from 'uuid'
-import { run } from '../src/calculations'
-import { makeCashflow, makeIncome, makePerson } from '../src/factories'
-import { iso } from '../src/lib/date'
+import { round } from 'lodash';
+import { v4 } from 'uuid';
+import { run } from '../src/calculations';
+import { makeCashflow, makeIncome, makePerson } from '../src/factories';
+import { iso } from '../src/lib/date';
 import {
   ActiveDBPension,
   DeferredDBPension,
   InPaymentDBPension,
-} from '../src/types'
+} from '../src/types';
 
 describe('defined benefit pensions', () => {
   test('deferred DB produces income at correct time', () => {
-    const person = makePerson({ date_of_birth: '1964-06-01' })
+    const person = makePerson({ date_of_birth: '1964-06-01' });
 
     const db: DeferredDBPension = {
       id: v4(),
@@ -22,27 +22,27 @@ describe('defined benefit pensions', () => {
       active_escalation_rate: 0,
       normal_retirement_age: 65,
       starts_at: iso('2029-06-01'), // 65th birthday
-    }
+    };
 
     const cashflow = makeCashflow({
       people: [person],
       defined_benefits: [db],
       starts_at: iso('2023-06-01'),
       years: 8,
-    })
+    });
 
-    const out = run(cashflow)
+    const out = run(cashflow);
 
-    const inc = cashflow.incomes.find((inc) => inc.source_id === db.id)
-    if (!inc) throw new Error('missing income')
+    const inc = cashflow.incomes.find((inc) => inc.source_id === db.id);
+    if (!inc) throw new Error('missing income');
 
     // Expect income to be created in year 6
-    const netValues = out.incomes[inc.id].years.map((year) => year.net_value)
-    expect(netValues).toEqual([0, 0, 0, 0, 0, 0, 10000, 10000])
-  })
+    const netValues = out.incomes[inc.id].years.map((year) => year.net_value);
+    expect(netValues).toEqual([0, 0, 0, 0, 0, 0, 10000, 10000]);
+  });
 
   test('deferred DB escalates correctly', () => {
-    const person = makePerson({ date_of_birth: '1964-06-01' })
+    const person = makePerson({ date_of_birth: '1964-06-01' });
 
     const db: DeferredDBPension = {
       id: v4(),
@@ -53,23 +53,23 @@ describe('defined benefit pensions', () => {
       active_escalation_rate: 0.05,
       normal_retirement_age: 65,
       starts_at: iso('2029-06-01'),
-    }
+    };
 
     const cashflow = makeCashflow({
       people: [person],
       defined_benefits: [db],
       starts_at: iso('2023-06-01'),
       years: 8,
-    })
+    });
 
-    const out = run(cashflow)
+    const out = run(cashflow);
 
-    const inc = cashflow.incomes.find((inc) => inc.source_id === db.id)
-    if (!inc) throw new Error('missing income')
+    const inc = cashflow.incomes.find((inc) => inc.source_id === db.id);
+    if (!inc) throw new Error('missing income');
 
-    const netValues = out.incomes[inc.id].years.map((year) => year.net_value)
-    const year6value = 10000 * 1.03 ** 6
-    const year7value = year6value * 1.05
+    const netValues = out.incomes[inc.id].years.map((year) => year.net_value);
+    const year6value = 10000 * 1.03 ** 6;
+    const year7value = year6value * 1.05;
 
     expect(netValues).toEqual([
       0,
@@ -80,11 +80,11 @@ describe('defined benefit pensions', () => {
       0,
       round(year6value, 2),
       round(year7value, 2),
-    ])
-  })
+    ]);
+  });
 
   test('active DB produces correct income at correct time', () => {
-    const person = makePerson({ date_of_birth: '1964-06-01' })
+    const person = makePerson({ date_of_birth: '1964-06-01' });
 
     // Salary lasts for 3 years
     const salary = makeIncome({
@@ -98,7 +98,7 @@ describe('defined benefit pensions', () => {
           escalation: 'rpi',
         },
       ],
-    })
+    });
 
     const db: ActiveDBPension = {
       id: v4(),
@@ -111,7 +111,7 @@ describe('defined benefit pensions', () => {
       starts_at: iso('2029-06-01'), // 65th birthday
       normal_retirement_age: 65,
       years_service: 10,
-    }
+    };
 
     const cashflow = makeCashflow({
       people: [person],
@@ -120,22 +120,22 @@ describe('defined benefit pensions', () => {
       starts_at: iso('2023-06-01'),
       years: 8,
       assumptions: { rpi: 0.03 },
-    })
+    });
 
-    const out = run(cashflow)
+    const out = run(cashflow);
 
-    const inc = cashflow.incomes.find((inc) => inc.source_id === db.id)
-    if (!inc) throw new Error('missing income')
+    const inc = cashflow.incomes.find((inc) => inc.source_id === db.id);
+    if (!inc) throw new Error('missing income');
 
     const grossValues = out.incomes[inc.id].years.map(
       (year) => year.gross_value
-    )
+    );
 
     // 50k salary, 2 years of escalation at 3%, multiplied by 13 years
     // of service, divided by 60 because it's a 1/60th scheme.
-    const finalSalary = 50000 * 1.03 ** 2 * (13 / 60)
+    const finalSalary = 50000 * 1.03 ** 2 * (13 / 60);
     // Add 3 years of deferment growth at 2.5%
-    const initialIncome = finalSalary * 1.025 ** 3
+    const initialIncome = finalSalary * 1.025 ** 3;
 
     expect(grossValues).toEqual([
       0,
@@ -146,11 +146,11 @@ describe('defined benefit pensions', () => {
       0,
       round(initialIncome, 2),
       round(round(initialIncome, 2) * 1.03, 2),
-    ])
-  })
+    ]);
+  });
 
   test('in payment DB has correct values', () => {
-    const person = makePerson({ date_of_birth: '1950-02-01' })
+    const person = makePerson({ date_of_birth: '1950-02-01' });
 
     const db: InPaymentDBPension = {
       id: v4(),
@@ -159,7 +159,7 @@ describe('defined benefit pensions', () => {
       starts_at: iso('2024-02-01'),
       annual_amount: 15000,
       active_escalation_rate: 'rpi',
-    }
+    };
 
     const cashflow = makeCashflow({
       people: [person],
@@ -167,19 +167,19 @@ describe('defined benefit pensions', () => {
       starts_at: iso('2024-02-01'),
       years: 5,
       assumptions: { rpi: 0.03 },
-    })
+    });
 
-    const out = run(cashflow)
+    const out = run(cashflow);
 
-    const income = cashflow.incomes.find((inc) => inc.source_id === db.id)
+    const income = cashflow.incomes.find((inc) => inc.source_id === db.id);
 
-    expect(income).not.toBeUndefined()
-    if (!income) throw new Error('Missing income')
+    expect(income).not.toBeUndefined();
+    if (!income) throw new Error('Missing income');
 
-    const gross = out.incomes[income.id].years.map((y) => y.gross_value)
-    expect(gross[0]).toEqual(15000)
-    expect(gross[1]).toEqual(15000 * 1.03)
-    expect(gross[2]).toEqual(round(15000 * 1.03 ** 2, 2))
-    expect(gross[3]).toEqual(round(15000 * 1.03 ** 3, 2))
-  })
-})
+    const gross = out.incomes[income.id].years.map((y) => y.gross_value);
+    expect(gross[0]).toEqual(15000);
+    expect(gross[1]).toEqual(15000 * 1.03);
+    expect(gross[2]).toEqual(round(15000 * 1.03 ** 2, 2));
+    expect(gross[3]).toEqual(round(15000 * 1.03 ** 3, 2));
+  });
+});

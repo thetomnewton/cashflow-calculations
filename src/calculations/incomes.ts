@@ -1,5 +1,5 @@
-import { round, sum, sumBy } from 'lodash'
-import { date } from '../lib/date'
+import { round, sum, sumBy } from 'lodash';
+import { date } from '../lib/date';
 import {
   Cashflow,
   DefinedBenefitPension,
@@ -11,8 +11,8 @@ import {
   OutputIncomeYear,
   PlanningYear,
   SelfEmploymentIncome,
-} from '../types'
-import { getYearIndex } from './income-tax'
+} from '../types';
+import { getYearIndex } from './income-tax';
 
 export function setNetValues(
   year: PlanningYear,
@@ -21,39 +21,39 @@ export function setNetValues(
 ) {
   cashflow.incomes.forEach((income) => {
     const out =
-      output.incomes[income.id].years[getYearIndex(year.tax_year, output)]
+      output.incomes[income.id].years[getYearIndex(year.tax_year, output)];
 
     if (!incomeIsTaxable(income)) {
-      out.net_value = out.gross_value
-      return
+      out.net_value = out.gross_value;
+      return;
     }
 
-    out.net_value = out.gross_value
+    out.net_value = out.gross_value;
 
     if (isEmployment(income))
-      out.net_value += (out.bonus ?? 0) + (out.benefits ?? 0)
+      out.net_value += (out.bonus ?? 0) + (out.benefits ?? 0);
 
-    out.net_value -= sum(Object.values(out.tax.ni_paid))
-    out.net_value -= sumBy(Object.values(out.tax.bands), 'tax_paid')
+    out.net_value -= sum(Object.values(out.tax.ni_paid));
+    out.net_value -= sumBy(Object.values(out.tax.bands), 'tax_paid');
 
-    out.net_value = round(out.net_value, 2)
-  })
+    out.net_value = round(out.net_value, 2);
+  });
 }
 
 export function isEmployment(income: Income): income is EmploymentIncome {
-  return income.type === 'employment'
+  return income.type === 'employment';
 }
 
 export function isSelfEmployment(
   income: Income
 ): income is SelfEmploymentIncome {
-  return income.type === 'self_employment'
+  return income.type === 'self_employment';
 }
 
 export function isOtherTaxableIncome(
   income: Income
 ): income is OtherTaxableIncome {
-  return income.type === 'other_taxable'
+  return income.type === 'other_taxable';
 }
 
 export function getTaxableValue(
@@ -61,9 +61,9 @@ export function getTaxableValue(
   value: OutputIncomeYear,
   cashflow: Cashflow
 ) {
-  if (!incomeIsTaxable(income)) return 0
+  if (!incomeIsTaxable(income)) return 0;
 
-  const baseFn = (value: OutputIncomeYear) => value.gross_value
+  const baseFn = (value: OutputIncomeYear) => value.gross_value;
 
   return {
     employment: (value: OutputIncomeYear) =>
@@ -71,33 +71,33 @@ export function getTaxableValue(
     self_employment: baseFn,
     dividend: baseFn,
     pension: (value: OutputIncomeYear) => {
-      if (value.gross_value === 0) return 0
+      if (value.gross_value === 0) return 0;
 
       const dc: [MoneyPurchase, 'money_purchase'][] =
-        cashflow.money_purchases.map((dc) => [dc, 'money_purchase'])
+        cashflow.money_purchases.map((dc) => [dc, 'money_purchase']);
 
       const db: [DefinedBenefitPension, 'defined_benefit'][] =
-        cashflow.defined_benefits.map((db) => [db, 'defined_benefit'])
+        cashflow.defined_benefits.map((db) => [db, 'defined_benefit']);
 
-      const pensions = [...dc, ...db]
+      const pensions = [...dc, ...db];
 
       const source = pensions.find(
         (source) => source[0].id === income.source_id
-      )
-      if (!source) throw new Error('Missing source pension')
+      );
+      if (!source) throw new Error('Missing source pension');
 
       if (source[1] === 'money_purchase') {
-        return getTaxableValueForMoneyPurchase(source[0], income, value)
+        return getTaxableValueForMoneyPurchase(source[0], income, value);
       } else if (source[1] === 'defined_benefit') {
-        return getTaxableValueForDefinedBenefit(source[0], income, value)
+        return getTaxableValueForDefinedBenefit(source[0], income, value);
       }
 
-      throw new Error('Invalid pension type')
+      throw new Error('Invalid pension type');
     },
     savings: baseFn,
     other_taxable: baseFn,
     other_non_taxable: () => 0,
-  }[income.type](value)
+  }[income.type](value);
 }
 
 function getTaxableValueForMoneyPurchase(
@@ -107,16 +107,16 @@ function getTaxableValueForMoneyPurchase(
 ) {
   const withdrawal = pension.withdrawals.find(
     (w) => w.id === income.source_withdrawal_id
-  )
+  );
 
-  if (!withdrawal) throw new Error('Missing source withdrawal')
-  const method = withdrawal.method
+  if (!withdrawal) throw new Error('Missing source withdrawal');
+  const method = withdrawal.method;
 
-  if (method === 'pcls') return 0
-  if (method === 'fad') return value.gross_value
-  if (method === 'ufpls') return value.gross_value * 0.75
+  if (method === 'pcls') return 0;
+  if (method === 'fad') return value.gross_value;
+  if (method === 'ufpls') return value.gross_value * 0.75;
 
-  throw new Error('Invalid method')
+  throw new Error('Invalid method');
 }
 
 function getTaxableValueForDefinedBenefit(
@@ -125,12 +125,12 @@ function getTaxableValueForDefinedBenefit(
   value: OutputIncomeYear
 ) {
   // All pension income from a DB is taxable
-  return value.gross_value
+  return value.gross_value;
 }
 
 function incomeIsTaxable(income: Income) {
   // todo: "pension" income may be taxable depending on the withdrawal type
-  return income.type !== 'other_non_taxable'
+  return income.type !== 'other_non_taxable';
 }
 
 export function getTotalDuration(income: Income) {
@@ -138,5 +138,5 @@ export function getTotalDuration(income: Income) {
     (acc, value) =>
       acc + date(value.ends_at).diff(date(value.starts_at), 'years'),
     0
-  )
+  );
 }

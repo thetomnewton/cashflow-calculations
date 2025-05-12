@@ -1,6 +1,6 @@
-import { clone, round } from 'lodash'
-import { v4 } from 'uuid'
-import { date, iso } from '../lib/date'
+import { clone, round } from 'lodash';
+import { v4 } from 'uuid';
+import { date, iso } from '../lib/date';
 import {
   Account,
   ActiveDBPension,
@@ -14,38 +14,38 @@ import {
   Output,
   OutputIncomeYear,
   Person,
-} from '../types'
-import { isAccount } from './accounts'
+} from '../types';
+import { isAccount } from './accounts';
 import {
   findActiveEntityValue,
   getValueInYear,
   getYearIndexFromDate,
-} from './entity'
-import { applyGrowth } from './growth'
-import { generateBandsFor, getTaxYearFromDate } from './income-tax'
-import { getTaxableValue, getTotalDuration, isEmployment } from './incomes'
+} from './entity';
+import { applyGrowth } from './growth';
+import { generateBandsFor, getTaxYearFromDate } from './income-tax';
+import { getTaxableValue, getTotalDuration, isEmployment } from './incomes';
 import {
   isActiveDBPension,
   isDeferredDBPension,
   isInPaymentDBPension,
-} from './pensions'
+} from './pensions';
 
-let cashflow: Cashflow
-let output: Output
+let cashflow: Cashflow;
+let output: Output;
 
 export function initialise(baseCashflow: Cashflow) {
-  cashflow = baseCashflow
-  output = makeInitOutput()
+  cashflow = baseCashflow;
+  output = makeInitOutput();
 
-  initYears()
-  initBands()
-  initAccounts()
-  initMoneyPurchases()
-  initIncomes()
-  initDefinedBenefits()
-  initExpenses()
+  initYears();
+  initBands();
+  initAccounts();
+  initMoneyPurchases();
+  initIncomes();
+  initDefinedBenefits();
+  initExpenses();
 
-  return output
+  return output;
 }
 
 function makeInitOutput(): Output {
@@ -66,32 +66,32 @@ function makeInitOutput(): Output {
     expenses: {},
     accounts: {},
     money_purchases: {},
-  }
+  };
 }
 
 function initYears() {
-  const startDate = date(cashflow.starts_at)
+  const startDate = date(cashflow.starts_at);
   output.years = [...Array(cashflow.years)].map((_, idx) => {
-    const yearStartDate = clone(startDate).add(idx, 'year')
+    const yearStartDate = clone(startDate).add(idx, 'year');
     return {
       tax_year: getTaxYearFromDate(yearStartDate),
       starts_at: yearStartDate.toISOString(),
       ends_at: yearStartDate.add(1, 'year').toISOString(),
-    }
-  })
+    };
+  });
 }
 
 function initBands() {
   output.years.forEach((year) => {
-    output.tax.bands[year.tax_year] = {}
+    output.tax.bands[year.tax_year] = {};
     cashflow.people.forEach((person) => {
       output.tax.bands[year.tax_year][person.id] = generateBandsFor(
         person,
         year.tax_year,
         cashflow.assumptions
-      )
-    })
-  })
+      );
+    });
+  });
 }
 
 /**
@@ -106,7 +106,7 @@ export function makeOutputIncomeObj(
 ): { years: OutputIncomeYear[] } {
   return {
     years: output.years.map((year) => {
-      const entityValue = findActiveEntityValue(income, year)
+      const entityValue = findActiveEntityValue(income, year);
 
       const out: OutputIncomeYear = {
         gross_value: entityValue
@@ -115,52 +115,52 @@ export function makeOutputIncomeObj(
         taxable_value: 0,
         net_value: 0,
         tax: { ni_paid: {}, bands: {} },
-      }
+      };
 
       if (isEmployment(income)) {
         out.bonus = entityValue
           ? getValueInYear(entityValue, year, cashflow, output, 'bonus')
-          : 0
+          : 0;
         out.benefits = entityValue
           ? getValueInYear(entityValue, year, cashflow, output, 'benefits')
-          : 0
+          : 0;
       }
 
-      return out
+      return out;
     }),
-  }
+  };
 }
 
 function initIncomes() {
-  cashflow.incomes.forEach(initIncome)
+  cashflow.incomes.forEach(initIncome);
 }
 
 function initIncome(income: Income) {
   // Make an initial output income object
-  output.incomes[income.id] = makeOutputIncomeObj(income, cashflow, output)
+  output.incomes[income.id] = makeOutputIncomeObj(income, cashflow, output);
 
   // Set the income's taxable value
   output.incomes[income.id].years.forEach((year) => {
-    year.taxable_value = getTaxableValue(income, year, cashflow)
-  })
+    year.taxable_value = getTaxableValue(income, year, cashflow);
+  });
 }
 
 function initExpenses() {
-  cashflow.expenses.forEach(initExpenseOutput)
+  cashflow.expenses.forEach(initExpenseOutput);
 }
 
 export function initExpenseOutput(expense: Expense) {
   output.expenses[expense.id] = {
     years: output.years.map((year) => {
-      const entityValue = findActiveEntityValue(expense, year)
+      const entityValue = findActiveEntityValue(expense, year);
 
       const value = entityValue
         ? getValueInYear(entityValue, year, cashflow, output)
-        : 0
+        : 0;
 
-      return { value }
+      return { value };
     }),
-  }
+  };
 }
 
 export function makeAccountOutputObject(account: Account, output: Output) {
@@ -171,7 +171,7 @@ export function makeAccountOutputObject(account: Account, output: Output) {
       end_value: undefined,
       net_growth: undefined,
     })),
-  }
+  };
 }
 
 export function makeMoneyPurchaseOutputObject(
@@ -191,14 +191,14 @@ export function makeMoneyPurchaseOutputObject(
       end_value_uncrystallised: undefined,
       net_growth: undefined,
     })),
-  }
+  };
 }
 
 function initAccounts() {
-  ensureSweepAccountExists()
+  ensureSweepAccountExists();
 
   cashflow.accounts.forEach((account) => {
-    makeAccountOutputObject(account, output)
+    makeAccountOutputObject(account, output);
 
     account.withdrawals.forEach((withdrawal) => {
       cashflow.incomes.push({
@@ -208,14 +208,14 @@ function initAccounts() {
         type: 'other_non_taxable', // todo: update based on account/withdrawal type
         source_id: account.id,
         source_withdrawal_id: withdrawal.id,
-      })
-    })
-  })
+      });
+    });
+  });
 }
 
 function initMoneyPurchases() {
   cashflow.money_purchases.forEach((pension) => {
-    makeMoneyPurchaseOutputObject(pension, output)
+    makeMoneyPurchaseOutputObject(pension, output);
 
     pension.withdrawals.forEach((withdrawal) => {
       cashflow.incomes.push({
@@ -226,8 +226,8 @@ function initMoneyPurchases() {
         source_id: pension.id,
         source_withdrawal_id: withdrawal.id,
         ad_hoc: false,
-      })
-    })
+      });
+    });
 
     cashflow.incomes.push({
       id: v4(),
@@ -236,8 +236,8 @@ function initMoneyPurchases() {
       type: 'pension',
       source_id: pension.id,
       ad_hoc: true,
-    })
-  })
+    });
+  });
 }
 
 function initDefinedBenefits() {
@@ -254,22 +254,22 @@ function initDefinedBenefits() {
           : isInPaymentDBPension(db)
             ? getInPaymentDBIncomeValues(db)
             : [],
-    }
+    };
 
-    cashflow.incomes.push(income)
+    cashflow.incomes.push(income);
     // Other income outputs may have already been initialised,
     // so we initialise them here after creation.
-    initIncome(income)
-  })
+    initIncome(income);
+  });
 }
 
 function getDeferredDBIncomeValues(db: DeferredDBPension): EntityValue[] {
-  const yearsSinceCashflowStart = getYearIndexFromDate(db.starts_at, output)
+  const yearsSinceCashflowStart = getYearIndexFromDate(db.starts_at, output);
 
   const defermentEscalation =
     typeof db.deferment_escalation_rate === 'string'
       ? cashflow.assumptions[db.deferment_escalation_rate]
-      : db.deferment_escalation_rate
+      : db.deferment_escalation_rate;
 
   return [
     {
@@ -280,56 +280,56 @@ function getDeferredDBIncomeValues(db: DeferredDBPension): EntityValue[] {
       starts_at: db.starts_at,
       ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
     },
-  ]
+  ];
 }
 
 function getActiveDBIncomeValues(db: ActiveDBPension): EntityValue[] {
   const linkedIncome = cashflow.incomes.find(
     (inc) => inc.id === db.linked_salary_id
-  )
-  if (!linkedIncome) throw new Error('Missing linked income for DB')
+  );
+  if (!linkedIncome) throw new Error('Missing linked income for DB');
 
   return linkedIncome.values.map((incomeValue) => {
-    const incomeEnd = date(incomeValue.ends_at)
-    const dbStart = date(db.starts_at)
+    const incomeEnd = date(incomeValue.ends_at);
+    const dbStart = date(db.starts_at);
 
     // The income should not go beyond the start of the DB
     const incomeActualEnd = incomeEnd.isAfter(dbStart)
       ? db.starts_at
-      : incomeValue.ends_at
+      : incomeValue.ends_at;
 
     // Find the gross value during the final year of the income
-    const outputYear = getYearIndexFromDate(incomeActualEnd, output)
+    const outputYear = getYearIndexFromDate(incomeActualEnd, output);
     const finalIncomeYear =
-      output.incomes[linkedIncome.id].years[Math.max(0, outputYear - 1)]
+      output.incomes[linkedIncome.id].years[Math.max(0, outputYear - 1)];
 
-    let value = finalIncomeYear.gross_value
+    let value = finalIncomeYear.gross_value;
 
     // Determine the number of deferment years of the DB
     const totalDefermentYears = incomeEnd.isAfter(dbStart)
       ? 0
-      : dbStart.diff(incomeEnd, 'years')
+      : dbStart.diff(incomeEnd, 'years');
 
     // Determint the deferment escalation rate
     const defermentEscalation =
       typeof db.deferment_escalation_rate === 'string'
         ? cashflow.assumptions[db.deferment_escalation_rate]
-        : db.deferment_escalation_rate
+        : db.deferment_escalation_rate;
 
     // Find the income's final value, after deferment growth
-    value = value * applyGrowth(defermentEscalation, 0) ** totalDefermentYears
+    value = value * applyGrowth(defermentEscalation, 0) ** totalDefermentYears;
 
     // Multiply the value above by (years of service / accrual rate)
-    const yearsOfService = db.years_service + getTotalDuration(linkedIncome)
-    value = round(value * yearsOfService * db.accrual_rate, 2)
+    const yearsOfService = db.years_service + getTotalDuration(linkedIncome);
+    value = round(value * yearsOfService * db.accrual_rate, 2);
 
     return {
       value,
       starts_at: db.starts_at,
       ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
       escalation: db.active_escalation_rate,
-    }
-  })
+    };
+  });
 }
 
 function getInPaymentDBIncomeValues(db: InPaymentDBPension): EntityValue[] {
@@ -340,13 +340,13 @@ function getInPaymentDBIncomeValues(db: InPaymentDBPension): EntityValue[] {
       ends_at: date(db.starts_at).add(cashflow.years, 'year').toISOString(),
       escalation: db.active_escalation_rate,
     },
-  ]
+  ];
 }
 
 function ensureSweepAccountExists() {
   // Check if the person has a sweep account. If not, create one.
-  const sweep = cashflow.accounts.find((acc) => isAccount(acc) && acc.is_sweep)
-  if (!sweep) cashflow.accounts.push(createSweepAccount(cashflow.people))
+  const sweep = cashflow.accounts.find((acc) => isAccount(acc) && acc.is_sweep);
+  if (!sweep) cashflow.accounts.push(createSweepAccount(cashflow.people));
 }
 
 function createSweepAccount(people: Person[]): Account {
@@ -363,12 +363,12 @@ function createSweepAccount(people: Person[]): Account {
       type: 'flat',
       rate: { gross_rate: 0.005, charges: 0 },
     },
-  }
+  };
 }
 
 function getAccountOwners(ownerId: string | string[]) {
   return cashflow.people.filter(
     ({ id }) =>
       id === ownerId || (Array.isArray(ownerId) && ownerId.includes(id))
-  )
+  );
 }
