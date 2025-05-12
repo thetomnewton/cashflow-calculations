@@ -1,18 +1,23 @@
 {
     "compilerOptions": {
-        "allowJs": false,
+        "allowImportingTsExtensions": true,
+        "allowJs": true,
         "composite": true,
         "declaration": true,
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
-        "module": "ESNext",
-        "moduleResolution": "node",
-        "noImplicitOverride": true,
-        "strict": true,
         "isolatedModules": true,
+        "lib": ["ESNext"],
+        "module": "ESNext",
+        "moduleResolution": "bundler",
         "noEmit": true,
+        "noFallthroughCasesInSwitch": true,
         "noImplicitAny": true,
-        "target": "ES2020"
+        "noImplicitOverride": true,
+        "noUncheckedIndexedAccess": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "target": "ESNext"
     },
     "include": ["src/**/*.ts"]
 }
