@@ -237,7 +237,7 @@ describe('accounts', () => {
     })
 
     const sweep = cashflow.accounts.find(
-      account => account.category === 'cash' && !!account.is_sweep
+      (account) => account.category === 'cash' && !!account.is_sweep
     )
 
     expect(sweep).not.toBeUndefined()

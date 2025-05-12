@@ -73,7 +73,7 @@ describe('income tax', () => {
     const out = run(cashflow)
 
     expect(
-      out.tax.bands[2324][person.id].find(b => b.key === 'personal_allowance')
+      out.tax.bands[2324][person.id].find((b) => b.key === 'personal_allowance')
         ?.bound_upper
     ).toBe(7570)
   })
@@ -467,7 +467,7 @@ describe('income tax', () => {
     const out = run(cashflow)
 
     const salary = cashflow.incomes.find(
-      inc => inc.source_id === pension.id && !inc.ad_hoc
+      (inc) => inc.source_id === pension.id && !inc.ad_hoc
     )
 
     const outputIncomeYear = out.incomes[(salary as Income).id].years[0]
@@ -547,7 +547,7 @@ describe('income tax', () => {
 
     expect(out.incomes[salary.id].years[0].net_value).toEqual(53303.4)
 
-    const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+    const sweep = cashflow.accounts.find((acc) => acc.is_sweep)
     expect(sweep).not.toBeNull()
     expect(out.accounts[(sweep as Account).id].years[0].current_value).toEqual(
       53303.4

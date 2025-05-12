@@ -24,7 +24,7 @@ describe('initialisation tests', () => {
       }),
     ]
 
-    const out = cashflows.map(cashflow => run(cashflow))
+    const out = cashflows.map((cashflow) => run(cashflow))
 
     expect(out[0].years[0].tax_year).toBe('2324')
     expect(out[0].years[3].tax_year).toBe('2627')
@@ -62,7 +62,7 @@ describe('initialisation tests', () => {
     })
 
     const out = run(cashflow)
-    const values = out.incomes[incomeId].years.map(year => year.gross_value)
+    const values = out.incomes[incomeId].years.map((year) => year.gross_value)
 
     expect(values[0]).toBe(10000)
     expect(values[1]).toBe(10250)
@@ -102,7 +102,7 @@ describe('initialisation tests', () => {
     })
 
     const out = run(cashflow)
-    const values = out.incomes[incomeId].years.map(year => year.gross_value)
+    const values = out.incomes[incomeId].years.map((year) => year.gross_value)
 
     expect(values[0]).toBe(15000)
     expect(values[1]).toBe(15072.82)
@@ -140,10 +140,10 @@ describe('initialisation tests', () => {
 
     const out = run(cashflow)
     const grossValues = out.incomes[salary.id].years.map(
-      year => year.gross_value
+      (year) => year.gross_value
     )
     const taxableValues = out.incomes[salary.id].years.map(
-      year => year.taxable_value
+      (year) => year.taxable_value
     )
 
     expect(grossValues).toEqual([15000, 15000, 15000])

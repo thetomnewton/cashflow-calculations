@@ -113,7 +113,7 @@ function payNationalInsuranceOn(
     cashflow.assumptions.cpi
   ) as Class2TaxType
 
-  NIClasses.forEach(className => {
+  NIClasses.forEach((className) => {
     outputYear.tax.ni_paid[className] = {
       class1: () => runClass1Calculation(total, adjustedLimits),
       class2: () =>

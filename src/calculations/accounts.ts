@@ -19,7 +19,7 @@ export function initialiseAccounts(
 ) {
   yearIndex = getYearIndex(year.tax_year, output)
 
-  cashflow.accounts.forEach(account => {
+  cashflow.accounts.forEach((account) => {
     const outputYear = output.accounts[account.id].years[yearIndex]
 
     // If the year index is 0, get the value from the base account valuations.
@@ -43,7 +43,7 @@ export function initialiseMoneyPurchases(
 ) {
   yearIndex = getYearIndex(year.tax_year, output)
 
-  cashflow.money_purchases.forEach(pension => {
+  cashflow.money_purchases.forEach((pension) => {
     const outputYear = output.money_purchases[pension.id].years[yearIndex]
 
     // If the year index is 0, get the value from the base valuations.
@@ -88,7 +88,7 @@ function getGrowthRateFromTemplate(account: BaseAccount) {
 }
 
 export function applyGrowth(cashflow: Cashflow, output: Output) {
-  cashflow.accounts.forEach(account => {
+  cashflow.accounts.forEach((account) => {
     const outputYear = output.accounts[account.id].years[yearIndex]
 
     const currentValue = outputYear.current_value ?? 0
@@ -104,7 +104,7 @@ export function applyGrowth(cashflow: Cashflow, output: Output) {
     outputYear.end_value = round(endValue, 2)
   })
 
-  cashflow.money_purchases.forEach(pension => {
+  cashflow.money_purchases.forEach((pension) => {
     const outputYear = output.money_purchases[pension.id].years[yearIndex]
 
     const growable = [
@@ -113,7 +113,7 @@ export function applyGrowth(cashflow: Cashflow, output: Output) {
       ['current_value_crystallised', 'end_value_crystallised'],
     ] as const
 
-    growable.forEach(item => {
+    growable.forEach((item) => {
       const currentValue = outputYear[item[0]] ?? 0
       const growthRate =
         currentValue < 0 ? 0 : getGrowthRateFromTemplate(pension)

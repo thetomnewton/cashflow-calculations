@@ -47,7 +47,7 @@ describe('planned withdrawals', () => {
       net_growth: 0.05,
     })
 
-    const income = cashflow.incomes.find(i => i.source_id === cash.id)
+    const income = cashflow.incomes.find((i) => i.source_id === cash.id)
 
     expect(income).not.toBe(undefined)
     expect(output.incomes[(income as Income).id].years[0]).toEqual({
@@ -268,19 +268,19 @@ describe('planned withdrawals', () => {
     })
 
     const pa = out.tax.bands[2324][person.id].find(
-      band => band.key === 'personal_allowance'
+      (band) => band.key === 'personal_allowance'
     )
 
     expect(pa?.remaining).toEqual(12570 - 11250)
 
     const basicBand = out.tax.bands[2324][person.id].find(
-      band => band.key === 'basic_rate_eng'
+      (band) => band.key === 'basic_rate_eng'
     )
 
     expect(basicBand?.remaining).toEqual(37700)
 
     const withdrawalIncome = cashflow.incomes.find(
-      inc => inc.source_id === pension.id && !inc.ad_hoc
+      (inc) => inc.source_id === pension.id && !inc.ad_hoc
     )
 
     expect(withdrawalIncome).not.toBeUndefined()
@@ -342,19 +342,19 @@ describe('planned withdrawals', () => {
     })
 
     const pa = out.tax.bands[2324][person.id].find(
-      band => band.key === 'personal_allowance'
+      (band) => band.key === 'personal_allowance'
     )
 
     expect(pa?.remaining).toEqual(12570)
 
     const basicBand = out.tax.bands[2324][person.id].find(
-      band => band.key === 'basic_rate_eng'
+      (band) => band.key === 'basic_rate_eng'
     )
 
     expect(basicBand?.remaining).toEqual(37700)
 
     const withdrawalIncome = cashflow.incomes.find(
-      inc => inc.source_id === pension.id && !inc.ad_hoc
+      (inc) => inc.source_id === pension.id && !inc.ad_hoc
     )
 
     expect(withdrawalIncome).not.toBeUndefined()
@@ -414,19 +414,19 @@ describe('planned withdrawals', () => {
     })
 
     const pa = out.tax.bands[2324][person.id].find(
-      band => band.key === 'personal_allowance'
+      (band) => band.key === 'personal_allowance'
     )
 
     expect(pa?.remaining).toEqual(0)
 
     const basicBand = out.tax.bands[2324][person.id].find(
-      band => band.key === 'basic_rate_eng'
+      (band) => band.key === 'basic_rate_eng'
     )
 
     expect(basicBand?.remaining).toEqual(37700 - (38000 - 12570))
 
     const withdrawalIncome = cashflow.incomes.find(
-      inc => inc.source_id === pension.id && !inc.ad_hoc
+      (inc) => inc.source_id === pension.id && !inc.ad_hoc
     )
 
     expect(withdrawalIncome).not.toBeUndefined()
@@ -487,7 +487,7 @@ describe('shortfall resolving', () => {
 
     const out = run(cashflow)
 
-    const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+    const sweep = cashflow.accounts.find((acc) => acc.is_sweep)
     expect(out.accounts[(sweep as Account).id].years[0]).toEqual({
       start_value: 0,
       current_value: 0,
@@ -514,7 +514,7 @@ describe('shortfall resolving', () => {
      */
 
     const income = cashflow.incomes.filter(
-      inc => inc.ad_hoc && inc.source_id === pension.id
+      (inc) => inc.ad_hoc && inc.source_id === pension.id
     )[1] as Income
 
     const outputIncomeYear = out.incomes[income.id].years[0]

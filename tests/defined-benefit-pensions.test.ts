@@ -33,11 +33,11 @@ describe('defined benefit pensions', () => {
 
     const out = run(cashflow)
 
-    const inc = cashflow.incomes.find(inc => inc.source_id === db.id)
+    const inc = cashflow.incomes.find((inc) => inc.source_id === db.id)
     if (!inc) throw new Error('missing income')
 
     // Expect income to be created in year 6
-    const netValues = out.incomes[inc.id].years.map(year => year.net_value)
+    const netValues = out.incomes[inc.id].years.map((year) => year.net_value)
     expect(netValues).toEqual([0, 0, 0, 0, 0, 0, 10000, 10000])
   })
 
@@ -64,10 +64,10 @@ describe('defined benefit pensions', () => {
 
     const out = run(cashflow)
 
-    const inc = cashflow.incomes.find(inc => inc.source_id === db.id)
+    const inc = cashflow.incomes.find((inc) => inc.source_id === db.id)
     if (!inc) throw new Error('missing income')
 
-    const netValues = out.incomes[inc.id].years.map(year => year.net_value)
+    const netValues = out.incomes[inc.id].years.map((year) => year.net_value)
     const year6value = 10000 * 1.03 ** 6
     const year7value = year6value * 1.05
 
@@ -124,10 +124,12 @@ describe('defined benefit pensions', () => {
 
     const out = run(cashflow)
 
-    const inc = cashflow.incomes.find(inc => inc.source_id === db.id)
+    const inc = cashflow.incomes.find((inc) => inc.source_id === db.id)
     if (!inc) throw new Error('missing income')
 
-    const grossValues = out.incomes[inc.id].years.map(year => year.gross_value)
+    const grossValues = out.incomes[inc.id].years.map(
+      (year) => year.gross_value
+    )
 
     // 50k salary, 2 years of escalation at 3%, multiplied by 13 years
     // of service, divided by 60 because it's a 1/60th scheme.
@@ -169,12 +171,12 @@ describe('defined benefit pensions', () => {
 
     const out = run(cashflow)
 
-    const income = cashflow.incomes.find(inc => inc.source_id === db.id)
+    const income = cashflow.incomes.find((inc) => inc.source_id === db.id)
 
     expect(income).not.toBeUndefined()
     if (!income) throw new Error('Missing income')
 
-    const gross = out.incomes[income.id].years.map(y => y.gross_value)
+    const gross = out.incomes[income.id].years.map((y) => y.gross_value)
     expect(gross[0]).toEqual(15000)
     expect(gross[1]).toEqual(15000 * 1.03)
     expect(gross[2]).toEqual(round(15000 * 1.03 ** 2, 2))

@@ -53,7 +53,7 @@ function makeInitOutput(): Output {
     starts_at: cashflow.starts_at,
     years: [],
     people: Object.fromEntries(
-      cashflow.people.map(person => [
+      cashflow.people.map((person) => [
         person.id,
         {
           start: { in_drawdown: person.in_drawdown },
@@ -82,9 +82,9 @@ function initYears() {
 }
 
 function initBands() {
-  output.years.forEach(year => {
+  output.years.forEach((year) => {
     output.tax.bands[year.tax_year] = {}
-    cashflow.people.forEach(person => {
+    cashflow.people.forEach((person) => {
       output.tax.bands[year.tax_year][person.id] = generateBandsFor(
         person,
         year.tax_year,
@@ -105,7 +105,7 @@ export function makeOutputIncomeObj(
   output: Output
 ): { years: OutputIncomeYear[] } {
   return {
-    years: output.years.map(year => {
+    years: output.years.map((year) => {
       const entityValue = findActiveEntityValue(income, year)
 
       const out: OutputIncomeYear = {
@@ -140,7 +140,7 @@ function initIncome(income: Income) {
   output.incomes[income.id] = makeOutputIncomeObj(income, cashflow, output)
 
   // Set the income's taxable value
-  output.incomes[income.id].years.forEach(year => {
+  output.incomes[income.id].years.forEach((year) => {
     year.taxable_value = getTaxableValue(income, year, cashflow)
   })
 }
@@ -151,7 +151,7 @@ function initExpenses() {
 
 export function initExpenseOutput(expense: Expense) {
   output.expenses[expense.id] = {
-    years: output.years.map(year => {
+    years: output.years.map((year) => {
       const entityValue = findActiveEntityValue(expense, year)
 
       const value = entityValue
@@ -165,7 +165,7 @@ export function initExpenseOutput(expense: Expense) {
 
 export function makeAccountOutputObject(account: Account, output: Output) {
   output.accounts[account.id] = {
-    years: output.years.map(_ => ({
+    years: output.years.map((_) => ({
       start_value: undefined,
       current_value: undefined,
       end_value: undefined,
@@ -179,7 +179,7 @@ export function makeMoneyPurchaseOutputObject(
   output: Output
 ) {
   output.money_purchases[pension.id] = {
-    years: output.years.map(_ => ({
+    years: output.years.map((_) => ({
       start_value: undefined,
       start_value_crystallised: undefined,
       start_value_uncrystallised: undefined,
@@ -197,10 +197,10 @@ export function makeMoneyPurchaseOutputObject(
 function initAccounts() {
   ensureSweepAccountExists()
 
-  cashflow.accounts.forEach(account => {
+  cashflow.accounts.forEach((account) => {
     makeAccountOutputObject(account, output)
 
-    account.withdrawals.forEach(withdrawal => {
+    account.withdrawals.forEach((withdrawal) => {
       cashflow.incomes.push({
         id: v4(),
         people: getAccountOwners(account.owner_id),
@@ -214,10 +214,10 @@ function initAccounts() {
 }
 
 function initMoneyPurchases() {
-  cashflow.money_purchases.forEach(pension => {
+  cashflow.money_purchases.forEach((pension) => {
     makeMoneyPurchaseOutputObject(pension, output)
 
-    pension.withdrawals.forEach(withdrawal => {
+    pension.withdrawals.forEach((withdrawal) => {
       cashflow.incomes.push({
         id: v4(),
         people: getAccountOwners(pension.owner_id),
@@ -241,7 +241,7 @@ function initMoneyPurchases() {
 }
 
 function initDefinedBenefits() {
-  cashflow.defined_benefits.forEach(db => {
+  cashflow.defined_benefits.forEach((db) => {
     const income: Income = {
       id: v4(),
       people: getAccountOwners(db.owner_id),
@@ -285,11 +285,11 @@ function getDeferredDBIncomeValues(db: DeferredDBPension): EntityValue[] {
 
 function getActiveDBIncomeValues(db: ActiveDBPension): EntityValue[] {
   const linkedIncome = cashflow.incomes.find(
-    inc => inc.id === db.linked_salary_id
+    (inc) => inc.id === db.linked_salary_id
   )
   if (!linkedIncome) throw new Error('Missing linked income for DB')
 
-  return linkedIncome.values.map(incomeValue => {
+  return linkedIncome.values.map((incomeValue) => {
     const incomeEnd = date(incomeValue.ends_at)
     const dbStart = date(db.starts_at)
 
@@ -345,7 +345,7 @@ function getInPaymentDBIncomeValues(db: InPaymentDBPension): EntityValue[] {
 
 function ensureSweepAccountExists() {
   // Check if the person has a sweep account. If not, create one.
-  const sweep = cashflow.accounts.find(acc => isAccount(acc) && acc.is_sweep)
+  const sweep = cashflow.accounts.find((acc) => isAccount(acc) && acc.is_sweep)
   if (!sweep) cashflow.accounts.push(createSweepAccount(cashflow.people))
 }
 

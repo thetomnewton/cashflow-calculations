@@ -34,12 +34,12 @@ export function applyPlannedWithdrawals(
 
   const withdrawables = [...cashflow.accounts, ...cashflow.money_purchases]
 
-  withdrawables.forEach(account => {
+  withdrawables.forEach((account) => {
     const withdrawals = account.withdrawals ?? []
 
     // todo: sort withdrawals into appropriate order
 
-    withdrawals.forEach(withdrawal => {
+    withdrawals.forEach((withdrawal) => {
       if (!entityValueActive(year, withdrawal)) return
 
       const grossValue = getValueInYear(withdrawal, year, cashflow, output)
@@ -135,13 +135,13 @@ export function withdrawGrossValueFromMoneyPurchase(
 
 function updateRelatedIncome(account: BaseAccount, amount: number) {
   const relatedIncome = cashflow.incomes.find(
-    inc => inc.source_id === account.id && !inc.ad_hoc
+    (inc) => inc.source_id === account.id && !inc.ad_hoc
   )
 
   if (!relatedIncome) throw new Error('Missing withdrawal income for account')
 
   const existingValue = relatedIncome.values.find(
-    value =>
+    (value) =>
       value.starts_at === year.starts_at && value.ends_at === year.ends_at
   )
 
@@ -188,8 +188,8 @@ function createAdhocIncome(account: BaseAccount, value: number) {
     ? account.owner_id
     : [account.owner_id]
 
-  const people = personIds.map(id =>
-    cashflow.people.find(p => p.id === id)
+  const people = personIds.map((id) =>
+    cashflow.people.find((p) => p.id === id)
   ) as Person[]
 
   const adHocIncome: Income = {

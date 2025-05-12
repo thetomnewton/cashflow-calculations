@@ -65,7 +65,7 @@ function handleWindfall(initialWindfall: number) {
 
   // If the sweep account is below zero, firstly attempt to get that back to
   // zero with some, or all, of the windfall.
-  const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+  const sweep = cashflow.accounts.find((acc) => acc.is_sweep)
   if (!sweep) throw new Error('Missing sweep account')
 
   const currentSweepValue =
@@ -104,12 +104,12 @@ function handleShortfall() {
 
 function getAvailableLiquidAssets() {
   return [
-    ...cashflow.accounts.filter(acc => {
+    ...cashflow.accounts.filter((acc) => {
       // todo: add more logic around if this can be liquidated or not
       if (acc.is_sweep) return false
       return (output.accounts[acc.id].years[yearIndex].current_value ?? 0) > 0
     }),
-    ...cashflow.money_purchases.filter(pension => {
+    ...cashflow.money_purchases.filter((pension) => {
       // todo: add more logic around if this can be liquidated or not,
       // e.g. if the pension access age is met yet
       return (
@@ -155,7 +155,7 @@ function drawFromLiquidAssets(liquidAssets: BaseAccount[]) {
   // If there is still a shortfall at this point, take the sweep account into an overdraft
 
   if (netIncomeNeeded > 0) {
-    const sweep = cashflow.accounts.find(acc => acc.is_sweep)
+    const sweep = cashflow.accounts.find((acc) => acc.is_sweep)
     if (!sweep) throw new Error('Missing sweep account')
 
     output.accounts[sweep.id].years[yearIndex].current_value = round(
@@ -232,7 +232,7 @@ function withdrawGrossAmountAndRetaxIncomes(
 function removeAdHocWithdrawalsFromAccountThisYear(account: BaseAccount) {
   const tracker: { value: number; method: string | undefined }[] = []
 
-  account.withdrawals = account.withdrawals.filter(w => {
+  account.withdrawals = account.withdrawals.filter((w) => {
     if (
       w.ad_hoc &&
       w.starts_at === year.starts_at &&
@@ -249,7 +249,7 @@ function removeAdHocWithdrawalsFromAccountThisYear(account: BaseAccount) {
     return true
   })
 
-  cashflow.incomes = cashflow.incomes.filter(inc => {
+  cashflow.incomes = cashflow.incomes.filter((inc) => {
     if (
       inc.ad_hoc &&
       inc.source_id === account.id &&
@@ -263,7 +263,7 @@ function removeAdHocWithdrawalsFromAccountThisYear(account: BaseAccount) {
     return true
   })
 
-  tracker.forEach(withdrawal => {
+  tracker.forEach((withdrawal) => {
     const outputYear = output[account.section][account.id].years[yearIndex]
 
     // todo: update the current value of the account to restore the money that was taken

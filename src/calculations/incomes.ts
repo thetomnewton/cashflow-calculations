@@ -19,7 +19,7 @@ export function setNetValues(
   cashflow: Cashflow,
   output: Output
 ) {
-  cashflow.incomes.forEach(income => {
+  cashflow.incomes.forEach((income) => {
     const out =
       output.incomes[income.id].years[getYearIndex(year.tax_year, output)]
 
@@ -74,14 +74,16 @@ export function getTaxableValue(
       if (value.gross_value === 0) return 0
 
       const dc: [MoneyPurchase, 'money_purchase'][] =
-        cashflow.money_purchases.map(dc => [dc, 'money_purchase'])
+        cashflow.money_purchases.map((dc) => [dc, 'money_purchase'])
 
       const db: [DefinedBenefitPension, 'defined_benefit'][] =
-        cashflow.defined_benefits.map(db => [db, 'defined_benefit'])
+        cashflow.defined_benefits.map((db) => [db, 'defined_benefit'])
 
       const pensions = [...dc, ...db]
 
-      const source = pensions.find(source => source[0].id === income.source_id)
+      const source = pensions.find(
+        (source) => source[0].id === income.source_id
+      )
       if (!source) throw new Error('Missing source pension')
 
       if (source[1] === 'money_purchase') {
@@ -104,7 +106,7 @@ function getTaxableValueForMoneyPurchase(
   value: OutputIncomeYear
 ) {
   const withdrawal = pension.withdrawals.find(
-    w => w.id === income.source_withdrawal_id
+    (w) => w.id === income.source_withdrawal_id
   )
 
   if (!withdrawal) throw new Error('Missing source withdrawal')

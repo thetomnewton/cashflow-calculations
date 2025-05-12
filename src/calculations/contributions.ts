@@ -38,11 +38,11 @@ export function applyContributions(
 
   const categories = ['accounts', 'money_purchases'] as const
 
-  categories.forEach(category => {
-    cashflow[category].forEach(account => {
+  categories.forEach((category) => {
+    cashflow[category].forEach((account) => {
       const contributions = account.contributions ?? []
 
-      contributions.forEach(contribution => {
+      contributions.forEach((contribution) => {
         const value = getValueInYear(contribution, year, cashflow, output)
 
         const grossValue = addContributionToAccount(
@@ -91,7 +91,7 @@ function addContributionToAccount(
 }
 
 function deductContributionFromSweepAccount(value: number) {
-  const sweep = cashflow.accounts.find(acc => isAccount(acc) && acc.is_sweep)
+  const sweep = cashflow.accounts.find((acc) => isAccount(acc) && acc.is_sweep)
   if (!sweep) throw new Error('Missing sweep account when making contribution')
 
   const outputYear = output.accounts[sweep.id].years[yearIndex]
@@ -177,8 +177,8 @@ function totalRelevantEarnings(personId: Person['id']) {
   let total = 0
 
   cashflow.incomes
-    .filter(inc => inc.people.includes(person) && isRelevantIncome(inc))
-    .forEach(inc => {
+    .filter((inc) => inc.people.includes(person) && isRelevantIncome(inc))
+    .forEach((inc) => {
       total += output.incomes[inc.id].years[yearIndex].taxable_value
     })
 

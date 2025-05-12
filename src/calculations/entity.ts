@@ -22,7 +22,7 @@ export function entityValueActive(year: PlanningYear, ev: EntityValue) {
 }
 
 export function findActiveEntityValue(entity: Entity, year: PlanningYear) {
-  return entity.values.find(ev => entityValueActive(year, ev))
+  return entity.values.find((ev) => entityValueActive(year, ev))
 }
 
 export function getValueInYear(
@@ -38,7 +38,7 @@ export function getValueInYear(
 
   const yearsSinceCashflowStart = Math.max(
     0,
-    output.years.findIndex(py => py.tax_year === year.tax_year)
+    output.years.findIndex((py) => py.tax_year === year.tax_year)
   )
 
   const startDateTaxYear = +getTaxYearFromDate(entityValue.starts_at).substring(
@@ -100,6 +100,6 @@ export function getYearIndexFromDate(date: string, output: Output) {
   const taxYear = getTaxYearFromDate(date)
   return Math.max(
     0,
-    output.years.findIndex(py => py.tax_year === taxYear)
+    output.years.findIndex((py) => py.tax_year === taxYear)
   )
 }

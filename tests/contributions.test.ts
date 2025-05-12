@@ -41,7 +41,9 @@ describe('contributions', () => {
 
     expect(output.accounts[cash1.id].years[0].end_value).toEqual(2100)
 
-    const sweep = cashflow.accounts.find(acc => isAccount(acc) && acc.is_sweep)
+    const sweep = cashflow.accounts.find(
+      (acc) => isAccount(acc) && acc.is_sweep
+    )
     expect(output.accounts[sweep?.id as string].years[0].end_value).toEqual(
       -1000
     )

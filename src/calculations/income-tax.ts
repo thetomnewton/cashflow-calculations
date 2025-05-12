@@ -44,7 +44,7 @@ function getRatesForBandInYear(
   assumptions: CashflowAssumptions
 ) {
   if (knownRates[year]) {
-    const knownRate = knownRates[year].find(rate => rate.key === key)
+    const knownRate = knownRates[year].find((rate) => rate.key === key)
     if (knownRate)
       return {
         ...knownRate,
@@ -58,7 +58,7 @@ function getRatesForBandInYear(
 
   const latestKnownYear = Object.keys(knownRates).at(-1) as string
   const latestKnownRates = knownRates[latestKnownYear].find(
-    rate => rate.key === key
+    (rate) => rate.key === key
   )
 
   if (!latestKnownRates)
@@ -68,10 +68,11 @@ function getRatesForBandInYear(
 
   if (yearsAhead < 0) throw new Error('Can only project forwards')
 
-  const [lower, upper] = (['bound_lower', 'bound_upper'] as const).map(bound =>
-    assumptions.terms === 'real'
-      ? latestKnownRates[bound]
-      : latestKnownRates[bound] * (1 + assumptions.cpi ** yearsAhead)
+  const [lower, upper] = (['bound_lower', 'bound_upper'] as const).map(
+    (bound) =>
+      assumptions.terms === 'real'
+        ? latestKnownRates[bound]
+        : latestKnownRates[bound] * (1 + assumptions.cpi ** yearsAhead)
   )
 
   return {
@@ -89,8 +90,8 @@ export function generateBandsFor(
   assumptions: CashflowAssumptions
 ): OutputTaxBand[] {
   return bands
-    .filter(band => bandIsRelevantTo(person, band))
-    .map(band => getRatesForBandInYear(band.key, year, assumptions))
+    .filter((band) => bandIsRelevantTo(person, band))
+    .map((band) => getRatesForBandInYear(band.key, year, assumptions))
 }
 
 export function calcIncomeTaxLiability(
@@ -100,7 +101,7 @@ export function calcIncomeTaxLiability(
 ) {
   taxYear = year.tax_year
 
-  cashflow.people.forEach(person => {
+  cashflow.people.forEach((person) => {
     const incomes = cashflow.incomes.filter(({ people }) =>
       people.some(({ id }) => id === person.id)
     )
@@ -178,7 +179,7 @@ function taperPersonalAllowance(
   adjustedNetIncome: number
 ) {
   const pa = output.tax.bands[taxYear][person.id].find(
-    band => band.key === 'personal_allowance'
+    (band) => band.key === 'personal_allowance'
   )
   if (!pa) throw new Error(`No Personal Allowance in ${taxYear}`)
 
@@ -227,7 +228,7 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
     ({ key, remaining }) => allowanceKeys.includes(key) && remaining > 0
   )
 
-  incomes.forEach(income => {
+  incomes.forEach((income) => {
     let unusedTotal = getTaxableUnusedTotal(income, output)
     if (unusedTotal <= 0) return
 
@@ -236,7 +237,7 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
 
     // Go through each allowance and deduct it from the taxable income value
     allowances
-      .filter(allowance => {
+      .filter((allowance) => {
         const bandDefinition = bands.find(({ key }) => key === allowance.key)
         if (!bandDefinition) throw new Error('Missing tax band definition')
 
@@ -258,7 +259,7 @@ function deductAllowances(person: Person, output: Output, incomes: Income[]) {
 
         return rateA - rateB
       })
-      .forEach(allowance => {
+      .forEach((allowance) => {
         const used = Math.min(allowance.remaining, unusedTotal)
         if (used <= 0) return
 
@@ -314,7 +315,7 @@ function useTaxBands(person: Person, output: Output, incomes: Income[]) {
   }
 
   Object.entries(categorised).forEach(([category, values]) => {
-    values.forEach(income => {
+    values.forEach((income) => {
       let unusedTotal = getTaxableUnusedTotal(income, output)
       if (unusedTotal <= 0) return
 
@@ -323,7 +324,7 @@ function useTaxBands(person: Person, output: Output, incomes: Income[]) {
 
       // Go through each allowance and deduct it from the taxable income value
       bandsToUse
-        .filter(band => {
+        .filter((band) => {
           const bandDefinition = bands.find(({ key }) => key === band.key)
           if (!bandDefinition) throw new Error('Missing tax band definition')
 
@@ -331,7 +332,7 @@ function useTaxBands(person: Person, output: Output, incomes: Income[]) {
             person.tax_residency
           )
         })
-        .forEach(band => {
+        .forEach((band) => {
           const used = Math.min(band.remaining, unusedTotal)
           if (used <= 0) return
 
@@ -387,13 +388,13 @@ export function undoIncomeTaxation(
 ) {
   const idx = getYearIndex(year.tax_year, output)
 
-  cashflow.incomes.forEach(income => {
+  cashflow.incomes.forEach((income) => {
     const outputYear = output.incomes[income.id].years[idx]
     outputYear.tax.bands = {}
   })
 
-  cashflow.people.forEach(person => {
-    output.tax.bands[year.tax_year][person.id].forEach(band => {
+  cashflow.people.forEach((person) => {
+    output.tax.bands[year.tax_year][person.id].forEach((band) => {
       band.remaining = band.bound_upper
     })
   })
