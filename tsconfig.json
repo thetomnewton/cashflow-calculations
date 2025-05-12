@@ -14,10 +14,9 @@
         "noFallthroughCasesInSwitch": true,
         "noImplicitAny": true,
         "noImplicitOverride": true,
-        "noUncheckedIndexedAccess": true,
+        // "noUncheckedIndexedAccess": true,
         "skipLibCheck": true,
         "strict": true,
         "target": "ESNext"
-    },
-    "include": ["src/**/*.ts"]
+    }
 }

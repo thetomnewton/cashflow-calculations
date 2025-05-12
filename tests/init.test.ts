@@ -2,7 +2,7 @@ import { v4 } from 'uuid';
 import { run } from '../src/calculations';
 import { makeCashflow, makePerson } from '../src/factories';
 import { date, iso } from '../src/lib/date';
-import { EmploymentIncome } from '../src/types';
+import type { EmploymentIncome } from '../src/types';
 
 describe('initialisation tests', () => {
   test('can set cashflow params', () => {
