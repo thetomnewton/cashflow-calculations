@@ -20,7 +20,8 @@
     "@types/lodash": "^4.17.16",
     "@types/uuid": "^9.0.8",
     "prettier": "^3.5.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "@types/bun": "latest"
   },
   "dependencies": {
     "dayjs": "^1.11.13",
@@ -34,5 +35,6 @@
   "homepage": "https://github.com/advicehome/cashflow-calculations#readme",
   "directories": {
     "test": "tests"
-  }
+  },
+  "private": true
 }
