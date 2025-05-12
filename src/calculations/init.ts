@@ -149,7 +149,7 @@ function initExpenses() {
   cashflow.expenses.forEach(initExpenseOutput);
 }
 
-export function initExpenseOutput(expense: Expense) {
+function initExpenseOutput(expense: Expense) {
   output.expenses[expense.id] = {
     years: output.years.map((year) => {
       const entityValue = findActiveEntityValue(expense, year);
@@ -163,7 +163,7 @@ export function initExpenseOutput(expense: Expense) {
   };
 }
 
-export function makeAccountOutputObject(account: Account, output: Output) {
+function makeAccountOutputObject(account: Account, output: Output) {
   output.accounts[account.id] = {
     years: output.years.map((_) => ({
       start_value: undefined,
@@ -174,10 +174,7 @@ export function makeAccountOutputObject(account: Account, output: Output) {
   };
 }
 
-export function makeMoneyPurchaseOutputObject(
-  pension: MoneyPurchase,
-  output: Output
-) {
+function makeMoneyPurchaseOutputObject(pension: MoneyPurchase, output: Output) {
   output.money_purchases[pension.id] = {
     years: output.years.map((_) => ({
       start_value: undefined,

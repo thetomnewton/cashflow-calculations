@@ -29,6 +29,8 @@ let yearIndex: number;
 let cashflow: Cashflow;
 let output: Output;
 
+const MAX_EXPENSE_RECURSION_ATTEMPTS = 25;
+
 export function applyExpenses(
   baseYear: PlanningYear,
   baseCashflow: Cashflow,
@@ -199,7 +201,7 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
   let attempts = 0;
   let amountToTry = min + (max - min) / 2;
 
-  while (attempts < 25) {
+  while (attempts < MAX_EXPENSE_RECURSION_ATTEMPTS) {
     withdrawGrossAmountAndRetaxIncomes(account, amountToTry);
     const windfall = determineWindfallOrShortfall() * -1;
     if (round(windfall, 1) === 0) break;
@@ -221,9 +223,11 @@ function withdrawGrossAmountAndRetaxIncomes(
   account: BaseAccount,
   amount: number
 ) {
-  if (isAccount(account)) withdrawGrossValueFromAccount(account, amount, true);
-  else if (isMoneyPurchase(account))
+  if (isAccount(account)) {
+    withdrawGrossValueFromAccount(account, amount, true);
+  } else if (isMoneyPurchase(account)) {
     withdrawGrossValueFromMoneyPurchase(account, amount, 'ufpls', true);
+  }
   undoIncomeTaxation(year, cashflow, output);
   calcIncomeTaxLiability(year, cashflow, output);
   setNetValues(year, cashflow, output);
