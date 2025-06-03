@@ -1,4 +1,4 @@
-# @oxideadvice/cashflow-calculations
+# @advicehome/cashflow-calculations
 
 To install dependencies:
 

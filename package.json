@@ -1,5 +1,5 @@
 {
-  "name": "@oxideadvice/cashflow-calculations",
+  "name": "@advicehome/cashflow-calculations",
   "version": "0.0.5",
   "description": "Cashflow calculations",
   "main": "src/calculations/index.ts",
@@ -8,8 +8,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/oxideadvice/cashflow-calculations.git",
-    "directory": "@oxideadvice/cashflow-calculations"
+    "url": "git+ssh://git@github.com/AdviceHome/cashflow-calculations.git",
+    "directory": "@advicehome/cashflow-calculations"
   },
   "files": [
     "src"
