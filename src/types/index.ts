@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const PersonSchema = z.object({
+export const personSchema = z.object({
   id: z.string(),
   date_of_birth: z.string(),
   tax_residency: z.enum(['eng', 'wal', 'sco', 'ni']),
@@ -9,9 +9,9 @@ export const PersonSchema = z.object({
   registered_blind: z.boolean(),
 });
 
-export type Person = z.infer<typeof PersonSchema>;
+export type Person = z.infer<typeof personSchema>;
 
-export const CashflowAssumptionsSchema = z.object({
+export const cashflowAssumptionsSchema = z.object({
   terms: z.enum(['real', 'nominal']),
   cpi: z.number().min(0).max(1),
   rpi: z.number().min(0).max(1),
@@ -19,9 +19,9 @@ export const CashflowAssumptionsSchema = z.object({
   windfall_save: z.enum(['discard', 'sweep']),
 });
 
-export type CashflowAssumptions = z.infer<typeof CashflowAssumptionsSchema>;
+export type CashflowAssumptions = z.infer<typeof cashflowAssumptionsSchema>;
 
-export const IncomeSchema = z.object({
+export const incomeSchema = z.object({
   id: z.string(),
   type: z.enum([
     'employment',
@@ -32,7 +32,7 @@ export const IncomeSchema = z.object({
     'pension',
     'savings',
   ]),
-  people: z.array(PersonSchema),
+  people: z.array(personSchema),
   values: z.array(
     z.object({
       value: z.number(),
@@ -49,12 +49,12 @@ export const IncomeSchema = z.object({
   source_withdrawal_id: z.optional(z.string()),
 });
 
-export type Income = z.infer<typeof IncomeSchema>;
+export type Income = z.infer<typeof incomeSchema>;
 
-export const ExpenseSchema = z.object({
+export const expenseSchema = z.object({
   type: z.string(),
   id: z.string(),
-  people: z.array(PersonSchema),
+  people: z.array(personSchema),
   values: z.array(
     z.object({
       value: z.number(),
@@ -66,9 +66,9 @@ export const ExpenseSchema = z.object({
   ),
 });
 
-export type Expense = z.infer<typeof ExpenseSchema>;
+export type Expense = z.infer<typeof expenseSchema>;
 
-export const ContributionSchema = z.object({
+export const contributionSchema = z.object({
   value: z.number().min(0),
   starts_at: z.string().datetime(),
   ends_at: z.string().datetime(),
@@ -77,9 +77,9 @@ export const ContributionSchema = z.object({
   type: z.enum(['personal', 'employer']),
 });
 
-export type Contribution = z.infer<typeof ContributionSchema>;
+export type Contribution = z.infer<typeof contributionSchema>;
 
-export const WithdrawalSchema = z.object({
+export const withdrawalSchema = z.object({
   id: z.string(),
   value: z.number().min(0),
   starts_at: z.string().datetime(),
@@ -89,25 +89,25 @@ export const WithdrawalSchema = z.object({
   ad_hoc: z.optional(z.boolean()),
 });
 
-export type Withdrawal = z.infer<typeof WithdrawalSchema>;
+export type Withdrawal = z.infer<typeof withdrawalSchema>;
 
-export const MoneyPurchaseWithdrawalSchema = WithdrawalSchema.extend({
+export const moneyPurchasewithdrawalSchema = withdrawalSchema.extend({
   method: z.enum(['ufpls', 'fad', 'pcls']),
 });
 
-export const ValuationSchema = z.object({
+export const valuationSchema = z.object({
   date: z.string().datetime(),
   value: z.number(),
 });
 
-export type Valuation = z.infer<typeof ValuationSchema>;
+export type Valuation = z.infer<typeof valuationSchema>;
 
 const GrowthRateEntrySchema = z.object({
   gross_rate: z.number().min(-1).max(1),
   charges: z.optional(z.number().min(-1).max(1)),
 });
 
-export const GrowthTemplateSchema = z
+export const growthTemplateSchema = z
   .object({
     type: z.literal('flat'),
     rate: GrowthRateEntrySchema,
@@ -119,24 +119,24 @@ export const GrowthTemplateSchema = z
     })
   );
 
-export type GrowthTemplate = z.infer<typeof GrowthTemplateSchema>;
+export type GrowthTemplate = z.infer<typeof growthTemplateSchema>;
 
-export const AccountSchema = z.object({
+export const accountSchema = z.object({
   id: z.string(),
   category: z.string(),
   sub_category: z.optional(z.string()),
   owner_id: z.string().or(z.array(z.string())),
   section: z.literal('accounts'),
   is_sweep: z.optional(z.boolean()),
-  contributions: z.array(ContributionSchema),
-  withdrawals: z.array(WithdrawalSchema),
-  valuations: z.array(ValuationSchema),
-  growth_template: GrowthTemplateSchema,
+  contributions: z.array(contributionSchema),
+  withdrawals: z.array(withdrawalSchema),
+  valuations: z.array(valuationSchema),
+  growth_template: growthTemplateSchema,
 });
 
-export type Account = z.infer<typeof AccountSchema>;
+export type Account = z.infer<typeof accountSchema>;
 
-const MoneyPurchaseValuationSchema = z.object({
+const moneyPurchaseValuationSchema = z.object({
   date: z.string().datetime(),
   value: z.number().min(0),
   uncrystallised_value: z.number(),
@@ -144,24 +144,24 @@ const MoneyPurchaseValuationSchema = z.object({
 });
 
 export type MoneyPurchaseValuation = z.infer<
-  typeof MoneyPurchaseValuationSchema
+  typeof moneyPurchaseValuationSchema
 >;
 
-export const MoneyPurchaseSchema = z.object({
+export const moneyPurchaseSchema = z.object({
   id: z.string(),
   category: z.literal('money_purchase'),
   sub_category: z.optional(z.string()),
   owner_id: z.string().or(z.array(z.string())),
   section: z.literal('money_purchases'),
-  contributions: z.array(ContributionSchema),
-  growth_template: GrowthTemplateSchema,
-  valuations: z.array(MoneyPurchaseValuationSchema),
-  withdrawals: z.array(MoneyPurchaseWithdrawalSchema),
+  contributions: z.array(contributionSchema),
+  growth_template: growthTemplateSchema,
+  valuations: z.array(moneyPurchaseValuationSchema),
+  withdrawals: z.array(moneyPurchasewithdrawalSchema),
 });
 
-export type MoneyPurchase = z.infer<typeof MoneyPurchaseSchema>;
+export type MoneyPurchase = z.infer<typeof moneyPurchaseSchema>;
 
-export const DefinedBenefitSchema = z.object({
+export const definedBenefitSchema = z.object({
   id: z.string(),
   owner_id: z.string(),
   status: z.enum(['active', 'deferred', 'in_payment']),
@@ -169,19 +169,19 @@ export const DefinedBenefitSchema = z.object({
   starts_at: z.string().datetime(),
 });
 
-export type DefinedBenefitPension = z.infer<typeof DefinedBenefitSchema>;
+export type DefinedBenefitPension = z.infer<typeof definedBenefitSchema>;
 
 export const CashflowSchema = z.object({
   id: z.string(),
   starts_at: z.string().datetime(),
   years: z.number().min(1).max(100),
-  people: z.array(PersonSchema),
-  assumptions: CashflowAssumptionsSchema,
-  incomes: z.array(IncomeSchema),
-  expenses: z.array(ExpenseSchema),
-  accounts: z.array(AccountSchema),
-  money_purchases: z.array(MoneyPurchaseSchema),
-  defined_benefits: z.array(DefinedBenefitSchema),
+  people: z.array(personSchema),
+  assumptions: cashflowAssumptionsSchema,
+  incomes: z.array(incomeSchema),
+  expenses: z.array(expenseSchema),
+  accounts: z.array(accountSchema),
+  money_purchases: z.array(moneyPurchaseSchema),
+  defined_benefits: z.array(definedBenefitSchema),
 });
 
 export type Cashflow = z.infer<typeof CashflowSchema>;
