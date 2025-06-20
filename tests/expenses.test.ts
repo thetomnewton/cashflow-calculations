@@ -21,8 +21,8 @@ describe('expenses', () => {
       values: [
         {
           value: 30000,
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2025-12-20'),
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2027-12-20'),
           escalation: 'cpi',
         },
       ],
@@ -32,8 +32,8 @@ describe('expenses', () => {
       values: [
         {
           value: 15000,
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2025-12-20'),
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2027-12-20'),
           escalation: 'cpi',
         },
       ],
@@ -44,6 +44,7 @@ describe('expenses', () => {
       incomes: [salary],
       expenses: [costs],
       assumptions: { windfall_save: 'sweep' },
+      starts_at: iso('2025-06-04'),
     });
 
     const out = run(cashflow);
@@ -66,8 +67,8 @@ describe('expenses', () => {
       values: [
         {
           value: 30000,
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2025-12-20'),
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2027-12-20'),
           escalation: 'cpi',
         },
       ],
@@ -77,8 +78,8 @@ describe('expenses', () => {
       values: [
         {
           value: 15000,
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2025-12-20'),
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2027-12-20'),
           escalation: 'cpi',
         },
       ],
@@ -88,6 +89,7 @@ describe('expenses', () => {
       people: [person],
       incomes: [salary],
       expenses: [costs],
+      starts_at: iso('2025-06-04'),
       assumptions: { windfall_save: 'discard' },
     });
 
@@ -113,8 +115,8 @@ describe('expenses', () => {
       values: [
         {
           value: 55000,
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2025-12-20'),
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2027-12-20'),
           escalation: 'rpi',
         },
       ],
@@ -124,8 +126,8 @@ describe('expenses', () => {
       values: [
         {
           value: 75000,
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2025-12-20'),
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2027-12-20'),
           escalation: 'cpi',
         },
       ],
@@ -134,7 +136,7 @@ describe('expenses', () => {
     const isa = makeAccount({
       category: 'isa',
       owner_id: person.id,
-      valuations: [{ value: 100000, date: iso('2023-12-20') }],
+      valuations: [{ value: 100000, date: iso('2025-12-20') }],
       growth_template: { type: 'flat', rate: { gross_rate: 0.03, charges: 0 } },
     });
 
@@ -143,6 +145,7 @@ describe('expenses', () => {
       incomes: [salary],
       expenses: [costs],
       accounts: [isa],
+      starts_at: iso('2025-06-04'),
     });
     const out = run(cashflow);
 
@@ -178,8 +181,8 @@ describe('expenses', () => {
       values: [
         {
           value: 5000,
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2025-12-20'),
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2027-12-20'),
           escalation: 'rpi',
         },
       ],
@@ -189,8 +192,8 @@ describe('expenses', () => {
       values: [
         {
           value: 7000,
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2025-12-20'),
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2027-12-20'),
           escalation: 'cpi',
         },
       ],
@@ -203,7 +206,7 @@ describe('expenses', () => {
           value: 50000,
           uncrystallised_value: 50000,
           crystallised_value: 0,
-          date: iso('2023-12-20'),
+          date: iso('2025-12-20'),
         },
       ],
       growth_template: { type: 'flat', rate: { gross_rate: 0.03, charges: 0 } },
@@ -214,6 +217,7 @@ describe('expenses', () => {
       incomes: [salary],
       expenses: [costs],
       money_purchases: [pension],
+      starts_at: iso('2025-06-04'),
     });
     const out = run(cashflow);
 
@@ -253,8 +257,8 @@ describe('expenses', () => {
       values: [
         {
           value: 10000,
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2025-12-20'),
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2027-12-20'),
           escalation: 0,
         },
       ],
@@ -265,8 +269,8 @@ describe('expenses', () => {
       values: [
         {
           value: 12000,
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2025-12-20'),
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2027-12-20'),
           escalation: 'cpi',
         },
       ],
@@ -274,7 +278,7 @@ describe('expenses', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-12-20'),
+      starts_at: iso('2025-12-20'),
       years: 5,
       incomes: [salary],
       expenses: [expense],

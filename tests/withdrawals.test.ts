@@ -18,14 +18,14 @@ describe('planned withdrawals', () => {
     const cash = makeAccount({
       category: 'cash',
       owner_id: person.id,
-      valuations: [{ date: iso(), value: 1000 }],
+      valuations: [{ date: iso('2025-06-01'), value: 1000 }],
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       withdrawals: [
         {
           id: v4(),
           value: 100,
-          starts_at: iso(),
-          ends_at: iso('2024-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2026-04-06'),
           escalation: 0,
         },
       ],
@@ -33,7 +33,7 @@ describe('planned withdrawals', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 1,
       accounts: [cash],
     });
@@ -64,14 +64,14 @@ describe('planned withdrawals', () => {
     const cash = makeAccount({
       category: 'cash',
       owner_id: person.id,
-      valuations: [{ date: iso(), value: 16123 }],
+      valuations: [{ date: iso('2025-06-01'), value: 16123 }],
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       withdrawals: [
         {
           id: v4(),
           value: 18000,
-          starts_at: iso(),
-          ends_at: iso('2024-12-01'),
+          starts_at: iso('2025-12-01'),
+          ends_at: iso('2026-12-01'),
           escalation: 0,
         },
       ],
@@ -79,7 +79,7 @@ describe('planned withdrawals', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-12-01'),
+      starts_at: iso('2025-12-01'),
       years: 1,
       accounts: [cash],
     });
@@ -100,13 +100,13 @@ describe('planned withdrawals', () => {
     const cash = makeAccount({
       category: 'cash',
       owner_id: person.id,
-      valuations: [{ date: iso(), value: 175123 }],
+      valuations: [{ date: iso('2025-06-01'), value: 175123 }],
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       withdrawals: [
         {
           id: v4(),
           value: 12121,
-          starts_at: iso(),
+          starts_at: iso('2025-12-31'),
           ends_at: iso('2028-12-31'),
           escalation: 'rpi',
         },
@@ -115,7 +115,7 @@ describe('planned withdrawals', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-12-31'),
+      starts_at: iso('2025-12-31'),
       years: 2,
       accounts: [cash],
       assumptions: { rpi: 0.035 },
@@ -144,20 +144,20 @@ describe('planned withdrawals', () => {
     const cash = makeAccount({
       category: 'cash',
       owner_id: person.id,
-      valuations: [{ date: iso(), value: 175000 }],
+      valuations: [{ date: iso('2025-06-01'), value: 175000 }],
       growth_template: { type: 'flat', rate: { gross_rate: 0.03, charges: 0 } },
       withdrawals: [
         {
           id: v4(),
           value: 5000,
-          starts_at: iso(),
+          starts_at: iso('2025-04-06'),
           ends_at: iso('2030-04-06'),
           escalation: 0.07,
         },
         {
           id: v4(),
           value: 12000,
-          starts_at: iso('2025-04-06'),
+          starts_at: iso('2027-04-06'),
           ends_at: iso('2030-04-06'),
           escalation: 0.06,
         },
@@ -166,7 +166,7 @@ describe('planned withdrawals', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 7,
       accounts: [cash],
     });
@@ -216,7 +216,7 @@ describe('planned withdrawals', () => {
         {
           uncrystallised_value: 150000,
           crystallised_value: 0,
-          date: iso('2023-12-16'),
+          date: iso('2025-12-16'),
           value: 150000,
         },
       ],
@@ -224,7 +224,7 @@ describe('planned withdrawals', () => {
         {
           id: v4(),
           value: 15000,
-          starts_at: iso('2023-12-16'),
+          starts_at: iso('2025-12-16'),
           ends_at: iso('2028-12-16'),
           escalation: 'cpi',
           method: 'ufpls',
@@ -234,7 +234,7 @@ describe('planned withdrawals', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-12-16'),
+      starts_at: iso('2025-12-16'),
       years: 5,
       money_purchases: [pension],
     });
@@ -267,13 +267,13 @@ describe('planned withdrawals', () => {
       net_growth: 0.05,
     });
 
-    const pa = out.tax.bands[2324][person.id].find(
+    const pa = out.tax.bands[2526][person.id].find(
       (band) => band.key === 'personal_allowance'
     );
 
     expect(pa?.remaining).toEqual(12570 - 11250);
 
-    const basicBand = out.tax.bands[2324][person.id].find(
+    const basicBand = out.tax.bands[2526][person.id].find(
       (band) => band.key === 'basic_rate_eng'
     );
 
@@ -303,7 +303,7 @@ describe('planned withdrawals', () => {
         {
           uncrystallised_value: 150000,
           crystallised_value: 0,
-          date: iso('2023-12-20'),
+          date: iso('2025-12-20'),
           value: 150000,
         },
       ],
@@ -311,8 +311,8 @@ describe('planned withdrawals', () => {
         {
           id: v4(),
           value: 40000, // only 37500 PCLS should be possible
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2024-12-20'),
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2026-12-20'),
           escalation: 'cpi',
           method: 'pcls',
         },
@@ -321,7 +321,7 @@ describe('planned withdrawals', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-12-20'),
+      starts_at: iso('2025-12-20'),
       years: 5,
       money_purchases: [pension],
     });
@@ -341,13 +341,13 @@ describe('planned withdrawals', () => {
       net_growth: 0.05,
     });
 
-    const pa = out.tax.bands[2324][person.id].find(
+    const pa = out.tax.bands[2526][person.id].find(
       (band) => band.key === 'personal_allowance'
     );
 
     expect(pa?.remaining).toEqual(12570);
 
-    const basicBand = out.tax.bands[2324][person.id].find(
+    const basicBand = out.tax.bands[2526][person.id].find(
       (band) => band.key === 'basic_rate_eng'
     );
 
@@ -375,7 +375,7 @@ describe('planned withdrawals', () => {
         {
           uncrystallised_value: 20000,
           crystallised_value: 80000,
-          date: iso('2023-12-20'),
+          date: iso('2025-12-20'),
           value: 100000,
         },
       ],
@@ -383,8 +383,8 @@ describe('planned withdrawals', () => {
         {
           id: v4(),
           value: 38000,
-          starts_at: iso('2023-12-20'),
-          ends_at: iso('2024-12-20'),
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2026-12-20'),
           escalation: 'cpi',
           method: 'fad',
         },
@@ -393,7 +393,7 @@ describe('planned withdrawals', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-12-20'),
+      starts_at: iso('2025-12-20'),
       years: 5,
       money_purchases: [pension],
     });
@@ -413,13 +413,13 @@ describe('planned withdrawals', () => {
       net_growth: 0.05,
     });
 
-    const pa = out.tax.bands[2324][person.id].find(
+    const pa = out.tax.bands[2526][person.id].find(
       (band) => band.key === 'personal_allowance'
     );
 
     expect(pa?.remaining).toEqual(0);
 
-    const basicBand = out.tax.bands[2324][person.id].find(
+    const basicBand = out.tax.bands[2526][person.id].find(
       (band) => band.key === 'basic_rate_eng'
     );
 
@@ -459,7 +459,7 @@ describe('shortfall resolving', () => {
           value: 50000,
           uncrystallised_value: 50000,
           crystallised_value: 0,
-          date: iso('2023-12-31'),
+          date: iso('2025-12-31'),
         },
       ],
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
@@ -470,15 +470,15 @@ describe('shortfall resolving', () => {
       values: [
         {
           value: 20000,
-          starts_at: iso('2023-12-31'),
-          ends_at: iso('2028-12-31'),
+          starts_at: iso('2025-12-31'),
+          ends_at: iso('2030-12-31'),
           escalation: 'cpi',
         },
       ],
     });
 
     const cashflow = makeCashflow({
-      starts_at: iso('2023-12-31'),
+      starts_at: iso('2025-12-31'),
       years: 1,
       people: [person],
       money_purchases: [pension],
