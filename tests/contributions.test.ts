@@ -33,7 +33,7 @@ describe('contributions', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 1,
       accounts: [cash1],
     });
