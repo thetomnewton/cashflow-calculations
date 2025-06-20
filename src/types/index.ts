@@ -171,7 +171,7 @@ export const definedBenefitSchema = z.object({
 
 export type DefinedBenefitPension = z.infer<typeof definedBenefitSchema>;
 
-export const CashflowSchema = z.object({
+export const cashflowSchema = z.object({
   id: z.string(),
   starts_at: z.string().datetime(),
   years: z.number().min(1).max(100),
@@ -184,7 +184,7 @@ export const CashflowSchema = z.object({
   defined_benefits: z.array(definedBenefitSchema),
 });
 
-export type Cashflow = z.infer<typeof CashflowSchema>;
+export type Cashflow = z.infer<typeof cashflowSchema>;
 
 export interface PlanningYear {
   starts_at: string;
