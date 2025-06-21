@@ -27,7 +27,7 @@ describe('defined benefit pensions', () => {
     const cashflow = makeCashflow({
       people: [person],
       defined_benefits: [db],
-      starts_at: iso('2023-06-01'),
+      starts_at: iso('2025-06-01'),
       years: 8,
     });
 
@@ -36,13 +36,13 @@ describe('defined benefit pensions', () => {
     const inc = cashflow.incomes.find((inc) => inc.source_id === db.id);
     if (!inc) throw new Error('missing income');
 
-    // Expect income to be created in year 6
+    // Expect income to be created in year 4
     const netValues = out.incomes[inc.id].years.map((year) => year.net_value);
-    expect(netValues).toEqual([0, 0, 0, 0, 0, 0, 10000, 10000]);
+    expect(netValues).toEqual([0, 0, 0, 0, 10000, 10000, 10000, 10000]);
   });
 
   test('deferred DB escalates correctly', () => {
-    const person = makePerson({ date_of_birth: '1964-06-01' });
+    const person = makePerson({ date_of_birth: '1966-06-01' });
 
     const db: DeferredDBPension = {
       id: v4(),
@@ -58,8 +58,8 @@ describe('defined benefit pensions', () => {
     const cashflow = makeCashflow({
       people: [person],
       defined_benefits: [db],
-      starts_at: iso('2023-06-01'),
-      years: 8,
+      starts_at: iso('2025-06-01'),
+      years: 7,
     });
 
     const out = run(cashflow);
@@ -68,18 +68,16 @@ describe('defined benefit pensions', () => {
     if (!inc) throw new Error('missing income');
 
     const netValues = out.incomes[inc.id].years.map((year) => year.net_value);
-    const year6value = 10000 * 1.03 ** 6;
-    const year7value = year6value * 1.05;
+    const year4value = round(10000 * 1.03 ** 4, 2);
 
     expect(netValues).toEqual([
       0,
       0,
       0,
       0,
-      0,
-      0,
-      round(year6value, 2),
-      round(year7value, 2),
+      year4value,
+      round(year4value * 1.05, 2),
+      round(year4value * 1.05 ** 2, 2),
     ]);
   });
 
@@ -93,8 +91,8 @@ describe('defined benefit pensions', () => {
       values: [
         {
           value: 50000,
-          starts_at: iso('2023-06-01'),
-          ends_at: iso('2026-06-01'),
+          starts_at: iso('2025-06-01'),
+          ends_at: iso('2028-06-01'),
           escalation: 'rpi',
         },
       ],
@@ -117,7 +115,7 @@ describe('defined benefit pensions', () => {
       people: [person],
       incomes: [salary],
       defined_benefits: [db],
-      starts_at: iso('2023-06-01'),
+      starts_at: iso('2025-06-01'),
       years: 8,
       assumptions: { rpi: 0.03 },
     });
@@ -134,18 +132,18 @@ describe('defined benefit pensions', () => {
     // 50k salary, 2 years of escalation at 3%, multiplied by 13 years
     // of service, divided by 60 because it's a 1/60th scheme.
     const finalSalary = 50000 * 1.03 ** 2 * (13 / 60);
-    // Add 3 years of deferment growth at 2.5%
-    const initialIncome = finalSalary * 1.025 ** 3;
+    // Add 1 year of deferment growth at 2.5%
+    const initialIncome = round(finalSalary * 1.025, 2);
 
     expect(grossValues).toEqual([
       0,
       0,
       0,
       0,
-      0,
-      0,
-      round(initialIncome, 2),
-      round(round(initialIncome, 2) * 1.03, 2),
+      initialIncome,
+      round(initialIncome * 1.03, 2),
+      round(initialIncome * 1.03 ** 2, 2),
+      round(initialIncome * 1.03 ** 3, 2),
     ]);
   });
 
@@ -156,7 +154,7 @@ describe('defined benefit pensions', () => {
       id: v4(),
       owner_id: person.id,
       status: 'in_payment',
-      starts_at: iso('2024-02-01'),
+      starts_at: iso('2026-02-01'),
       annual_amount: 15000,
       active_escalation_rate: 'rpi',
     };
@@ -164,7 +162,7 @@ describe('defined benefit pensions', () => {
     const cashflow = makeCashflow({
       people: [person],
       defined_benefits: [db],
-      starts_at: iso('2024-02-01'),
+      starts_at: iso('2026-02-01'),
       years: 5,
       assumptions: { rpi: 0.03 },
     });

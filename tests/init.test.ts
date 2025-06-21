@@ -6,7 +6,7 @@ import type { EmploymentIncome } from '../src/types';
 
 describe('initialisation tests', () => {
   test('can set cashflow params', () => {
-    const startDate = iso('2023-04-06');
+    const startDate = iso('2025-04-06');
     const cashflow = makeCashflow({
       people: [makePerson({ sex: 'male' })],
       starts_at: startDate,
