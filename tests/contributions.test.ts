@@ -57,7 +57,7 @@ describe('contributions', () => {
       values: [
         {
           value: 15000,
-          starts_at: iso('2023-09-30'),
+          starts_at: iso('2025-09-30'),
           ends_at: iso('2030-09-30'),
           escalation: 'cpi',
         },
@@ -68,7 +68,7 @@ describe('contributions', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: iso('2023-09-30'),
+          date: iso('2025-09-30'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -79,8 +79,8 @@ describe('contributions', () => {
         {
           type: 'personal',
           value: 2000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2025-09-30'),
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2027-09-30'),
           escalation: 0,
         },
       ],
@@ -88,7 +88,7 @@ describe('contributions', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-09-30'),
+      starts_at: iso('2025-09-30'),
       years: 2,
       money_purchases: [pension],
       incomes: [salary],
@@ -135,8 +135,8 @@ describe('contributions', () => {
       values: [
         {
           value: 15000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2028-09-30'),
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2030-09-30'),
           escalation: 'rpi',
         },
       ],
@@ -146,7 +146,7 @@ describe('contributions', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: iso('2023-09-30'),
+          date: iso('2025-09-30'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -157,8 +157,8 @@ describe('contributions', () => {
         {
           type: 'personal',
           value: 2000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2025-09-30'),
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2027-09-30'),
           escalation: 0,
         },
       ],
@@ -166,7 +166,7 @@ describe('contributions', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-09-30'),
+      starts_at: iso('2025-09-30'),
       years: 2,
       money_purchases: [pension],
       incomes: [salary],
@@ -213,8 +213,8 @@ describe('contributions', () => {
       values: [
         {
           value: 15000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2028-09-30'),
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2030-09-30'),
           escalation: 'rpi',
         },
       ],
@@ -224,7 +224,7 @@ describe('contributions', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: iso('2023-09-30'),
+          date: iso('2025-09-30'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -235,8 +235,8 @@ describe('contributions', () => {
         {
           type: 'personal',
           value: 2000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2025-09-30'),
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2027-09-30'),
           escalation: 0,
         },
       ],
@@ -244,7 +244,7 @@ describe('contributions', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-09-30'),
+      starts_at: iso('2025-09-30'),
       years: 2,
       money_purchases: [pension],
       incomes: [salary],
@@ -294,8 +294,8 @@ describe('contributions', () => {
       values: [
         {
           value: 55000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2030-09-30'),
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2032-09-30'),
           escalation: 'cpi',
         },
       ],
@@ -305,7 +305,7 @@ describe('contributions', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: iso('2023-09-30'),
+          date: iso('2025-09-30'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -316,8 +316,8 @@ describe('contributions', () => {
         {
           type: 'personal',
           value: 2000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2025-09-30'),
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2027-09-30'),
           escalation: 0,
         },
       ],
@@ -325,7 +325,7 @@ describe('contributions', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-09-30'),
+      starts_at: iso('2025-09-30'),
       years: 2,
       money_purchases: [pension],
       incomes: [salary],
@@ -371,7 +371,7 @@ describe('contributions', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: iso('2023-09-30'),
+          date: iso('2025-09-30'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -382,8 +382,8 @@ describe('contributions', () => {
         {
           type: 'personal',
           value: 2000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2025-09-30'),
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2027-09-30'),
           escalation: 0,
         },
       ],
@@ -391,7 +391,7 @@ describe('contributions', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-09-30'),
+      starts_at: iso('2025-09-30'),
       years: 2,
       money_purchases: [pension],
       incomes: [],
@@ -437,8 +437,8 @@ describe('contributions', () => {
       values: [
         {
           value: 15000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2030-09-30'),
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2032-09-30'),
           escalation: 'cpi',
         },
       ],
@@ -448,7 +448,7 @@ describe('contributions', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: iso('2023-09-30'),
+          date: iso('2025-09-30'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -459,8 +459,8 @@ describe('contributions', () => {
         {
           type: 'employer',
           value: 2000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2025-09-30'),
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2027-09-30'),
           escalation: 0,
         },
       ],
@@ -468,7 +468,7 @@ describe('contributions', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-09-30'),
+      starts_at: iso('2025-09-30'),
       years: 2,
       money_purchases: [pension],
       incomes: [salary],
@@ -515,7 +515,7 @@ describe('contributions', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: iso('2023-09-30'),
+          date: iso('2025-09-30'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -529,8 +529,8 @@ describe('contributions', () => {
         {
           type: 'personal',
           value: 4000,
-          starts_at: iso('2023-09-30'),
-          ends_at: iso('2026-09-30'),
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2028-09-30'),
           escalation: 0,
         },
       ],
@@ -538,7 +538,7 @@ describe('contributions', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-09-30'),
+      starts_at: iso('2025-09-30'),
       years: 2,
       money_purchases: [pension],
       assumptions: { terms: 'real', cpi },

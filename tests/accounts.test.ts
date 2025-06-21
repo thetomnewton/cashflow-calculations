@@ -15,7 +15,7 @@ describe('accounts', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 1,
     });
     const out = run(cashflow);
@@ -38,7 +38,7 @@ describe('accounts', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: iso('2023-04-06'),
+          date: iso('2025-04-06'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -49,7 +49,7 @@ describe('accounts', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       money_purchases: [account],
     });
@@ -91,7 +91,7 @@ describe('accounts', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: iso('2023-04-06'),
+          date: iso('2025-04-06'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -102,7 +102,7 @@ describe('accounts', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 1,
       money_purchases: [account],
       assumptions: { terms: 'real', cpi: 0.025 },
@@ -132,7 +132,7 @@ describe('accounts', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: iso('2023-04-06'),
+          date: iso('2025-04-06'),
           value: 10000,
           uncrystallised_value: 10000,
           crystallised_value: 0,
@@ -143,7 +143,7 @@ describe('accounts', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 1,
       money_purchases: [account],
       assumptions: { terms: 'real', cpi: 0.04 },
@@ -173,7 +173,7 @@ describe('accounts', () => {
       is_sweep: true,
       category: 'cash',
       owner_id: person.id,
-      valuations: [{ date: iso('2023-04-06'), value: 0 }],
+      valuations: [{ date: iso('2025-04-06'), value: 0 }],
       growth_template: {
         type: 'flat',
         rate: { gross_rate: 0.005, charges: 0 },
@@ -182,7 +182,7 @@ describe('accounts', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 1,
       accounts: [account],
     });
@@ -197,7 +197,7 @@ describe('accounts', () => {
     const account1 = makeAccount({
       category: 'cash',
       owner_id: person.id,
-      valuations: [{ date: iso('2023-04-06'), value: 1000 }],
+      valuations: [{ date: iso('2025-04-06'), value: 1000 }],
       growth_template: {
         type: 'flat',
         rate: { gross_rate: 0.01, charges: 0 },
@@ -207,7 +207,7 @@ describe('accounts', () => {
     const account2 = makeAccount({
       category: 'cash',
       owner_id: person.id,
-      valuations: [{ date: iso('2023-04-06'), value: 2000 }],
+      valuations: [{ date: iso('2025-04-06'), value: 2000 }],
       growth_template: {
         type: 'flat',
         rate: { gross_rate: 0.015, charges: 0 },
@@ -216,7 +216,7 @@ describe('accounts', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 1,
       accounts: [account1, account2],
     });
@@ -259,7 +259,7 @@ describe('accounts', () => {
 
     const cashflow = makeCashflow({
       people: [person1, person2],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 1,
     });
     const out = run(cashflow);
@@ -291,7 +291,7 @@ describe('accounts', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 1,
       accounts: [isa],
     });
@@ -313,7 +313,7 @@ describe('accounts', () => {
       owner_id: person.id,
       valuations: [
         {
-          date: iso('2023-08-01'),
+          date: iso('2025-08-01'),
           value: 10000,
         },
       ],
@@ -328,7 +328,7 @@ describe('accounts', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-08-01'),
+      starts_at: iso('2025-08-01'),
       years: 4,
       accounts: [cash1],
     });

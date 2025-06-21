@@ -156,30 +156,6 @@ type KnownRatesType = {
 };
 
 export const knownRates: KnownRatesType = {
-  2324: [
-    { key: 'personal_allowance', bound_lower: 0, bound_upper: 12570 },
-    { key: 'dividend_allowance', bound_lower: 0, bound_upper: 1000 },
-    { key: 'basic_rate_eng', bound_lower: 0, bound_upper: 37700 },
-    { key: 'higher_rate_eng', bound_lower: 37700, bound_upper: 150000 },
-    { key: 'additional_rate_eng', bound_lower: 150000, bound_upper: Infinity },
-    { key: 'starter_rate_sco', bound_lower: 0, bound_upper: 14732 },
-    { key: 'basic_rate_sco', bound_lower: 14732, bound_upper: 25688 },
-    { key: 'intermediate_rate_sco', bound_lower: 25688, bound_upper: 43662 },
-    { key: 'higher_rate_sco', bound_lower: 43662, bound_upper: 125140 },
-    { key: 'top_rate_sco', bound_lower: 125140, bound_upper: Infinity },
-  ],
-  2425: [
-    { key: 'personal_allowance', bound_lower: 0, bound_upper: 12570 },
-    { key: 'dividend_allowance', bound_lower: 0, bound_upper: 1000 },
-    { key: 'basic_rate_eng', bound_lower: 0, bound_upper: 37700 },
-    { key: 'higher_rate_eng', bound_lower: 37700, bound_upper: 150000 },
-    { key: 'additional_rate_eng', bound_lower: 150000, bound_upper: Infinity },
-    { key: 'starter_rate_sco', bound_lower: 0, bound_upper: 14732 },
-    { key: 'basic_rate_sco', bound_lower: 14732, bound_upper: 25688 },
-    { key: 'intermediate_rate_sco', bound_lower: 25688, bound_upper: 43662 },
-    { key: 'higher_rate_sco', bound_lower: 43662, bound_upper: 125140 },
-    { key: 'top_rate_sco', bound_lower: 125140, bound_upper: Infinity },
-  ],
   2526: [
     { key: 'personal_allowance', bound_lower: 0, bound_upper: 12570 },
     { key: 'dividend_allowance', bound_lower: 0, bound_upper: 1000 },

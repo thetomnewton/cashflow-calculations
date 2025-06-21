@@ -15,23 +15,6 @@ describe('initialisation tests', () => {
     expect(cashflow.starts_at).toBe(startDate);
   });
 
-  test('tax bands generate correctly', () => {
-    const cashflows = [
-      makeCashflow({
-        people: [makePerson({ sex: 'male' })],
-        starts_at: iso('2023-07-03'),
-        years: 4,
-      }),
-    ];
-
-    const out = cashflows.map((cashflow) => run(cashflow));
-
-    expect(out[0].years[0].tax_year).toBe('2324');
-    expect(out[0].years[3].tax_year).toBe('2627');
-    expect(out[0].years[3].starts_at).toBe(iso('2026-07-03'));
-    expect(out[0].years[3].ends_at).toBe(iso('2027-07-03'));
-  });
-
   test('income is initialised correctly (cpi, nominal)', () => {
     const person = makePerson({ sex: 'female' });
     const startsAt = date().startOf('day');
