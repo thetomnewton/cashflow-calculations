@@ -1,4 +1,5 @@
 import { v4 } from 'uuid';
+import { describe, expect, test } from 'vitest';
 import { run } from '../src/calculations';
 import { makeCashflow, makePerson } from '../src/factories';
 import { date, iso } from '../src/lib/date';

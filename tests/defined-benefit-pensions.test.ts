@@ -1,5 +1,6 @@
 import { round } from 'lodash';
 import { v4 } from 'uuid';
+import { describe, expect, test } from 'vitest';
 import { run } from '../src/calculations';
 import { makeCashflow, makeIncome, makePerson } from '../src/factories';
 import { iso } from '../src/lib/date';
