@@ -20,8 +20,8 @@ describe('income tax', () => {
       values: [
         {
           value: 40000,
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2024-01-01'), // Should still apply for the whole year
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2026-01-01'), // Should still apply for the whole year
           escalation: 0,
         },
       ],
@@ -29,7 +29,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [salary],
     });
@@ -51,7 +51,7 @@ describe('income tax', () => {
     const salaryId = v4();
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 3,
       incomes: [
         makeIncome({
@@ -61,8 +61,8 @@ describe('income tax', () => {
           values: [
             {
               value: 110000,
-              starts_at: iso('2023-04-06'),
-              ends_at: iso('2028-04-06'),
+              starts_at: iso('2025-04-06'),
+              ends_at: iso('2030-04-06'),
               escalation: 'cpi',
             },
           ],
@@ -73,7 +73,7 @@ describe('income tax', () => {
     const out = run(cashflow);
 
     expect(
-      out.tax.bands[2324][person.id].find((b) => b.key === 'personal_allowance')
+      out.tax.bands[2526][person.id].find((b) => b.key === 'personal_allowance')
         ?.bound_upper
     ).toBe(7570);
   });
@@ -87,15 +87,15 @@ describe('income tax', () => {
       values: [
         {
           value: 10000,
-          starts_at: iso('2023-08-10'),
-          ends_at: iso('2025-08-10'),
+          starts_at: iso('2025-08-10'),
+          ends_at: iso('2027-08-10'),
           escalation: 0,
         },
       ],
     });
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-08-10'),
+      starts_at: iso('2025-08-10'),
       years: 2,
       incomes: [salary],
     });
@@ -119,8 +119,8 @@ describe('income tax', () => {
       values: [
         {
           value: 70000,
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2025-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2027-04-06'),
           escalation: 'rpi',
         },
       ],
@@ -128,7 +128,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [salary],
     });
@@ -152,8 +152,8 @@ describe('income tax', () => {
       values: [
         {
           value: 170000,
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2025-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2027-04-06'),
           escalation: 'cpi',
         },
       ],
@@ -161,7 +161,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [salary],
     });
@@ -176,7 +176,7 @@ describe('income tax', () => {
     });
 
     // Ensure PA tapered down to 0
-    const pa = out.tax.bands[2324][person.id].find(
+    const pa = out.tax.bands[2526][person.id].find(
       ({ key }) => key === 'personal_allowance'
     );
     expect(pa?.remaining).toEqual(0);
@@ -192,8 +192,8 @@ describe('income tax', () => {
       values: [
         {
           value: 65000,
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2027-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2029-04-06'),
           escalation: 0.02,
         },
       ],
@@ -201,7 +201,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [salary],
     });
@@ -227,8 +227,8 @@ describe('income tax', () => {
       values: [
         {
           value: 65000,
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2027-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2029-04-06'),
           escalation: 0.02,
         },
       ],
@@ -236,7 +236,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [salary],
     });
@@ -264,8 +264,8 @@ describe('income tax', () => {
       values: [
         {
           value: 200000,
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2025-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2027-04-06'),
           escalation: 'rpi',
         },
       ],
@@ -273,7 +273,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [salary],
     });
@@ -302,8 +302,8 @@ describe('income tax', () => {
       values: [
         {
           value: 110000,
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2025-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2027-04-06'),
           escalation: 'cpi',
         },
       ],
@@ -311,7 +311,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [salary],
     });
@@ -340,8 +340,8 @@ describe('income tax', () => {
       values: [
         {
           value: 95000,
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2025-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2027-04-06'),
           escalation: 0,
         },
       ],
@@ -349,7 +349,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [salary],
     });
@@ -376,8 +376,8 @@ describe('income tax', () => {
       values: [
         {
           value: 85000,
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2025-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2027-04-06'),
           escalation: 'cpi',
         },
       ],
@@ -385,7 +385,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [salary],
     });
@@ -409,8 +409,8 @@ describe('income tax', () => {
       values: [
         {
           value: 85000,
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2025-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2027-04-06'),
           escalation: 'cpi',
         },
       ],
@@ -418,7 +418,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [salary],
     });
@@ -441,7 +441,7 @@ describe('income tax', () => {
           value: 200000,
           uncrystallised_value: 200000,
           crystallised_value: 0,
-          date: iso('2023-04-06'),
+          date: iso('2025-04-06'),
         },
       ],
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
@@ -450,8 +450,8 @@ describe('income tax', () => {
           id: v4(),
           value: 99000,
           method: 'ufpls',
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2025-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2027-04-06'),
           escalation: 'cpi',
         },
       ],
@@ -459,7 +459,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [],
       money_purchases: [pension],
@@ -492,8 +492,8 @@ describe('income tax', () => {
       values: [
         {
           value: 99000,
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2025-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2027-04-06'),
           escalation: 'cpi',
         },
       ],
@@ -501,7 +501,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [salary],
     });
@@ -528,8 +528,8 @@ describe('income tax', () => {
       values: [
         {
           value: 75000,
-          starts_at: iso('2023-04-06'),
-          ends_at: iso('2025-04-06'),
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2027-04-06'),
           escalation: 'cpi',
         },
       ],
@@ -537,7 +537,7 @@ describe('income tax', () => {
 
     const cashflow = makeCashflow({
       people: [person],
-      starts_at: iso('2023-04-06'),
+      starts_at: iso('2025-04-06'),
       years: 2,
       incomes: [salary],
       assumptions: { windfall_save: 'sweep' },
