@@ -1,6 +1,6 @@
 {
   "name": "@advicehome/cashflow-calculations",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Cashflow calculations",
   "main": "src/calculations/index.ts",
   "publishConfig": {
