@@ -1,4 +1,4 @@
-import { sumBy } from 'lodash';
+import { round, sumBy } from 'lodash';
 import { v4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
 import { run } from '../src/calculations';
@@ -42,9 +42,9 @@ describe('income tax', () => {
     expect(outputIncomeYear.tax.bands.basic_rate_eng.used).toEqual(27430);
     expect(outputIncomeYear.tax.bands.basic_rate_eng.tax_paid).toEqual(5486);
 
-    expect(outputIncomeYear.tax.ni_paid.class1).toEqual(2743);
+    expect(outputIncomeYear.tax.ni_paid.class1).toEqual(round(27430 * 0.08, 2));
 
-    expect(outputIncomeYear.net_value).toEqual(31771);
+    expect(outputIncomeYear.net_value).toEqual(32319.6);
   });
 
   test('personal allowance tapers correctly', () => {
@@ -546,15 +546,15 @@ describe('income tax', () => {
 
     const out = run(cashflow);
 
-    expect(out.incomes[salary.id].years[0].net_value).toEqual(53303.4);
+    expect(out.incomes[salary.id].years[0].net_value).toEqual(54057.4);
 
     const sweep = cashflow.accounts.find((acc) => acc.is_sweep);
     expect(sweep).not.toBeNull();
     expect(out.accounts[(sweep as Account).id].years[0].current_value).toEqual(
-      53303.4
+      54057.4
     );
     expect(out.accounts[(sweep as Account).id].years[0].end_value).toEqual(
-      53569.92
+      54327.69
     );
   });
 });

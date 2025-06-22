@@ -144,9 +144,12 @@ function runClass2Calculation(
   incomeLimits: LimitsType,
   class2Limits: Class2TaxType
 ) {
-  return total >= incomeLimits.lower_profits_limit
-    ? round(class2Limits.above_lpl, 2)
-    : 0;
+  return round(
+    total >= incomeLimits.small_profits_threshold
+      ? class2Limits.above_spt
+      : class2Limits.below_spt,
+    2
+  );
 }
 
 function runClass4Calculation(total: number, limits: LimitsType) {

@@ -1,3 +1,4 @@
+import { round } from 'lodash';
 import { v4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
 import { run } from '../src/calculations';
@@ -124,9 +125,9 @@ describe('national insurance', () => {
 
     const out = run(cashflow);
 
-    expect(out.incomes[salaryId].years[0].tax.ni_paid.class1).toEqual(2743);
-    expect(out.incomes[salaryId].years[1].tax.ni_paid.class1).toEqual(2811.58);
-    expect(out.incomes[salaryId].years[2].tax.ni_paid.class1).toEqual(2881.86);
+    expect(out.incomes[salaryId].years[0].tax.ni_paid.class1).toEqual(2194.4);
+    expect(out.incomes[salaryId].years[1].tax.ni_paid.class1).toEqual(2249.26);
+    expect(out.incomes[salaryId].years[2].tax.ni_paid.class1).toEqual(2305.49);
   });
 
   test('salary above UPL taxed appropriately with class1', () => {
@@ -156,9 +157,14 @@ describe('national insurance', () => {
 
     const out = run(cashflow);
 
-    expect(out.incomes[salaryId].years[0].tax.ni_paid.class1).toEqual(3964.6);
-    expect(out.incomes[salaryId].years[1].tax.ni_paid.class1).toEqual(4063.72);
-    expect(out.incomes[salaryId].years[2].tax.ni_paid.class1).toEqual(4165.31);
+    // 37700 * .08 + 9730 * .02
+    expect(out.incomes[salaryId].years[0].tax.ni_paid.class1).toEqual(3210.6);
+
+    // 38642.5 * .08 + 9973.25 * .02
+    expect(out.incomes[salaryId].years[1].tax.ni_paid.class1).toEqual(3290.87);
+
+    // 39608.56 * .08 + 10222.58 * .02
+    expect(out.incomes[salaryId].years[2].tax.ni_paid.class1).toEqual(3373.14);
   });
 
   test('self-employed pays correct class2 and class4 NICs', () => {
@@ -188,16 +194,16 @@ describe('national insurance', () => {
     const incomeResult = out.incomes[income.id];
 
     expect(incomeResult.years[0].tax.ni_paid).toStrictEqual({
-      class2: 163.8,
-      class4: 3887.6, // 37700 * .09 + 24730 * .02
+      class2: 182,
+      class4: 2756.6, // 37700 * .06 + 24730 * .02
     });
     expect(incomeResult.years[1].tax.ni_paid).toStrictEqual({
-      class2: 167.9,
-      class4: 3947.29,
+      class2: 186.55,
+      class4: 2788.02,
     });
     expect(incomeResult.years[2].tax.ni_paid).toStrictEqual({
-      class2: 172.09,
-      class4: 4008.47, // 39608.56 * .09 + 22185.08 * .02
+      class2: 191.21,
+      class4: 2820.22, // 39608.56 * .06 + 22185.08 * .02
     });
   });
 
@@ -229,20 +235,20 @@ describe('national insurance', () => {
     const incomeResult = out.incomes[income.id];
 
     expect(incomeResult.years[0].tax.ni_paid).toStrictEqual({
-      class2: 163.8,
-      class4: 3887.6, // 37700 * .09 + 24730 * .02
+      class2: 182,
+      class4: 2756.6, // 37700 * .06 + 24730 * .02
     });
     expect(incomeResult.years[1].tax.ni_paid).toStrictEqual({
-      class2: 163.8,
-      class4: 3851.01,
+      class2: 182,
+      class4: 2720.01,
     });
     expect(incomeResult.years[2].tax.ni_paid).toStrictEqual({
-      class2: 163.8,
-      class4: 3815.32,
+      class2: 182,
+      class4: 2684.32,
     });
   });
 
-  test('2 salaries, NICs calculate correctly', () => {
+  test('2 PAYE salaries, NICs calculate correctly', () => {
     const person = makePerson({ date_of_birth: '1991-09-01', sex: 'female' });
     const salary = makeIncome({
       id: v4(),
@@ -285,9 +291,11 @@ describe('national insurance', () => {
     const out = run(cashflow);
 
     // salary 1 should use up much of the thresholds, salary 2 uses the remainder
-    // salary 2: 4818.6 - 2091.6 = 2727 NICs
-    expect(out.incomes[salary.id].years[0].tax.ni_paid.class1).toEqual(1743);
-    expect(out.incomes[salary2.id].years[1].tax.ni_paid.class1).toEqual(2321.6);
+    // (30000 - 12570) * 0.08 = 1394.4 for salary1
+    // 50270 - 30000 = 20270 left of UPL
+    // (20270 * .08 + 14730 * .02) = 1916.2
+    expect(out.incomes[salary.id].years[0].tax.ni_paid.class1).toEqual(1394.4);
+    expect(out.incomes[salary2.id].years[1].tax.ni_paid.class1).toEqual(1916.2);
   });
 
   test('2 incomes, NICs calculate correctly', () => {
@@ -332,10 +340,15 @@ describe('national insurance', () => {
 
     const out = run(cashflow);
 
-    expect(out.incomes[salary.id].years[0].tax.ni_paid.class1).toEqual(1743);
-    expect(out.incomes[income2.id].years[0].tax.ni_paid.class2).toEqual(163.8);
-    // (50270 - 30000 =) 20270 * .09 = 1824.3
+    expect(out.incomes[salary.id].years[0].tax.ni_paid.class1).toEqual(
+      (30_000 - 12_570) * 0.08
+    );
+    expect(out.incomes[income2.id].years[0].tax.ni_paid.class2).toEqual(182);
+
+    // (50270 - 30000 =) 20270 * .06 = 1216.2
     // (40000 - 20270 =) 19730 * .02 = 394.6
-    expect(out.incomes[income2.id].years[0].tax.ni_paid.class4).toEqual(2218.9);
+    expect(out.incomes[income2.id].years[0].tax.ni_paid.class4).toEqual(
+      round(1216.2 + 394.6, 2)
+    );
   });
 });
