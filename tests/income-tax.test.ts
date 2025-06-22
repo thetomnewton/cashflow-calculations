@@ -249,9 +249,9 @@ describe('income tax', () => {
 
     expect(bands).toEqual({
       personal_allowance: { used: 12570, tax_paid: 0 },
-      dividend_allowance: { used: 1000, tax_paid: 0 },
+      dividend_allowance: { used: 500, tax_paid: 0 },
       basic_rate_eng: { used: 37700, tax_paid: 3298.75 },
-      higher_rate_eng: { used: 13730, tax_paid: 4633.88 },
+      higher_rate_eng: { used: 14230, tax_paid: 4802.63 },
     });
   });
 
@@ -285,11 +285,11 @@ describe('income tax', () => {
     const bands = outputIncomeYear.tax.bands;
 
     expect(bands).toEqual({
-      starter_rate_sco: { tax_paid: 2799.08, used: 14732 },
-      basic_rate_sco: { tax_paid: 2191.2, used: 10956 },
+      starter_rate_sco: { tax_paid: 2925.43, used: 15397 },
+      basic_rate_sco: { tax_paid: 2418.8, used: 12094 },
       intermediate_rate_sco: { tax_paid: 3774.54, used: 17974 },
       higher_rate_sco: { tax_paid: 34220.76, used: 81478 },
-      top_rate_sco: { tax_paid: 35184.2, used: 74860 },
+      top_rate_sco: { tax_paid: 34336.79, used: 73057 },
     });
   });
 
@@ -324,10 +324,10 @@ describe('income tax', () => {
 
     expect(bands).toEqual({
       personal_allowance: { tax_paid: 0, used: 7570 },
-      starter_rate_sco: { tax_paid: 2799.08, used: 14732 },
-      basic_rate_sco: { tax_paid: 2191.2, used: 10956 },
+      starter_rate_sco: { tax_paid: 2925.43, used: 15397 },
+      basic_rate_sco: { tax_paid: 2418.8, used: 12094 },
       intermediate_rate_sco: { tax_paid: 3774.54, used: 17974 },
-      higher_rate_sco: { tax_paid: 24682.56, used: 58768 },
+      higher_rate_sco: { tax_paid: 23925.3, used: 56965 },
     });
   });
 
@@ -363,8 +363,8 @@ describe('income tax', () => {
     expect(bands).toEqual({
       personal_allowance: { tax_paid: 0, used: 12570 },
       basic_rate_eng: { tax_paid: 3298.75, used: 37700 },
-      dividend_allowance: { tax_paid: 0, used: 1000 },
-      higher_rate_eng: { tax_paid: 14758.88, used: 43730 },
+      dividend_allowance: { tax_paid: 0, used: 500 },
+      higher_rate_eng: { tax_paid: 14927.63, used: 44230 },
     });
   });
 
