@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { run } from '../src/calculations';
-import { isAccount } from '../src/calculations/accounts';
+import { determineCategory, isAccount } from '../src/calculations/accounts';
 import {
   makeAccount,
   makeCashflow,
@@ -356,5 +356,57 @@ describe('accounts', () => {
       end_value: 10872.18,
       net_growth: 0.02,
     });
+  });
+
+  test('correct category identified', () => {
+    const person = makePerson({ date_of_birth: '1980-05-01', sex: 'female' });
+
+    const acc1 = makeAccount({
+      category: 'cash',
+      owner_id: person.id,
+      valuations: [{ date: iso('2025-08-01'), value: 10000 }],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+    });
+
+    const acc2 = makeAccount({
+      category: 'isa',
+      owner_id: person.id,
+      valuations: [{ date: iso('2025-08-01'), value: 10000 }],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+    });
+
+    const acc3 = makeAccount({
+      category: 'bond',
+      owner_id: person.id,
+      valuations: [{ date: iso('2025-08-01'), value: 10000 }],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+    });
+
+    const acc4 = makeAccount({
+      category: 'unwrapped',
+      sub_category: 'crypto',
+      owner_id: person.id,
+      valuations: [{ date: iso('2025-08-01'), value: 10000 }],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+    });
+
+    const acc5 = makeMoneyPurchase({
+      owner_id: person.id,
+      valuations: [
+        {
+          date: iso('2025-08-01'),
+          value: 10000,
+          uncrystallised_value: 10000,
+          crystallised_value: 10000,
+        },
+      ],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+    });
+
+    expect(determineCategory(acc1)).toEqual('cash');
+    expect(determineCategory(acc2)).toEqual('isa');
+    expect(determineCategory(acc3)).toEqual('bonds');
+    expect(determineCategory(acc4)).toEqual('unwrapped');
+    expect(determineCategory(acc5)).toEqual('pensions');
   });
 });

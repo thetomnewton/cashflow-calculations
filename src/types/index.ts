@@ -17,6 +17,8 @@ export const cashflowAssumptionsSchema = z.object({
   rpi: z.number().min(0).max(1),
   average_earnings_increase: z.number().min(0).max(1),
   windfall_save: z.enum(['discard', 'sweep']),
+  liquidation_strategy: z.enum(['taxation', 'custom']),
+  custom_liquidation_order: z.array(z.string()).optional(),
 });
 
 export type CashflowAssumptions = z.infer<typeof cashflowAssumptionsSchema>;
@@ -186,13 +188,16 @@ export const cashflowSchema = z.object({
 
 export type Cashflow = z.infer<typeof cashflowSchema>;
 
-export interface PlanningYear {
-  starts_at: string;
-  ends_at: string;
-  tax_year: string;
-}
+const planningYearSchema = z.object({
+  starts_at: z.string().datetime(),
+  ends_at: z.string().datetime(),
+  tax_year: z.string(),
+});
 
-type PossibleCountries = 'eng' | 'sco' | 'ni' | 'wal';
+export type PlanningYear = z.infer<typeof planningYearSchema>;
+
+const possCountrySchema = z.enum(['eng', 'sco', 'ni', 'wal']);
+type PossibleCountries = z.infer<typeof possCountrySchema>;
 
 export interface Band {
   key: string;
@@ -345,6 +350,23 @@ export interface ISA extends Account {
     | 'stocks_shares_isa'
     | 'lifetime_isa'
     | 'junior_isa';
+}
+
+export interface UnwrappedAccount extends Account {
+  category: 'unwrapped';
+  sub_category: 'gia' | 'unit_trust' | 'oeic' | 'shares' | 'trust' | 'crypto';
+}
+
+export interface GIA extends UnwrappedAccount {
+  sub_category: 'gia';
+}
+
+export interface CashAccount extends Account {
+  category: 'cash';
+}
+
+export interface Bond extends Account {
+  category: 'bond';
 }
 
 interface OutputAccountYear {

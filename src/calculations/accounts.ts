@@ -2,10 +2,14 @@ import { round } from 'lodash';
 import {
   Account,
   BaseAccount,
+  CashAccount,
   Cashflow,
+  GIA,
+  ISA,
   MoneyPurchase,
   Output,
   PlanningYear,
+  UnwrappedAccount,
 } from '../types';
 import { applyGrowth as applyGrowthRate } from './growth';
 import { getYearIndex } from './income-tax';
@@ -135,15 +139,46 @@ export function isAccount(account: BaseAccount): account is Account {
   return account.section === 'accounts';
 }
 
+export function isCashAccount(account: BaseAccount): account is CashAccount {
+  return isAccount(account) && account.category === 'cash';
+}
+
+export function isIsa(account: BaseAccount): account is ISA {
+  return isAccount(account) && account.category === 'isa';
+}
+
+export function isUnwrappedInvestment(
+  account: BaseAccount
+): account is UnwrappedAccount {
+  return isAccount(account) && account.category === 'unwrapped';
+}
+
+export function isBond(account: BaseAccount) {
+  return isAccount(account) && account.category === 'bond';
+}
+
+export function isGia(account: BaseAccount): account is GIA {
+  return isUnwrappedInvestment(account) && account.sub_category === 'gia';
+}
+
 export function isMoneyPurchase(
   account: BaseAccount
 ): account is MoneyPurchase {
   return account.section === 'money_purchases';
 }
 
-export function areAdHocWithdrawalsTaxable(account: BaseAccount) {
+export const determineCategory = (a: BaseAccount) => {
+  if (isCashAccount(a)) return 'cash';
+  if (isUnwrappedInvestment(a)) return 'unwrapped';
+  if (isBond(a)) return 'bonds';
+  if (isIsa(a)) return 'isa';
+  if (isMoneyPurchase(a)) return 'pensions';
+};
+
+export function areAdHocWithdrawalsSubjectToIncomeTax(account: BaseAccount) {
   if (isMoneyPurchase(account)) return true;
-  if (account.category === 'gia') return true;
-  if (account.category === 'isa' || account.category === 'cash') return false;
+  if (isBond(account)) return true;
+  if (isIsa(account) || isGia(account) || isCashAccount(account)) return false;
+  // todo: cover more cases
   return false;
 }

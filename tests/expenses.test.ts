@@ -295,4 +295,51 @@ describe('expenses', () => {
       end_value: -2000,
     });
   });
+
+  test('custom liquidation order works correctly', () => {
+    const person = makePerson({ date_of_birth: '1985-01-01' });
+
+    const expense = makeExpense({
+      people: [person],
+      values: [
+        {
+          value: 60000,
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2027-12-20'),
+          escalation: 'cpi',
+        },
+      ],
+    });
+
+    const isa1 = makeAccount({
+      category: 'isa',
+      owner_id: person.id,
+      valuations: [{ value: 40000, date: iso('2025-12-20') }],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.03, charges: 0 } },
+    });
+
+    const isa2 = makeAccount({
+      category: 'isa',
+      owner_id: person.id,
+      valuations: [{ value: 40000, date: iso('2025-12-20') }],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.03, charges: 0 } },
+    });
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2025-12-20'),
+      years: 5,
+      accounts: [isa1, isa2],
+      expenses: [expense],
+      assumptions: {
+        liquidation_strategy: 'custom',
+        custom_liquidation_order: [isa2.id, isa1.id],
+      },
+    });
+
+    const out = run(cashflow);
+
+    expect(out.accounts[isa2.id].years[0].end_value).toEqual(0);
+    expect(out.accounts[isa1.id].years[0].end_value).toEqual(20600);
+  });
 });

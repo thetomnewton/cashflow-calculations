@@ -9,7 +9,8 @@ import {
   PlanningYear,
 } from '../types';
 import {
-  areAdHocWithdrawalsTaxable,
+  areAdHocWithdrawalsSubjectToIncomeTax,
+  determineCategory,
   isAccount,
   isMoneyPurchase,
 } from './accounts';
@@ -29,7 +30,34 @@ let yearIndex: number;
 let cashflow: Cashflow;
 let output: Output;
 
-const MAX_EXPENSE_RECURSION_ATTEMPTS = 25;
+const MAX_RECURSION_ATTEMPTS = 25;
+
+const sortByTaxCategory = (a: BaseAccount, b: BaseAccount) => {
+  const priorityOrder = {
+    cash: 0,
+    unwrapped: 1,
+    bonds: 2,
+    isa: 3,
+    pensions: 4,
+    other: 5,
+  };
+
+  return (
+    priorityOrder[determineCategory(a) ?? 'other'] -
+    priorityOrder[determineCategory(b) ?? 'other']
+  );
+};
+
+const sortByCustomOrder = (a: BaseAccount, b: BaseAccount) => {
+  const order = cashflow.assumptions.custom_liquidation_order ?? [];
+  let idxA = order.findIndex((x) => x === a.id);
+  let idxB = order.findIndex((x) => x === b.id);
+
+  // If an item is not found in the list, put it to the bottom
+  if (idxA < 0) idxA = Infinity;
+  if (idxB < 0) idxB = Infinity;
+  return idxA - idxB;
+};
 
 export function applyExpenses(
   baseYear: PlanningYear,
@@ -98,10 +126,9 @@ function handleWindfall(initialWindfall: number) {
 function handleShortfall() {
   // Get the liquid assets and sort them into the correct order
   const liquidAssets = getAvailableLiquidAssets();
-  sortAssetsIntoLiquidationOrder(liquidAssets);
 
   // Make some ad-hoc withdrawals.
-  drawFromLiquidAssets(liquidAssets);
+  drawFromLiquidAssets(sortAssetsIntoLiquidationOrder(liquidAssets));
 }
 
 function getAvailableLiquidAssets() {
@@ -123,9 +150,12 @@ function getAvailableLiquidAssets() {
 }
 
 function sortAssetsIntoLiquidationOrder(accounts: BaseAccount[]) {
-  accounts.sort((a, b) => {
-    return 0; // todo: implement sorting
-  });
+  const strategy = cashflow.assumptions.liquidation_strategy;
+
+  if (strategy === 'taxation') return accounts.toSorted(sortByTaxCategory);
+  if (strategy === 'custom') return accounts.toSorted(sortByCustomOrder);
+
+  return accounts;
 }
 
 function drawFromLiquidAssets(liquidAssets: BaseAccount[]) {
@@ -137,7 +167,7 @@ function drawFromLiquidAssets(liquidAssets: BaseAccount[]) {
     const netIncomeNeeded = determineWindfallOrShortfall() * -1;
     if (netIncomeNeeded === 0) break;
 
-    const taxable = areAdHocWithdrawalsTaxable(asset);
+    const taxable = areAdHocWithdrawalsSubjectToIncomeTax(asset);
 
     if (!taxable) {
       const accountValue: number =
@@ -180,7 +210,7 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
     return;
   }
 
-  // We know the account value is more than the net income need
+  // If we reach this point, we know the account value is more than the net income need
 
   // Withdraw the whole pot. If there is still a shortfall, do that and move on,
   // otherwise, if we withdrew too much then undo what we just did
@@ -201,7 +231,7 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
   let attempts = 0;
   let amountToTry = min + (max - min) / 2;
 
-  while (attempts < MAX_EXPENSE_RECURSION_ATTEMPTS) {
+  while (attempts < MAX_RECURSION_ATTEMPTS) {
     withdrawGrossAmountAndRetaxIncomes(account, amountToTry);
     const windfall = determineWindfallOrShortfall() * -1;
     if (round(windfall, 1) === 0) break;

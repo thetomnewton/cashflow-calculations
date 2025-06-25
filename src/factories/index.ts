@@ -31,6 +31,8 @@ const defaultAssumptions: Cashflow['assumptions'] = {
   rpi: 0.03,
   average_earnings_increase: 0.025,
   windfall_save: 'discard',
+  liquidation_strategy: 'taxation',
+  custom_liquidation_order: [],
 };
 
 export function makePerson(params: FactoryPerson): Person {
