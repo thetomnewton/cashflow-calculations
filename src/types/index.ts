@@ -125,7 +125,7 @@ export type GrowthTemplate = z.infer<typeof growthTemplateSchema>;
 
 export const accountSchema = z.object({
   id: z.string(),
-  category: z.string(),
+  category: z.enum(['cash', 'isa', 'unwrapped', 'bond']),
   sub_category: z.optional(z.string()),
   owner_id: z.string().or(z.array(z.string())),
   section: z.literal('accounts'),
