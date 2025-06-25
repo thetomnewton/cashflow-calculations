@@ -296,6 +296,122 @@ describe('expenses', () => {
     });
   });
 
+  test('liquidation order by tax category sorts correctly', () => {
+    const person = makePerson({ date_of_birth: '1985-01-01' });
+
+    const expense = makeExpense({
+      people: [person],
+      values: [
+        {
+          value: 20000,
+          starts_at: iso('2025-12-20'),
+          ends_at: iso('2037-12-20'),
+          escalation: 0,
+        },
+      ],
+    });
+
+    const cash = makeAccount({
+      category: 'cash',
+      owner_id: person.id,
+      valuations: [{ value: 30000, date: iso('2025-12-20') }],
+      growth_template: {
+        type: 'flat',
+        rate: { gross_rate: 0, charges: 0 },
+      },
+    });
+
+    const isa = makeAccount({
+      category: 'isa',
+      owner_id: person.id,
+      valuations: [{ value: 30000, date: iso('2025-12-20') }],
+      growth_template: {
+        type: 'flat',
+        rate: { gross_rate: 0, charges: 0 },
+      },
+    });
+
+    const gia = makeAccount({
+      category: 'unwrapped',
+      sub_category: 'gia',
+      owner_id: person.id,
+      valuations: [{ value: 30000, date: iso('2025-12-20') }],
+      growth_template: {
+        type: 'flat',
+        rate: { gross_rate: 0, charges: 0 },
+      },
+    });
+
+    const bonds = makeAccount({
+      category: 'bond',
+      owner_id: person.id,
+      valuations: [{ value: 30000, date: iso('2025-12-20') }],
+      growth_template: {
+        type: 'flat',
+        rate: { gross_rate: 0, charges: 0 },
+      },
+    });
+
+    const sipp = makeMoneyPurchase({
+      owner_id: person.id,
+      valuations: [
+        {
+          value: 30000,
+          uncrystallised_value: 30000,
+          crystallised_value: 0,
+          date: iso('2025-12-20'),
+        },
+      ],
+      growth_template: { type: 'flat', rate: { gross_rate: 0, charges: 0 } },
+    });
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2025-12-20'),
+      years: 10,
+      accounts: [isa, gia, cash, bonds],
+      money_purchases: [sipp],
+      expenses: [expense],
+      assumptions: {
+        liquidation_strategy: 'taxation',
+      },
+    });
+
+    const out = run(cashflow);
+
+    const accts = out.accounts;
+    const pens = out.money_purchases;
+
+    expect(round(accts[cash.id].years[0].end_value as number)).toEqual(10000);
+    expect(round(accts[cash.id].years[1].end_value as number)).toEqual(0);
+
+    expect(round(accts[gia.id].years[0].end_value as number)).toEqual(30000);
+    expect(round(accts[gia.id].years[1].end_value as number)).toEqual(20000);
+    expect(round(accts[gia.id].years[2].end_value as number)).toEqual(0);
+
+    expect(round(accts[bonds.id].years[2].end_value as number)).toEqual(30000);
+    expect(round(accts[bonds.id].years[3].end_value as number)).toEqual(10000);
+    expect(round(accts[bonds.id].years[4].end_value as number)).toEqual(0);
+
+    expect(round(accts[isa.id].years[3].end_value as number)).toEqual(30000);
+    expect(round(accts[isa.id].years[4].end_value as number)).toEqual(20000);
+    expect(round(accts[isa.id].years[5].end_value as number)).toEqual(0);
+
+    expect(round(pens[sipp.id].years[5].end_value as number)).toEqual(30000);
+    expect(round(pens[sipp.id].years[6].end_value as number)).toBeGreaterThan(
+      9000
+    );
+    expect(round(pens[sipp.id].years[6].end_value as number)).toBeLessThan(
+      10000
+    );
+    expect(round(pens[sipp.id].years[7].end_value as number)).toEqual(0);
+
+    const sweep = cashflow.accounts.find((acc) => acc.is_sweep);
+    expect(accts[(sweep as Account).id].years[7].end_value).toBeLessThan(
+      -10000
+    );
+  });
+
   test('custom liquidation order works correctly', () => {
     const person = makePerson({ date_of_birth: '1985-01-01' });
 
