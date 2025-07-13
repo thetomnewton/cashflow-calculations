@@ -23,7 +23,7 @@ export function setNetValues(
     const out =
       output.incomes[income.id].years[getYearIndex(year.tax_year, output)];
 
-    if (!incomeIsTaxable(income)) {
+    if (!incomeIsTaxable(income, cashflow)) {
       out.net_value = out.gross_value;
       return;
     }
@@ -61,7 +61,7 @@ export function getTaxableValue(
   value: OutputIncomeYear,
   cashflow: Cashflow
 ) {
-  if (!incomeIsTaxable(income)) return 0;
+  if (!incomeIsTaxable(income, cashflow)) return 0;
 
   const baseFn = (value: OutputIncomeYear) => value.gross_value;
 
@@ -128,9 +128,23 @@ function getTaxableValueForDefinedBenefit(
   return value.gross_value;
 }
 
-function incomeIsTaxable(income: Income) {
-  // todo: "pension" income may be taxable depending on the withdrawal type
-  return income.type !== 'other_non_taxable';
+export function incomeIsTaxable(income: Income, cashflow?: Cashflow) {
+  if (income.type === 'other_non_taxable') return false;
+
+  if (income.type !== 'pension' || !cashflow) return true;
+
+  const mp = cashflow.money_purchases.find((p) => p.id === income.source_id);
+  if (mp) {
+    const withdrawal = mp.withdrawals.find(
+      (w) => w.id === income.source_withdrawal_id
+    );
+    if (!withdrawal) return true;
+
+    return withdrawal.method !== 'pcls';
+  }
+
+  // All defined benefit pension income is taxable
+  return true;
 }
 
 export function getTotalDuration(income: Income) {
