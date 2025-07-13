@@ -98,8 +98,9 @@ function runValueProjection({
 
 export function getYearIndexFromDate(date: string, output: Output) {
   const taxYear = getTaxYearFromDate(date);
-  return Math.max(
-    0,
-    output.years.findIndex((py) => py.tax_year === taxYear)
+  const firstYear = output.years[0].tax_year;
+
+  return (
+    parseInt(taxYear.substring(0, 2)) - parseInt(firstYear.substring(0, 2))
   );
 }
