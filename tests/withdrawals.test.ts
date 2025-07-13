@@ -362,7 +362,7 @@ describe('planned withdrawals', () => {
 
     const outIncomeYear = out.incomes[(withdrawalIncome as Income).id].years[0];
     expect(outIncomeYear.gross_value).toEqual(37500);
-    expect(outIncomeYear.taxable_value).toEqual(0); // only 75% taxable when UFPLS
+    expect(outIncomeYear.taxable_value).toEqual(0); // PCLS is tax free; no taxable amount
     expect(outIncomeYear.tax.bands).toEqual({});
   });
 

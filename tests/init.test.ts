@@ -16,6 +16,14 @@ describe('initialisation tests', () => {
     expect(cashflow.starts_at).toBe(startDate);
   });
 
+  test('preserves provided sex when creating a person', () => {
+    const female = makePerson({ sex: 'female' });
+    const male = makePerson({ sex: 'male' });
+
+    expect(female.sex).toBe('female');
+    expect(male.sex).toBe('male');
+  });
+
   test('income is initialised correctly (cpi, nominal)', () => {
     const person = makePerson({ sex: 'female' });
     const startsAt = date().startOf('day');
