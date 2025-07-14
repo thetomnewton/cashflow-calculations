@@ -442,7 +442,52 @@ describe('planned withdrawals', () => {
   });
 
   test('withdrawals starting in the future apply at the correct time', () => {
-    //
+    const person = makePerson({ date_of_birth: '1980-01-01' });
+
+    const cash = makeAccount({
+      category: 'cash',
+      owner_id: person.id,
+      valuations: [{ date: iso('2025-04-06'), value: 1000 }],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+      withdrawals: [
+        {
+          id: v4(),
+          value: 200,
+          starts_at: iso('2026-04-06'),
+          ends_at: iso('2027-04-06'),
+          escalation: 0,
+        },
+      ],
+    });
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2025-04-06'),
+      years: 2,
+      accounts: [cash],
+    });
+
+    const out = run(cashflow);
+
+    expect(out.accounts[cash.id].years[0]).toEqual({
+      start_value: 1000,
+      current_value: 1000,
+      end_value: 1050,
+      net_growth: 0.05,
+    });
+
+    expect(out.accounts[cash.id].years[1]).toEqual({
+      start_value: 1050,
+      current_value: 850,
+      end_value: 892.5,
+      net_growth: 0.05,
+    });
+
+    const income = cashflow.incomes.find((i) => i.source_id === cash.id);
+    expect(income).not.toBeUndefined();
+    const incomeYears = out.incomes[(income as Income).id].years;
+    expect(incomeYears[0].gross_value).toEqual(0);
+    expect(incomeYears[1].gross_value).toEqual(200);
   });
 
   // test withdrawal from a joint account by 1 person?
