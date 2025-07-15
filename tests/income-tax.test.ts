@@ -172,8 +172,8 @@ describe('income tax', () => {
 
     expect(bands).toEqual({
       basic_rate_eng: { used: 37700, tax_paid: 7540 },
-      higher_rate_eng: { used: 112300, tax_paid: 44920 },
-      additional_rate_eng: { used: 20000, tax_paid: 9000 },
+      higher_rate_eng: { used: 87440, tax_paid: 34976 },
+      additional_rate_eng: { used: 44860, tax_paid: 20187 },
     });
 
     // Ensure PA tapered down to 0
