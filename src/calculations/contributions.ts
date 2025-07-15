@@ -176,17 +176,12 @@ function totalRelevantEarnings(personId: Person['id']) {
   const person = cashflow.people.find(({ id }) => id === personId);
   if (!person) throw new Error(`Account has missing owner`);
 
-  if (cashflow.incomes.length === 0) return 0;
-
-  let total = 0;
-
-  cashflow.incomes
-    .filter((inc) => inc.people.includes(person) && isRelevantIncome(inc))
-    .forEach((inc) => {
-      total += output.incomes[inc.id].years[yearIndex].taxable_value;
-    });
-
-  return total;
+  return cashflow.incomes.reduce((total, inc) => {
+    if (inc.people.includes(person) && isRelevantIncome(inc)) {
+      return total + output.incomes[inc.id].years[yearIndex].taxable_value;
+    }
+    return total;
+  }, 0);
 }
 
 /**
