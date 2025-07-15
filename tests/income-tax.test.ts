@@ -287,9 +287,10 @@ describe('income tax', () => {
     expect(bands).toEqual({
       starter_rate_sco: { tax_paid: 2925.43, used: 15397 },
       basic_rate_sco: { tax_paid: 2418.8, used: 12094 },
-      intermediate_rate_sco: { tax_paid: 3774.54, used: 17974 },
-      higher_rate_sco: { tax_paid: 34220.76, used: 81478 },
-      top_rate_sco: { tax_paid: 34336.79, used: 73057 },
+      intermediate_rate_sco: { tax_paid: 3395.91, used: 16171 },
+      higher_rate_sco: { tax_paid: 13161.96, used: 31338 },
+      advanced_rate_sco: { tax_paid: 22563, used: 50140 },
+      top_rate_sco: { tax_paid: 35932.8, used: 74860 },
     });
   });
 
@@ -326,8 +327,9 @@ describe('income tax', () => {
       personal_allowance: { tax_paid: 0, used: 7570 },
       starter_rate_sco: { tax_paid: 2925.43, used: 15397 },
       basic_rate_sco: { tax_paid: 2418.8, used: 12094 },
-      intermediate_rate_sco: { tax_paid: 3774.54, used: 17974 },
-      higher_rate_sco: { tax_paid: 23925.3, used: 56965 },
+      intermediate_rate_sco: { tax_paid: 3395.91, used: 16171 },
+      higher_rate_sco: { tax_paid: 13161.96, used: 31338 },
+      advanced_rate_sco: { tax_paid: 12343.5, used: 27430 },
     });
   });
 
