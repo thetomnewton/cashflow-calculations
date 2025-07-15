@@ -132,6 +132,20 @@ export const bands: (Band | PersonalAllowance)[] = [
     },
   },
   {
+    key: 'advanced_rate_sco',
+    type: 'band',
+    regions: {
+      earned: ['sco'],
+      savings: [],
+      dividend: [],
+    },
+    rates: {
+      earned: 0.45,
+      savings: 0,
+      dividend: 0,
+    },
+  },
+  {
     key: 'top_rate_sco',
     type: 'band',
     regions: {
@@ -140,7 +154,7 @@ export const bands: (Band | PersonalAllowance)[] = [
       dividend: [],
     },
     rates: {
-      earned: 0.47,
+      earned: 0.48,
       savings: 0,
       dividend: 0,
     },
@@ -164,8 +178,9 @@ export const knownRates: KnownRatesType = {
     { key: 'additional_rate_eng', bound_lower: 150000, bound_upper: Infinity },
     { key: 'starter_rate_sco', bound_lower: 0, bound_upper: 15397 },
     { key: 'basic_rate_sco', bound_lower: 15397, bound_upper: 27491 },
-    { key: 'intermediate_rate_sco', bound_lower: 25688, bound_upper: 43662 },
-    { key: 'higher_rate_sco', bound_lower: 43662, bound_upper: 125140 },
+    { key: 'intermediate_rate_sco', bound_lower: 27491, bound_upper: 43662 },
+    { key: 'higher_rate_sco', bound_lower: 43662, bound_upper: 75000 },
+    { key: 'advanced_rate_sco', bound_lower: 75000, bound_upper: 125140 },
     { key: 'top_rate_sco', bound_lower: 125140, bound_upper: Infinity },
   ],
 };
