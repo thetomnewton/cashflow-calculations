@@ -10,15 +10,10 @@ export function entityValueActive(year: PlanningYear, ev: EntityValue) {
   const entityStart = date(ev.starts_at);
   const entityEnd = date(ev.ends_at);
 
-  if (entityStart.isBetween(yearStart, yearEnd, null, '[)')) return true;
-
-  if (entityStart.isSameOrBefore(yearStart) && entityEnd.isSameOrAfter(yearEnd))
-    return true;
-
-  if (entityStart.isSameOrBefore(yearStart) && entityEnd.isAfter(yearStart))
-    return true;
-
-  return false;
+  // An entity is active if its period overlaps the planning year.
+  // Checking just the start and end boundaries covers all cases
+  // from the previous explicit checks.
+  return entityStart.isBefore(yearEnd) && entityEnd.isAfter(yearStart);
 }
 
 export function findActiveEntityValue(entity: Entity, year: PlanningYear) {
