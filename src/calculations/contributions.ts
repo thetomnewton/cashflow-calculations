@@ -113,7 +113,7 @@ function calculateGrossContribution(
 
   // Only if the person is a relevant individual in the
   // current year, are they eligible for tax relief.
-  if (!isRelevantIndividualThisTaxYear(account.owner_id as string))
+  if (!isRelevantIndividualThisTaxYear(contribution.person_id))
     return baseValue;
 
   // Get the tax relief rate.
@@ -133,7 +133,7 @@ function calculateGrossContribution(
   // total relevant earnings this tax year and the basic amount.
   const maxTaxReliefAvailable = Math.max(
     basicAmount,
-    totalRelevantEarnings(account.owner_id as string)
+    totalRelevantEarnings(contribution.person_id)
   );
 
   // Deduct the gross contributions that have already been made from
