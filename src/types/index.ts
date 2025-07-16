@@ -71,6 +71,7 @@ export const expenseSchema = z.object({
 export type Expense = z.infer<typeof expenseSchema>;
 
 export const contributionSchema = z.object({
+  person_id: z.string(),
   value: z.number().min(0),
   starts_at: z.string().datetime(),
   ends_at: z.string().datetime(),

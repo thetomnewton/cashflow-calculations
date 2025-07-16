@@ -23,6 +23,7 @@ describe('contributions', () => {
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       contributions: [
         {
+          person_id: person.id,
           type: 'personal',
           value: 1000,
           starts_at: iso(),
@@ -78,6 +79,7 @@ describe('contributions', () => {
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       contributions: [
         {
+          person_id: person.id,
           type: 'personal',
           value: 2000,
           starts_at: iso('2025-09-30'),
@@ -156,6 +158,7 @@ describe('contributions', () => {
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       contributions: [
         {
+          person_id: person.id,
           type: 'personal',
           value: 2000,
           starts_at: iso('2025-09-30'),
@@ -234,6 +237,7 @@ describe('contributions', () => {
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       contributions: [
         {
+          person_id: person.id,
           type: 'personal',
           value: 2000,
           starts_at: iso('2025-09-30'),
@@ -315,6 +319,7 @@ describe('contributions', () => {
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       contributions: [
         {
+          person_id: person.id,
           type: 'personal',
           value: 2000,
           starts_at: iso('2025-09-30'),
@@ -381,6 +386,7 @@ describe('contributions', () => {
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       contributions: [
         {
+          person_id: person.id,
           type: 'personal',
           value: 2000,
           starts_at: iso('2025-09-30'),
@@ -458,6 +464,7 @@ describe('contributions', () => {
       growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
       contributions: [
         {
+          person_id: person.id,
           type: 'employer',
           value: 2000,
           starts_at: iso('2025-09-30'),
@@ -528,6 +535,7 @@ describe('contributions', () => {
       },
       contributions: [
         {
+          person_id: person.id,
           type: 'personal',
           value: 4000,
           starts_at: iso('2025-09-30'),
