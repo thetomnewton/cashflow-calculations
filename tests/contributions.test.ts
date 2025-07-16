@@ -595,4 +595,95 @@ describe('contributions', () => {
       net_growth: growthRate,
     });
   });
+
+  test('personal contributions are tracked separately per person', () => {
+    const person1 = makePerson({ date_of_birth: '1985-01-01' });
+    const person2 = makePerson({ date_of_birth: '1985-01-01' });
+
+    const income1 = makeIncome({
+      people: [person1],
+      values: [
+        {
+          value: 10000,
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2026-09-30'),
+          escalation: 'cpi',
+        },
+      ],
+    });
+
+    const income2 = makeIncome({
+      people: [person2],
+      values: [
+        {
+          value: 10000,
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2026-09-30'),
+          escalation: 'cpi',
+        },
+      ],
+    });
+
+    const pension1 = makeMoneyPurchase({
+      owner_id: person1.id,
+      valuations: [
+        {
+          date: iso('2025-09-30'),
+          value: 10000,
+          uncrystallised_value: 10000,
+          crystallised_value: 0,
+        },
+      ],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+      contributions: [
+        {
+          person_id: person1.id,
+          type: 'personal',
+          value: 8000,
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2026-09-30'),
+          escalation: 0,
+        },
+      ],
+    });
+
+    const pension2 = makeMoneyPurchase({
+      owner_id: person2.id,
+      valuations: [
+        {
+          date: iso('2025-09-30'),
+          value: 10000,
+          uncrystallised_value: 10000,
+          crystallised_value: 0,
+        },
+      ],
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+      contributions: [
+        {
+          person_id: person2.id,
+          type: 'personal',
+          value: 8000,
+          starts_at: iso('2025-09-30'),
+          ends_at: iso('2026-09-30'),
+          escalation: 0,
+        },
+      ],
+    });
+
+    const cashflow = makeCashflow({
+      people: [person1, person2],
+      starts_at: iso('2025-09-30'),
+      years: 1,
+      money_purchases: [pension1, pension2],
+      incomes: [income1, income2],
+    });
+
+    const output = run(cashflow);
+
+    const year1 = output.money_purchases[pension1.id].years[0];
+    const year2 = output.money_purchases[pension2.id].years[0];
+
+    expect(year1.current_value).toEqual(20000);
+    expect(year2.current_value).toEqual(20000);
+  });
 });

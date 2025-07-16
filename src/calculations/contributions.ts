@@ -26,7 +26,7 @@ let cashflow: Cashflow;
 let output: Output;
 let year: PlanningYear;
 let yearIndex: number;
-let totalGrossPersonalContributions = 0;
+let totalGrossPersonalContributions: Record<string, number> = {};
 
 export function applyContributions(
   initYear: PlanningYear,
@@ -38,7 +38,7 @@ export function applyContributions(
   cashflow = initCashflow;
   yearIndex = getYearIndex(year.tax_year, output);
 
-  totalGrossPersonalContributions = 0;
+  totalGrossPersonalContributions = {};
 
   const categories = ['accounts', 'money_purchases'] as const;
 
@@ -55,10 +55,13 @@ export function applyContributions(
           value
         );
 
-        totalGrossPersonalContributions += grossValue;
+        if (contribution.type === 'personal') {
+          totalGrossPersonalContributions[contribution.person_id] =
+            (totalGrossPersonalContributions[contribution.person_id] ?? 0) +
+            grossValue;
 
-        if (contribution.type === 'personal')
           deductContributionFromSweepAccount(value);
+        }
       });
     });
   });
@@ -138,9 +141,12 @@ function calculateGrossContribution(
 
   // Deduct the gross contributions that have already been made from
   // the remaining tax relievable portion of gross contributions.
+  const previousGrossContributions =
+    totalGrossPersonalContributions[contribution.person_id] ?? 0;
+
   const remainingTaxRelievableGrossContributions = Math.max(
     0,
-    maxTaxReliefAvailable - totalGrossPersonalContributions
+    maxTaxReliefAvailable - previousGrossContributions
   );
 
   const taxRelievableNetContribution = Math.min(
