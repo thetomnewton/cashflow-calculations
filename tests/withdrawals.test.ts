@@ -3,6 +3,12 @@ import { v4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
 import { run } from '../src/calculations';
 import {
+  initialiseAccounts,
+  initialiseMoneyPurchases,
+} from '../src/calculations/accounts';
+import { applyPlannedWithdrawals } from '../src/calculations/planned-withdrawals';
+import { initialise } from '../src/calculations/init';
+import {
   makeAccount,
   makeCashflow,
   makeExpense,
@@ -493,6 +499,54 @@ describe('planned withdrawals', () => {
   // test withdrawal from a joint account by 1 person?
   // test withdrawals from other types of accounts e.g. ISA
 });
+
+describe('planned withdrawals error handling', () => {
+  test('throws when money purchase withdrawal method is invalid', () => {
+    const person = makePerson({ date_of_birth: '1980-01-01' });
+
+    const pension = makeMoneyPurchase({
+      owner_id: person.id,
+      growth_template: { type: 'flat', rate: { gross_rate: 0.05, charges: 0 } },
+      valuations: [
+        {
+          value: 100000,
+          uncrystallised_value: 100000,
+          crystallised_value: 0,
+          date: iso('2025-04-06'),
+        },
+      ],
+      withdrawals: [
+        {
+          id: v4(),
+          value: 10000,
+          starts_at: iso('2025-04-06'),
+          ends_at: iso('2026-04-06'),
+          escalation: 0,
+          method: 'bad' as any,
+        },
+      ],
+    });
+
+    const cashflow = makeCashflow({
+      people: [person],
+      starts_at: iso('2025-04-06'),
+      years: 1,
+      money_purchases: [pension],
+    });
+
+    const output = initialise(cashflow);
+    const year = output.years[0];
+
+    // Prepare account and money purchase values for the year
+    initialiseAccounts(year, cashflow, output);
+    initialiseMoneyPurchases(year, cashflow, output);
+
+    expect(() => applyPlannedWithdrawals(year, cashflow, output)).toThrow(
+      'Invalid money purchase withdrawal method'
+    );
+  });
+});
+
 
 describe('shortfall resolving', () => {
   test('correct gross withdrawal made from pension', () => {
