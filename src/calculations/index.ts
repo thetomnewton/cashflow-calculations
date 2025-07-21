@@ -6,11 +6,11 @@ import {
 } from './accounts';
 import { applyContributions } from './contributions';
 import { applyExpenses } from './expenses';
-import { IncomeTaxCalculator } from './income-tax';
 import { setNetValues } from './incomes';
 import { initialise } from './init';
 import { calcNICs } from './national-insurance';
 import { applyPlannedWithdrawals } from './planned-withdrawals';
+import { IncomeTaxService } from './services/income-tax';
 
 let output: Output;
 let cashflow: Cashflow;
@@ -29,7 +29,7 @@ function runYearCalculation(year: PlanningYear) {
   initialiseMoneyPurchases(year, cashflow, output);
   applyContributions(year, cashflow, output);
   applyPlannedWithdrawals(year, cashflow, output);
-  new IncomeTaxCalculator(year, cashflow, output).calculate();
+  new IncomeTaxService(year, cashflow, output).calculate();
   calcNICs(year, cashflow, output);
   setNetValues(year, cashflow, output);
   applyExpenses(year, cashflow, output);
