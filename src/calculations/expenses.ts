@@ -14,13 +14,14 @@ import {
   isAccount,
   isMoneyPurchase,
 } from './accounts';
-import { getYearIndex, undoIncomeTaxation } from './income-tax';
+import { undoIncomeTaxation } from './income-tax';
 import { setNetValues } from './incomes';
 import {
   withdrawGrossValueFromAccount,
   withdrawGrossValueFromMoneyPurchase,
 } from './planned-withdrawals';
 import { IncomeTaxService } from './services/income-tax';
+import { getYearIndex } from './utils/dates';
 
 let year: PlanningYear;
 let yearIndex: number;

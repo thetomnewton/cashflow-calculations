@@ -1,32 +1,16 @@
-import { Dayjs } from 'dayjs';
-import { round, sumBy } from 'lodash';
+import { round } from 'lodash';
 import { v4 } from 'uuid';
 import { bands, knownRates } from '../config/income-tax';
-import { date } from '../lib/date';
 import {
   Band,
   Cashflow,
   CashflowAssumptions,
-  Income,
-  IncomeTaxTypes,
   Output,
   OutputTaxBand,
   Person,
-  PersonalAllowance,
   PlanningYear,
 } from '../types';
-
-export function getTaxYearFromDate(initialDate: Dayjs | string) {
-  const dateObj =
-    typeof initialDate === 'string' ? date(initialDate) : initialDate;
-
-  const year = dateObj.year();
-  const yearString = year.toString().substring(2);
-
-  if (dateObj.month() > 3 || (dateObj.month() === 3 && dateObj.date() >= 6))
-    return `${yearString}${(year + 1).toString().substring(2)}`;
-  else return `${(year - 1).toString().substring(2)}${yearString}`;
-}
+import { getYearIndex } from './utils/dates';
 
 function bandIsRelevantTo(person: Person, band: Band) {
   return (
@@ -93,10 +77,6 @@ export function generateBandsFor(
   return bands
     .filter((band) => bandIsRelevantTo(person, band))
     .map((band) => getRatesForBandInYear(band.key, year, assumptions));
-}
-
-export function getYearIndex(year: PlanningYear['tax_year'], output: Output) {
-  return output.years.findIndex(({ tax_year }) => tax_year === year);
 }
 
 export function undoIncomeTaxation(

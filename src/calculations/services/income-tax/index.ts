@@ -10,7 +10,7 @@ import {
   PersonalAllowance,
   PlanningYear,
 } from '../../../types';
-import { getYearIndex } from '../../income-tax';
+import { getYearIndex } from '../../utils/dates';
 
 export class IncomeTaxService {
   constructor(

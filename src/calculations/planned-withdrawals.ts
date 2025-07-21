@@ -13,9 +13,9 @@ import {
 } from '../types';
 import { isAccount, isMoneyPurchase } from './accounts';
 import { entityValueActive, getValueInYear } from './entity';
-import { getYearIndex } from './income-tax';
 import { getTaxableValue } from './incomes';
 import { makeOutputIncomeObj } from './init';
+import { getYearIndex } from './utils/dates';
 
 let cashflow: Cashflow;
 let output: Output;

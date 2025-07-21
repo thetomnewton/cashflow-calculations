@@ -12,7 +12,7 @@ import {
   PlanningYear,
   SelfEmploymentIncome,
 } from '../types';
-import { getYearIndex } from './income-tax';
+import { getYearIndex } from './utils/dates';
 
 export function setNetValues(
   year: PlanningYear,

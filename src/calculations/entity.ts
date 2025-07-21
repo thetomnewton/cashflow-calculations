@@ -2,7 +2,7 @@ import { round } from 'lodash';
 import { date } from '../lib/date';
 import { Cashflow, Entity, EntityValue, Output, PlanningYear } from '../types';
 import { applyGrowth } from './growth';
-import { getTaxYearFromDate } from './income-tax';
+import { getTaxYearFromDate } from './utils/dates';
 
 export function entityValueActive(year: PlanningYear, ev: EntityValue) {
   const yearStart = date(year.starts_at);

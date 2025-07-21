@@ -12,7 +12,7 @@ import {
   UnwrappedAccount,
 } from '../types';
 import { applyGrowth as applyGrowthRate } from './growth';
-import { getYearIndex } from './income-tax';
+import { getYearIndex } from './utils/dates';
 
 let yearIndex: number;
 

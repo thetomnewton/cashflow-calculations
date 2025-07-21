@@ -16,8 +16,8 @@ import {
   PlanningYear,
   PossibleNICs,
 } from '../types';
-import { getYearIndex } from './income-tax';
 import { ageAtDate, statePensionAge } from './person';
+import { getYearIndex } from './utils/dates';
 
 let taxYear: string;
 let cashflow: Cashflow;

@@ -22,13 +22,14 @@ import {
   getYearIndexFromDate,
 } from './entity';
 import { applyGrowth } from './growth';
-import { generateBandsFor, getTaxYearFromDate } from './income-tax';
+import { generateBandsFor } from './income-tax';
 import { getTaxableValue, getTotalDuration, isEmployment } from './incomes';
 import {
   isActiveDBPension,
   isDeferredDBPension,
   isInPaymentDBPension,
 } from './pensions';
+import { getTaxYearFromDate } from './utils/dates';
 
 let cashflow: Cashflow;
 let output: Output;

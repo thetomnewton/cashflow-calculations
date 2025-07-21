@@ -14,13 +14,13 @@ import {
 import { isAccount, isMoneyPurchase } from './accounts';
 import { getValueInYear } from './entity';
 import { applyGrowth } from './growth';
-import { getYearIndex } from './income-tax';
 import {
   isEmployment,
   isOtherTaxableIncome,
   isSelfEmployment,
 } from './incomes';
 import { ageAtDate } from './person';
+import { getYearIndex } from './utils/dates';
 
 let cashflow: Cashflow;
 let output: Output;
