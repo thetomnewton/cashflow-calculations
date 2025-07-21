@@ -6,7 +6,7 @@ import {
 } from './accounts';
 import { applyContributions } from './contributions';
 import { applyExpenses } from './expenses';
-import { calcIncomeTaxLiability } from './income-tax';
+import { IncomeTaxCalculator } from './income-tax';
 import { setNetValues } from './incomes';
 import { initialise } from './init';
 import { calcNICs } from './national-insurance';
@@ -29,7 +29,7 @@ function runYearCalculation(year: PlanningYear) {
   initialiseMoneyPurchases(year, cashflow, output);
   applyContributions(year, cashflow, output);
   applyPlannedWithdrawals(year, cashflow, output);
-  calcIncomeTaxLiability(year, cashflow, output);
+  new IncomeTaxCalculator(year, cashflow, output).calculate();
   calcNICs(year, cashflow, output);
   setNetValues(year, cashflow, output);
   applyExpenses(year, cashflow, output);

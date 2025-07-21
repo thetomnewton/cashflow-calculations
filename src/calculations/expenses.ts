@@ -15,8 +15,8 @@ import {
   isMoneyPurchase,
 } from './accounts';
 import {
-  calcIncomeTaxLiability,
   getYearIndex,
+  IncomeTaxCalculator,
   undoIncomeTaxation,
 } from './income-tax';
 import { setNetValues } from './incomes';
@@ -175,7 +175,7 @@ function drawFromLiquidAssets(liquidAssets: BaseAccount[]) {
       const withdrawal = Math.min(netIncomeNeeded, accountValue);
       withdrawGrossValueFromAccount(asset as Account, withdrawal, true);
       undoIncomeTaxation(year, cashflow, output);
-      calcIncomeTaxLiability(year, cashflow, output);
+      new IncomeTaxCalculator(year, cashflow, output).calculate();
       setNetValues(year, cashflow, output);
       continue;
     }
@@ -222,7 +222,7 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
   // we withdrew too much, undo everything we just did
   removeAdHocWithdrawalsFromAccountThisYear(account);
   undoIncomeTaxation(year, cashflow, output);
-  calcIncomeTaxLiability(year, cashflow, output);
+  new IncomeTaxCalculator(year, cashflow, output).calculate();
   setNetValues(year, cashflow, output);
   newNetIncomeNeed = determineWindfallOrShortfall() * -1;
 
@@ -238,7 +238,7 @@ function attemptToResolveShortfallFromTaxableSource(account: BaseAccount) {
 
     removeAdHocWithdrawalsFromAccountThisYear(account);
     undoIncomeTaxation(year, cashflow, output);
-    calcIncomeTaxLiability(year, cashflow, output);
+    new IncomeTaxCalculator(year, cashflow, output).calculate();
     setNetValues(year, cashflow, output);
 
     if (windfall < 0) max = amountToTry;
@@ -259,7 +259,7 @@ function withdrawGrossAmountAndRetaxIncomes(
     withdrawGrossValueFromMoneyPurchase(account, amount, 'ufpls', true);
   }
   undoIncomeTaxation(year, cashflow, output);
-  calcIncomeTaxLiability(year, cashflow, output);
+  new IncomeTaxCalculator(year, cashflow, output).calculate();
   setNetValues(year, cashflow, output);
 }
 
